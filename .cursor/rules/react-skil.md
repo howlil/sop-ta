@@ -1,164 +1,86 @@
-# Project Context & Role
-You are a Senior Frontend Architect and Tech Lead specializing in modern React ecosystems for 2026.
-You are building a scalable, high-performance, and secure frontend application.
+# SOP TA — React Frontend Rules
 
-## Tech Stack & Versions
-- **Framework:** React v19+ (Modern features: Actions, `use`, `useOptimistic`, Transitions).
-- **Build Tool:** Vite v7+ (ESM native, Environment API).
-- **Language:** TypeScript v5.9+ (Strictest settings, no `any`).
-- **Routing:** TanStack Router (File-based, strict search param validation via Zod).
-- **Data Fetching:** TanStack Query v5+ (Suspense, Optimistic Updates, Orval generated hooks).
-- **API Generation:** Orval (OpenAPI/Swagger to TypeScript/Query Hooks automation).
-- **Styling:** Tailwind CSS v4+ (CSS-first config, OKLCH colors, native cascade layers).
-- **Package Manager:** pnpm.
-- **State Management:** React Context API (Global UI state) + TanStack Query (Server state).
-- **API Client:** Axios (Centralized instance with Interceptors for JWT/Refresh Token).
+## Stack
 
----
+- React 19+
+- Vite 7+
+- TypeScript 5.9+ strict mode
+- TanStack Router
+- TanStack Query
+- Orval for OpenAPI-generated client/hooks
+- Tailwind CSS v4+
+- pnpm
+- Axios through one centralized API client
 
-# Core Development Principles
+## Core principles
 
-## 1. Code Style & Philosophy
-- **Functional & Declarative:** Write pure functional components. Avoid classes.
-- **Strict Typing:** Always use strictly typed interfaces. Never use `any`. Use `unknown` with narrowing if necessary.
-- **Immutability:** Treat state as immutable. Use functional updates.
-- **Clean Code:** Follow SOLID principles. Keep components small and focused (Single Responsibility).
-- **Early Returns:** Use early returns to reduce cognitive load and avoid deep nesting.
-- **Naming Conventions:**
-  - Components: PascalCase (`UserProfile.tsx`)
-  - Functions/Variables: camelCase (`fetchUserData`)
-  - Constants: UPPER_SNAKE_CASE (`MAX_RETRY_COUNT`)
-  - Types/Interfaces: PascalCase (`UserResponse`) - Do not prefix with 'I'.
-- **Accessibility (a11y):** Use semantic HTML tags (`<main>`, `<article>`, `<nav>`). Ensure interactive elements are keyboard accessible. Avoid `div` soup.
-- **Documentation:** Use JSDoc for complex utility functions and hooks, specifically explaining parameters and return types. Keep comments concise.
-- **Commit Messages:** Follow Conventional Commits specification (e.g., `feat: add user login`, `fix: handle 404 error`).
+- Functional, declarative React components.
+- Strict typing; do not use `any` when a concrete or narrowed `unknown` type is possible.
+- Prefer immutable state and functional updates.
+- Keep components cohesive; split by responsibility, not file-count goals.
+- Use semantic HTML, visible focus, keyboard-accessible interactions, and accessible names.
+- Prefer reuse of existing project primitives/patterns before adding libraries or abstractions.
+- Do not add decorative framework or architecture changes unrelated to the requested behavior.
 
-## 2. TypeScript Best Practices (v5.9+)
-- Use `satisfies` operator for better type inference validation.
-- Prefer `type` over `interface` for consistency, unless declaration merging is required.
-- Use Discriminated Unions for handling state variations (e.g., `status: 'loading' | 'success' | 'error'`).
-- Use Path Aliases:
-  - `@/components`, `@/hooks`, `@/utils`, `@/lib`
-  - `@/api` (for generated code and instances)
-  - `@/routes`
-- **Environment Variables:** Validate environment variables (e.g., `VITE_API_URL`) at build time or runtime start using a schema validation library (like `t3-env` or Zod) to prevent silent failures.
-- **Date Handling:** Use `date-fns` (lightweight) or `Intl.DateTimeFormat` (native) for date formatting. Avoid moment.js.
+## React
 
-## 3. React v19+ Rules
-- **No `useEffect` for Data Fetching:** STRICTLY FORBIDDEN. Use generated Orval hooks or `useSuspenseQuery`.
-- **Use `use` Hook:** Prefer the `use` API for reading contexts and promises conditionally.
-- **Optimistic UI:** Use `useOptimistic` hook for immediate UI feedback during mutations.
-- **Server Actions (if applicable):** Use Actions for form submissions.
-- **Composition:** Prefer composition (children prop) over excessive prop drilling.
-- **Memoization:** Rely on React Compiler. Use `useMemo`/`useCallback` only for referential stability in heavy computations.
+- Do not use `useEffect` for ordinary data fetching; use TanStack Query/Orval-owned data flow.
+- Prefer composition over prop-drilling abstractions.
+- Use optimistic UI only when the product behavior benefits and rollback/error behavior is defined.
+- Use `useMemo`/`useCallback` only when referential stability or measured computation cost requires it.
 
-## 4. TanStack Router Best Practices
-- **File-Based Routing:** Adhere strictly to the `createFileRoute` pattern.
-- **Type-Safe Navigation:** Do not use string literals for paths. Use `Link` component or `useNavigate` with typed route objects.
-- **Search Params:** Define and validate search parameters using `zodValidator` within the route definition.
-- **Loaders:** Use `loader` functions to pre-fetch data.
-- **Error Boundaries:** ALWAYS implement `errorComponent` and `notFoundComponent` in route definitions.
-- **Lazy Loading:** Prefer lazy loading for route components (`.lazy.tsx`) to reduce the initial bundle size.
+## Routing and API
 
-## 5. API Strategy: Orval + TanStack Query
-- **Automation First:** Do not manually write API call functions if Swagger is available. Use Orval to generate hooks.
-- **Custom Instance:** Configure Orval to use the custom Axios instance (`@/api/client.ts`) to ensure Interceptors (JWT) are applied to generated calls.
-- **Query Keys:** Use the Query Key Factories generated by Orval. Do not hardcode keys.
-- **Suspense:** Prefer `useSuspenseQuery` generated variants for data dependencies.
-- **Mutations:** Invalidate queries in `onSuccess` using the generated query keys.
+- Use TanStack Router's typed route APIs and validated search params.
+- Prefer generated Orval clients/hooks when the OpenAPI contract owns the endpoint.
+- Keep one centralized Axios instance for auth/interceptors.
+- Handle `401`/refresh behavior centrally rather than per component.
+- Runtime response validation is justified when the backend contract is not sufficiently trustworthy or when the boundary is security/data critical.
 
-## 6. API Architecture & Authentication (Axios)
-- **Centralized Instance:** Create a singleton `apiClient` in `@/api/client.ts`.
-- **Interceptors:**
-  - **Request:** Attach `Authorization: Bearer <token>`.
-  - **Response:** Handle `401 Unauthorized` globally.
-- **Refresh Token Logic:**
-  - Implement "Silent Refresh" pattern using `axios-auth-refresh` or custom logic.
-  - Queue failed requests -> Refresh Token -> Retry Queue -> Logout if fails.
-- **Response Validation:** Even with Orval, ensure Zod schemas validate the runtime data structure if the backend does not strictly adhere to OpenAPI specs.
+## Styling
 
-## 7. Tailwind CSS v4+ Styling
-- **No Config JS:** Use `@theme` blocks in your main CSS file for custom variables.
-- **Mobile First:** Write default styles for mobile, use `md:`, `lg:` for larger screens.
-- **Color Palette:** Use OKLCH color space for modern vibrancy.
-- **Sorting:** Sort utility classes logically.
-- **Avoid `@apply`:** Use utility classes directly in JSX.
+- Use Tailwind CSS v4 tokens/utilities and the existing design language.
+- Mobile-first responsive layout.
+- Avoid `@apply` unless the repository already owns a justified shared CSS abstraction.
+- Avoid arbitrary gradients, glow, excessive pills/cards, or decorative UI that does not serve hierarchy or interaction.
 
-## 8. Internationalization (i18n)
-- Use `i18next` with split JSON files (`public/locales/{lang}/{namespace}.json`).
-- Use keys that represent the path: `t('header.navigation.home')`.
+## Testing and verification
 
-## 9. Theme (Dark/Light Mode)
-- Implement a `ThemeContext`.
-- Use Tailwind's `dark:` variant.
-- Sync `color-scheme` on `<html>`.
+Use risk-proportional automated evidence only:
 
-## 10. Testing Strategies
-- **Unit:** `Vitest` for logic/hooks.
-- **Component:** `React Testing Library` for accessibility/interaction.
-- **E2E:** `Playwright` for critical flows (Login, Payment).
-- **Rule:** Critical features must have a spec file.
-- **Test-First Rule:** Write the unit test for core/critical behavior first, then implement the function to satisfy the test. Avoid over-testing non-critical internals.
-- **Priority Coverage:** Focus tests on business-critical logic, validation, and error-prone branches.
+- Vitest for deterministic logic/hooks/state behavior.
+- React Testing Library for meaningful component interaction, accessibility semantics, and regressions.
+- Typecheck/lint/build for static and integration confidence.
+- Add tests where a realistic regression exists; do not require a spec file merely because a feature is labelled critical.
+- TDD is optional when a failing deterministic test is the cheapest way to define the behavior; it is not mandatory ceremony for every function/component.
 
-## 10.1 API Response Contract
-- **Consistent Shape:** All API responses must use a consistent envelope:
-  ```json
-  {
-    "message": "string",
-    "success": true,
-    "data": {}
-  }
-  ```
-- **Pagination Requirement:** If response payload is large or list-based, API must provide pagination metadata.
-- **Paginated Shape Example:**
-  ```json
-  {
-    "message": "Data fetched successfully",
-    "success": true,
-    "data": {
-      "items": [],
-      "pagination": {
-        "page": 1,
-        "limit": 10,
-        "totalItems": 100,
-        "totalPages": 10
-      }
-    }
-  }
-  ```
+**Do not require Playwright/browser E2E, black-box testing, manual acceptance testing, or manual visual review as merge/release gates.** If a browser-only behavior cannot be reproduced deterministically, document residual risk rather than introducing a human acceptance step.
 
-## 11. Security Best Practices
-- **XSS Prevention:**
-  - Never use `dangerouslySetInnerHTML` unless absolutely necessary and sanitized via `DOMPurify`.
-  - Escaping is handled automatically by React, do not bypass it.
-- **Dependencies:** Run `pnpm audit` regularly. Prefer well-maintained libraries.
-- **Sensitive Data:** NEVER store sensitive keys (AWS secrets, private keys) in frontend code or `.env` files exposed to the client.
-- **Tokens:** Prefer `HttpOnly` cookies for tokens if possible. If using `localStorage` (JWT), ensure strict XSS mitigation and short-lived access tokens.
+## API response contract
 
----
+All API responses use the project envelope:
 
-# Folder Structure Template
-Adhere to this structure:
+```json
+{
+  "message": "string",
+  "success": true,
+  "data": {}
+}
+```
 
-src/
-├── api/
-│   ├── generated/   # Orval generated files (DO NOT EDIT MANUALLY)
-│   ├── client.ts    # Axios instance & Interceptors
-│   └── model/       # Manual Zod schemas (if not generated)
-├── components/
-│   ├── ui/          # Generic, reusable UI components
-│   ├── features/    # Domain-specific components
-│   └── layout/      # Layout wrappers
-├── hooks/           # Custom hooks (non-API)
-├── lib/             # Utility libraries (Zod, DOMPurify, formatters)
-├── routes/          # TanStack Router file routes
-├── stores/          # React Contexts (Theme, Auth)
-├── types/           # Global TypeScript types (that are not API models)
-└── main.tsx         # Entry point
+Large/list payloads include pagination metadata inside `data`.
 
-# Response Guidelines for AI
-1.  **Thinking Process:** Briefly explain the architectural choice, citing specific rules (e.g., "Using Orval generated hook for type safety...").
-2.  **Code generation:** Include necessary imports. Use Tailwind v4 syntax.
-3.  **Refactoring:** Prioritize removing `useEffect`, adopting `useOptimistic`, and leveraging Orval hooks.
-4.  **Dependencies:** If a new library is needed, suggest installing via `pnpm add`.
+## Security
+
+- Never expose secrets/private keys in frontend source or client-visible environment variables.
+- Do not use `dangerouslySetInnerHTML` unless content is explicitly sanitized and the requirement justifies it.
+- Prefer HttpOnly cookie-based auth when supported by the approved backend contract; otherwise preserve the existing authorized token design and mitigate XSS risk.
+- Treat permission/authentication changes as material security-boundary changes.
+
+## Folder ownership
+
+Prefer current repository structure. Shared UI primitives belong in the shared UI owner only when reused by multiple current features. Domain-specific behavior stays with its domain. Do not create generic `utils`, wrapper components, or state containers without a concrete current need.
+
+## Change discipline
+
+Implement the smallest coherent authorized change. Avoid unrelated refactors, speculative future-proofing, dependency churn, and product/architecture expansion not requested by the user.
