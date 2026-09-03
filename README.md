@@ -161,35 +161,25 @@ Jangan menjalankan seed terhadap database production tanpa memahami data yang ak
 
 ## Testing
 
-Backend unit test:
+Backend unit/integration test yang relevan:
 
 ```sh
 cd server
 pnpm test
 ```
 
-Frontend unit test:
+Frontend unit/component test:
 
 ```sh
 cd client
 pnpm test
 ```
 
-Critical Playwright business journeys:
+Gunakan database migration/integration dan container/build checks ketika changed boundary memerlukannya. Manual acceptance testing, browser E2E/black-box testing, live-browser verification, dan manual visual review bukan merge atau release gates.
 
-```sh
-cd client
-pnpm test:e2e:critical
-```
+Dokumentasi unit/integration tetap dapat digunakan sebagai referensi. Dokumen/harness E2E atau black-box yang dibuat untuk penelitian/diagnostik adalah historical/optional tooling, bukan source of truth untuk CI atau completion policy.
 
-Dokumentasi:
-
-- `docs/unit-test.md`
-- `docs/integration-test.md`
-- `docs/e2e-business-journeys.md`
-- `client/e2e/README.md`
-
-Jumlah test dan coverage yang tercatat pada dokumen penelitian adalah historical snapshot. Status commit terkini ditentukan oleh hasil test/CI pada commit tersebut.
+Jumlah test dan coverage yang tercatat pada dokumen penelitian adalah historical snapshot. Status commit terkini ditentukan oleh automated test/CI yang relevan pada commit tersebut.
 
 ## Catatan production TTE
 
