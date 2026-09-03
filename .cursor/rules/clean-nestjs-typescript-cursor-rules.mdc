@@ -1,285 +1,89 @@
 ---
 alwaysApply: true
 ---
-You are a senior TypeScript programmer with experience in the NestJS framework and a preference for clean programming and design patterns.
 
-Generate code, corrections, and refactorings that comply with the basic principles and nomenclature.
+# SOP TA — NestJS / TypeScript Rules
 
-## Arsitektur lapisan & pola file (Controller → Service → Repository)
+Gunakan rule ini untuk perubahan backend NestJS. Tujuannya adalah kode yang sederhana, typed, modular, dan sesuai ownership domain tanpa menambah ceremony atau abstraksi yang tidak diperlukan.
 
-### Alur dependensi (tetap berlapis, folder datar per fitur)
+## Architecture
 
-- **Satu arah:** `Controller` → `Service` → `Repository` → Prisma/DB. **Dilarang** memanggil Prisma dari controller atau meletakkan query SQL/Prisma di controller.
-- **Penamaan file per fitur (wajib pola ini):** `<nama-fitur>.controller.ts`, `<nama-fitur>.service.ts`, `<nama-fitur>.repository.ts` (contoh: `auth.controller.ts`, `auth.service.ts`, `auth.repository.ts`).
-- **DTO (class-validator):** gunakan **folder `dto/` hanya jika ada lebih dari satu file DTO** untuk fitur itu; jika hanya satu (mis. `login.dto.ts`), boleh letakkan **sejajar** dengan controller di folder fitur yang sama.
-- **Repository:** kelas konkret satu file per fitur (`*.repository.ts`) yang menginjeksi `PrismaService` (atau client); **interface** `I…Repository` opsional — wajib bila ada beberapa implementasi atau mock berat di tes.
-
-### CRUD tipis vs logika inti / workflow
-
-- **CRUD / daftar sederhana:** controller tipis → service orkestrasi singkat → repository berisi query/find/create/update/delete + filter/paginasi. **Jangan** membengkakkan service dengan aturan yang sebenarnya hanya mapping field.
-- **Logika inti / workflow:** aturan bisnis, mesin status, validasi lintas agregat, transaksi multi-langkah, efek samping — **utamanya di `*.service.ts`** (boleh memanggil beberapa method repository atau modul lain lewat **port/abstraksi**, bukan import service konkret silang sembarangan). Repository tetap fokus **akses data**; hindari “domain workflow” besar di dalam repository.
-- Jika satu file `*.service.ts` melewati ~200–300 baris karena workflow, pertimbangkan ekstraksi ke **kelas use-case terpisah** (masih dalam folder fitur yang sama) daripada memecah micro-helper tanpa arah.
-
-### Hindari helper mikro & kode tidak perlu (YAGNI)
-
-- **Jangan** memecah menjadi banyak file/fungsi **satu baris** atau util yang hanya dipakai sekali — gabungkan ke kelas/lapisan yang relevan sampai ada **alasan jelas** (duplikasi nyata, tes terpisah, atau kompleksitas).
-- **Hindari** abstraksi dini (“future-proof”) tanpa kebutuhan saat ini — tulis yang dipakai sekarang; refactor saat spesifikasi muncul.
-- Hapus kode mati, import tidak terpakai, dan flag fitur yang tidak pernah dipakai.
-
-### Hindari circular dependency
-
-- **Graf impor:** `modules/A` tidak boleh saling mengimpor `modules/B` dan sebaliknya pada level implementasi; ekstrak **kontrak tipis** (interface / type-only file) ke modul `shared` atau `domain` bila dua domain perlu saling referensi.
-- **Nest:** hindari `forwardRef` kecuali benar-benar terpaksa; lebih baik pecah modul atau pindahkan interface ke paket tanpa dependensi siklik.
-- Service mengimpor **abstraksi** (interface repository / token provider) bila perlu, bukan concrete modul lain secara siklik.
-
-### TDD & spec-driven (utamakan sebelum kode produksi)
-
-- **Urutan kerja:** pahami spesifikasi (acceptance criteria, contoh request/response, edge case) → tulis **tes yang gagal** (unit use case / e2e kontrak API) → implementasi minimal agar hijau → refactor dengan tes tetap hijau (**red–green–refactor**).
-- **Spesifikasi sebagai sumber kebenaran:** Given–When–Then untuk perilaku; untuk endpoint, jaga konsistensi dengan kontrak respons API proyek.
-- Setiap perilaku publik baru (service method, use case, endpoint) idealnya punya **minimal satu tes** yang membuktikan perilaku tersebut — hindari “tulis kode dulu, tes nanti” tanpa alasan kuat.
-
-### Struktur folder modul (inti: `<core>` → `<fitur>` → controller / service / repository / dto)
-
-- **Modul induk (`<core>`):** satu folder bounded context di bawah `src/modules/<nama-core-kebab>/` berisi `*.module.ts` induk yang meng-orkestrasi **submodul fitur**.
-- **Subfitur:** satu folder per fitur (`auth/`, `pengguna/`, …) berisi **tepat pola:** `<fitur>.module.ts`, `<fitur>.controller.ts`, `<fitur>.service.ts`, `<fitur>.repository.ts`, dan DTO sesuai aturan (satu file `*.dto.ts` sejajar **atau** folder `dto/` jika **≥ 2** file DTO).
-
-Contoh:
+Gunakan dependency flow satu arah:
 
 ```text
-src/modules/core/
-  core.module.ts
-  auth/
-    auth.module.ts
-    auth.controller.ts
-    auth.service.ts
-    auth.repository.ts
-    login.dto.ts
-    dto/
-      refresh-session.dto.ts
-  pengguna/
-    pengguna.module.ts
-    pengguna.controller.ts
-    pengguna.service.ts
-    pengguna.repository.ts
-    dto/
-      create-pengguna.dto.ts
-      update-pengguna.dto.ts
+Controller -> Service -> Repository -> Prisma / DB
 ```
 
-- **`src/common/`** — lintas fitur (guard, filter, interceptor, paginasi, util); bukan logika domain per fitur.
+- Controller menangani HTTP input/output dan delegasi; jangan akses Prisma langsung dari controller.
+- Service memiliki business rules, workflow, validation lintas aggregate, transaksi multi-langkah, dan orchestration.
+- Repository memiliki persistence/query untuk feature yang sama.
+- Hindari circular dependency dan `forwardRef`; ekstrak contract/type tipis jika dua domain perlu berinteraksi.
+- Prefer reuse current owner/pattern sebelum membuat abstraction/component/module baru.
+- Jangan membuat helper mikro, speculative abstraction, atau future-proofing tanpa kebutuhan konkret.
 
-## Pembagian modul Nest (acuan `server/prisma/schema.prisma`)
+## Feature structure
 
-### Acuan dari skema Prisma
+Gunakan struktur feature yang cohesive:
 
-- Komentar **`/// MODUL N — …`** = batas domain data. **Jangan** satu modul Nest `sop` untuk semua yang berhubungan dengan SOP, DetailSOP, langkah, diagram, evaluasi, TTE.
+```text
+src/modules/<core>/<feature>/
+  <feature>.module.ts
+  <feature>.controller.ts
+  <feature>.service.ts
+  <feature>.repository.ts
+  <feature>.dto.ts
+```
 
-| Blok di Prisma | Model utama (ringkas) | Modul Nest (bounded context) |
-|----------------|-------------------------|------------------------------|
-| MODUL 1 — Master & akses | `Pengguna`, `OPD`, `RiwayatOpdPengguna` | `organization` atau modul induk `core` (`auth`, `pengguna`, …) di `src/modules/core/` |
-| MODUL 1 — Regulasi | `Peraturan`, `OPDPeraturan` | `regulation` |
-| MODUL 2 — Authoring | `SOP`, `DetailSOP`, lampiran, langkah, pelaksana, … | **Pecah** (bukan satu modul) — lihat bawah |
-| MODUL 3 — Kolaborasi | `LogEditSOP`, `Komentar` | `sop-collaboration` |
-| MODUL 4 — Diagram | tabel diagram | `sop-diagram` |
-| MODUL 5 — Evaluasi | `PengajuanEvaluasi`, `NilaiEvaluasi`, … | `evaluation` |
-| MODUL 6 — TTE | `KredensialTTE`, `DokumenTte`, … | `electronic-signature` atau `tte` |
+Gunakan folder `dto/` bila feature memiliki beberapa DTO. `src/common/` hanya untuk concern yang benar-benar lintas feature seperti guard, filter, interceptor, shared validator, pagination, atau utility generik.
 
-### Hindari monolit SOP — pecah authoring (MODUL 2)
+Jangan membuat satu modul SOP raksasa. Pertahankan bounded context sesuai domain dan model Prisma, misalnya organization/auth, regulation, SOP catalog/document/procedure/actors/relations, collaboration, diagram, evaluation, dan electronic signature/TTE.
 
-- **`sop-catalog`** — `SOP` (header, daftar per OPD).
-- **`sop-document`** / `sop-version` — `DetailSOP` (versi, status, metadata).
-- **`sop-procedure`** — `LangkahSOP` + cabang.
-- **`sop-actors`** — `Pelaksana`, `DetailSOPPelaksana`.
-- **`sop-relations`** (opsional digabung `sop-document` jika tim kecil) — lampiran, dasar hukum, SOP terkait.
-- Di dalam masing-masing, terapkan pola **`<fitur>.controller|service|repository` + `dto/`** seperti di atas.
+## TypeScript
 
-### Prisma vs banyak modul Nest
-
-- Satu `schema.prisma`; banyak modul Nest = batas **kode**. Satu `*.repository.ts` per fitur hanya tanggung jawab subset tabel yang relevan; workflow lintas agregat di **service**.
-
-## TypeScript General Guidelines
-
-### Basic Principles
-
-- **Bahasa (proyek ini):** gunakan **Bahasa Indonesia** untuk komentar, JSDoc, pesan error/validasi ke pengguna, string domain, dan deskripsi API (Swagger) yang ditujukan ke pengguna lokal. Identifier teknis (nama class, interface, enum TypeScript, method, properti) tetap **jelas dan konsisten** — boleh Inggris (umum di ekosistem Nest) atau Indonesia; hindari campur aduk dalam satu modul tanpa alasan.
-- Always declare the type of each variable and function (parameters and return value).
-  - Avoid using any.
-  - Create necessary types.
-- Use JSDoc to document public classes and methods.
-- Don't leave blank lines within a function.
-- One export per file.
-
-### Nomenclature
-
-- Use PascalCase for classes.
-- Use camelCase for variables, functions, and methods.
-- **Nama file & folder (proyek Nest ini):**
-  - **Artefak Nest resmi** memakai titik + suffix: `*.module.ts`, `*.controller.ts`, `*.service.ts`, `*.repository.ts`, `*.guard.ts`, `*.interceptor.ts`, `*.filter.ts`, `*.strategy.ts`, `*.decorator.ts`, `*.dto.ts`, `*.pipe.ts` — contoh: `auth.service.ts`, `auth.repository.ts`, `auth.controller.ts`, `auth.module.ts` (bukan `auth-service.ts`).
-  - **Folder:** **kebab-case** untuk `src/modules/<nama-modul-induk>/` dan subfitur (`core/auth`, `core/pengguna`); `src/common/...` untuk lintas fitur.
-- Use UPPERCASE for environment variables.
-  - Avoid magic numbers and define constants.
-- Start each function with a verb.
-- Use verbs for boolean variables. Example: isLoading, hasError, canDelete, etc.
-- Use complete words instead of abbreviations and correct spelling.
-  - Except for standard abbreviations like API, URL, etc.
-  - Except for well-known abbreviations:
-    - i, j for loops
-    - err for errors
-    - ctx for contexts
-    - req, res, next for middleware function parameters
-
-### Functions
-
-- In this context, what is understood as a function will also apply to a method.
-- Write short functions with a single purpose. Less than 20 instructions.
-- Name functions with a verb and something else.
-  - If it returns a boolean, use isX or hasX, canX, etc.
-  - If it doesn't return anything, use executeX or saveX, etc.
-- Avoid nesting blocks by:
-  - Early checks and returns.
-  - Ekstraksi ke fungsi util **hanya** bila benar-benar mengurangi duplikasi atau menyederhanakan tes — lihat juga bagian “Hindari helper mikro” di atas.
-- Use higher-order functions (map, filter, reduce, etc.) to avoid function nesting.
-  - Use arrow functions for simple functions (less than 3 instructions).
-  - Use named functions for non-simple functions.
-- Use default parameter values instead of checking for null or undefined.
-- Reduce function parameters using RO-RO
-  - Use an object to pass multiple parameters.
-  - Use an object to return results.
-  - Declare necessary types for input arguments and output.
-- Use a single level of abstraction.
-
-### Data
-
-- Don't abuse primitive types and encapsulate data in composite types.
-- Avoid data validations in functions and use classes with internal validation.
-- Prefer immutability for data.
-  - Use readonly for data that doesn't change.
-  - Use as const for literals that don't change.
-
-### Classes
-
-- Follow SOLID principles.
+- Strict typing; hindari `any`.
+- Identifier harus jelas dan konsisten.
+- Gunakan PascalCase untuk class/type, camelCase untuk function/variable, UPPER_SNAKE_CASE untuk environment variable/constant yang sesuai.
+- Gunakan file suffix NestJS standar: `*.module.ts`, `*.controller.ts`, `*.service.ts`, `*.repository.ts`, `*.guard.ts`, `*.interceptor.ts`, `*.filter.ts`, `*.strategy.ts`, `*.decorator.ts`, `*.dto.ts`, `*.pipe.ts`.
+- Prefer immutable data bila praktis.
 - Prefer composition over inheritance.
-- Declare interfaces to define contracts.
-- Write small classes with a single purpose.
-  - Less than 200 instructions.
-  - Less than 10 public methods.
-  - Less than 10 properties.
+- Gunakan early return untuk menghindari nesting berlebihan.
+- Pisahkan function/class hanya bila ada ownership atau complexity boundary yang nyata.
+- Hapus dead code dan unused imports yang dibuat obsolete oleh change yang sama.
 
-### Exceptions
+## API contract
 
-- Use exceptions to handle errors you don't expect.
-- If you catch an exception, it should be to:
-  - Fix an expected problem.
-  - Add context.
-  - Otherwise, use a global handler.
+Pertahankan response envelope proyek:
 
-### Testing
+```json
+{
+  "message": "string",
+  "success": true,
+  "data": {}
+}
+```
 
-- **Spec-driven / TDD:** ikuti alur di bagian “TDD & spec-driven” — tes mendahului atau berjalan paralel erat dengan implementasi, bukan sebagai tambahan akhir.
-- **Wajib test dulu:** selalu buat unit test terlebih dahulu sebelum membuat function (red → green).
-- **Fokus core saja:** prioritaskan unit test untuk logic inti/kritis (business rules, validasi, cabang error penting), tidak perlu over-testing bagian trivial.
-- Follow the Arrange-Act-Assert convention for tests.
-- Name test variables clearly.
-  - Follow the convention: inputX, mockX, actualX, expectedX, etc.
-- Write unit tests for each public function.
-  - Use test doubles to simulate dependencies.
-    - Except for third-party dependencies that are not expensive to execute.
-- Write acceptance tests for each module.
-  - Follow the Given-When-Then convention.
+List besar harus memiliki pagination metadata di dalam `data`. Validasi request memakai DTO/class-validator dan tetap konsisten dengan public API contract yang sudah disetujui.
 
+## Verification
 
-  ## Specific to NestJS
+Gunakan automated verification yang paling murah dan paling langsung terhadap changed risk boundary.
 
-  ### Basic Principles
-  
-  - Use modular architecture.
-  - **Pembagian modul & folder:** ikuti **“Struktur folder modul (inti: `<core>` → `<fitur>` …)”** dan **“Pembagian modul Nest & struktur folder (acuan `server/prisma/schema.prisma`)”** — pecah domain SOP; jangan satu modul `sop` raksasa; per fitur gunakan `*.controller` / `*.service` / `*.repository` + `dto/` bila perlu.
-  - Encapsulate the API in modules.
-    - One module per main domain/route.
-    - One controller for its route.
-      - And other controllers for secondary routes.
-    - A models folder with data types.
-      - DTOs validated with class-validator for inputs.
-      - Declare simple types for outputs.
-    - **Lapisan + repository:** alur **controller → service → repository → Prisma** seperti di bagian **“Arsitektur lapisan & pola file”** di atas.
-    - A services module with business logic and persistence.
-      - **Persistence:** proyek ini memakai **Prisma** (bukan MikroORM); akses DB melalui **repository adapter**, bukan Prisma tersebar di controller.
-      - Biasanya **satu** `*.service.ts` per folder fitur (bukan satu service raksasa untuk banyak bounded context).
-  
-  - Common Module: Create a common module (e.g., @app/common) for shared, reusable code across the application.
-    - This module should include:
-      - Configs: Global configuration settings.
-      - Decorators: Custom decorators for reusability.
-      - DTOs: Common data transfer objects.
-      - Guards: Guards for role-based or permission-based access control.
-      - Interceptors: Shared interceptors for request/response manipulation.
-      - Notifications: Modules for handling app-wide notifications.
-      - Services: Services that are reusable across modules.
-      - Types: Common TypeScript types or interfaces.
-      - Utils: Helper functions and utilities.
-      - Validators: Custom validators for consistent input validation.
-  
-  - Core module functionalities:
-    - Global filters for exception handling.
-    - Global middlewares for request management.
-    - Guards for permission management.
-    - Interceptors for request processing.
+- Unit test untuk deterministic business rules, validation, state transition, dan regression penting.
+- Integration test ketika correctness bergantung pada Prisma/DB/transaction atau contract antar owner yang tidak bisa dibuktikan dengan unit test.
+- Static/type/lint/build checks sesuai surface yang berubah.
+- Jangan mewajibkan test untuk trivial getter/mapping/boilerplate yang tidak punya meaningful regression risk.
+- TDD boleh digunakan ketika failing deterministic test adalah cara termurah untuk mendefinisikan behavior, tetapi bukan ceremony wajib untuk setiap function.
 
-### Kontrak Response API (Wajib Konsisten)
+**Jangan membuat atau mewajibkan acceptance test, browser E2E/black-box test, manual testing, atau manual visual review sebagai merge/release gate.** Jika environment-specific behavior tidak dapat direproduksi deterministically, catat residual risk daripada menambah human acceptance gate.
 
-- Semua endpoint API harus menggunakan bentuk response konsisten:
-  ```json
-  {
-    "message": "string",
-    "success": true,
-    "data": {}
-  }
-  ```
-- `message`: deskripsi hasil operasi.
-- `success`: status boolean keberhasilan.
-- `data`: payload utama (boleh object, array, atau null sesuai konteks).
-- Untuk response list/payload besar, wajib gunakan pagination di dalam `data`.
-- Contoh response terpaginated:
-  ```json
-  {
-    "message": "Data berhasil diambil",
-    "success": true,
-    "data": {
-      "items": [],
-      "pagination": {
-        "page": 1,
-        "limit": 10,
-        "totalItems": 100,
-        "totalPages": 10
-      }
-    }
-  }
-  ```
+## Security and errors
 
-### Testing
+- Jangan bocorkan secret, token, credential, atau detail internal melalui error response/log.
+- Gunakan guard/authorization pada boundary yang tepat.
+- Validate untrusted input di boundary.
+- Gunakan transaction ketika atomicity merupakan invariant product/data.
+- Exception handling harus menambah context atau mengubah expected failure menjadi domain/HTTP error yang tepat; jangan swallow error tanpa alasan.
 
-- Gunakan **Jest** sebagai framework utama testing (`unit`, `integration`, `e2e`).
-- Terapkan **test-first**: tulis test yang gagal terlebih dahulu, lalu implementasikan kode minimum hingga test hijau.
-- Prioritaskan pengujian pada **logic inti/kritis**:
-  - aturan bisnis utama,
-  - validasi input,
-  - alur error penting (not found, forbidden, conflict, dsb),
-  - cabang kondisi yang berisiko regressi.
-- **Service test (unit):**
-  - mock dependency (repository, external service, cache, queue),
-  - verifikasi input/output method,
-  - verifikasi efek samping penting (pemanggilan dependency, transaksi, publish event).
-- **Controller test (integration ringan):**
-  - uji mapping request → service call → response shape,
-  - pastikan response mengikuti kontrak `{ message, success, data }`,
-  - uji status code dan error mapping utama.
-- **E2E test per API module:**
-  - uji happy path endpoint utama,
-  - uji minimal satu skenario gagal (validasi/auth/business rule),
-  - verifikasi kontrak response dan pagination untuk endpoint list.
-- Gunakan pola **Arrange–Act–Assert** dan nama test yang deskriptif (`should_<hasil>_when_<kondisi>`).
-- Tambahkan endpoint `admin/test` sebagai **smoke test** per controller:
-  - hanya untuk verifikasi controller/module aktif,
-  - tidak memuat business logic,
-  - batasi akses (admin/internal) dan nonaktifkan di production bila diperlukan kebijakan deployment.
+## Change discipline
+
+Implement smallest coherent authorized change. Hindari unrelated refactor, dependency churn, architecture expansion, dan perubahan public/data/security boundary tanpa explicit approval.
