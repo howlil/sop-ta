@@ -31,10 +31,6 @@ export {
 } from "@/pages/penyusun/sop/hooks/use-detail-sop-penyusun";
 export {
   canBuatVersiBaru,
-  canEditSop,
-  canHapusVersiDraft,
   canHapusSopDraftAwal,
-  canKepalaOpdSignSop,
   canPjPenyusunRunCoordinatorActions,
-  isSopEligibleForSigning,
 } from "@/lib/sop/sop-permissions";
