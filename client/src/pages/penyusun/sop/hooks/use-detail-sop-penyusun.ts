@@ -15,11 +15,8 @@ import { ROUTES } from "@/utils/constants";
 import { transformLangkahToProsedurRow, transformSopDetailToMetadata } from "@/lib/sop/detailSop.mappers";
 import { DEFAULT_SOP_STATUS } from "@/types/dto/sop.dto";
 import { SOP_EVALUASI_WORKFLOW_QUERY_KEYS } from "@/lib/api/cache-invalidation";
-import {
-  canEditSop,
-  canKirimUlangKeEvaluatorAfterRevisi,
-  getKirimUlangRoleBlockingReason,
-} from "@/lib/sop/sop-permissions";
+import { getKirimUlangRoleBlockingReason } from "@/lib/sop/sop-permissions";
+import { hasSopWorkflowAction } from "@/lib/sop/sop-workflow";
 import type { Peraturan } from "@/types/dto/peraturan.dto";
 import type { PenyusunWorkbenchLogEdit, StatusSOP, UpdateStatusDto } from "@/types/dto/sop.dto";
 import type { ProsedurRow, SOPDetailMetadata, SopEditorImplementer } from "@/types/ui/sop";
@@ -166,7 +163,7 @@ export interface UseDetailSopPenyusunDataResult {
   setSopStatusOverrideAsync: ReturnType<typeof useSopStatus>["setSopStatusOverrideAsync"];
   /** Paksa flush autosave header SOP (mis. sebelum aksi besar / pindah halaman). */
   flushHeaderAutosave: () => Promise<void>;
-  /** Paksa flush autosave prosedur (swimlane + langkah). */
+  /** Paksa flush autosave prosedur (swimlane + langkah) sebelum aksi besar. */
   flushProsedurAutosave: () => Promise<void>;
   /** Status autosave header (idle/pending/saving/saved/error) untuk indikator UI. */
   autosaveStatus: SopHeaderAutosaveStatus;
@@ -176,7 +173,7 @@ export interface UseDetailSopPenyusunDataResult {
   prosedurAutosaveStatus: SopProsedurAutosaveStatus;
   /** Error autosave prosedur terakhir. */
   prosedurAutosaveError: Error | null;
-  /** True jika status SOP mengizinkan mengubah dokumen (autosave dan kontrol edit aktif). */
+  /** True jika backend workflow mengizinkan mengubah dokumen. */
   canEditDetail: boolean;
 }
 
@@ -211,7 +208,7 @@ export function useDetailSopPenyusunData(
       (workbench?.detail.status ?? sopStatusOverride ?? DEFAULT_SOP_STATUS) as StatusSOP,
     [workbench?.detail.status, sopStatusOverride],
   );
-  const canEditDetail = canEditSop(resolvedStatusForEdit);
+  const canEditDetail = hasSopWorkflowAction(workbench, 'EDIT');
   /* Sinkron state lokal HANYA saat berganti DetailSOP (mis. masuk halaman /:id baru).
      PATCH yang dipicu autosave akan update cache TanStack lewat setQueryData, tapi
      TIDAK boleh menimpa metadata UI yang sedang diketik user. Identitas: detailSopId. */
@@ -314,7 +311,7 @@ export function useDetailSopPenyusunData(
   const currentSopStatusLabel =
     workbench?.detail.statusLabel ?? currentSopStatus;
   const isRevisionFlow = currentSopStatus === "REVISI_DARI_EVALUATOR";
-  const canKirimUlangKeEvaluator = canKirimUlangKeEvaluatorAfterRevisi(role);
+  const canKirimUlangKeEvaluator = hasSopWorkflowAction(workbench, 'RESUBMIT_EVALUATION');
   const primaryActionLabel =
     isRevisionFlow && canKirimUlangKeEvaluator ? "Kirim ulang evaluasi" : "Selesai";
   const isLoading = isLoadingWorkbench;
@@ -408,7 +405,7 @@ export interface UseDetailSopPenyusunReturn {
   flushHeaderAutosave: () => Promise<void>;
   /** Paksa flush autosave prosedur SOP. */
   flushProsedurAutosave: () => Promise<void>;
-  /** Status dokumen mengizinkan penyuntingan header dan langkah. */
+  /** Backend workflow mengizinkan penyuntingan header dan langkah. */
   canEditDetail: boolean;
 }
 
