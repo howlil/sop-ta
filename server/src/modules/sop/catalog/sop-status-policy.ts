@@ -128,9 +128,7 @@ export function getSopWorkflowProjection(
   if (AUTHORING_ROLES.has(role) && EDITABLE_STATUSES.has(status)) {
     actions.push('EDIT');
   }
-  if (
-    transitionFor(status, StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI)?.roles.includes(role) === true
-  ) {
+  if (transitionFor(status, StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI)?.roles.includes(role) === true) {
     actions.push('SUBMIT_FOR_REVIEW');
   }
   if (transitionFor(status, StatusSOP.DIAJUKAN_EVALUASI)?.roles.includes(role) === true) {
