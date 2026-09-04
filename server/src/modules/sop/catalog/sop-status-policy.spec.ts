@@ -83,16 +83,12 @@ describe('Pengujian kebijakan status SOP', () => {
 
   it('memproyeksikan submit evaluation hanya untuk PJ Penyusun', () => {
     expect(
-      getSopWorkflowProjection(
-        PeranPengguna.PJ_PENYUSUN,
-        StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI,
-      ).allowedActions,
+      getSopWorkflowProjection(PeranPengguna.PJ_PENYUSUN, StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI)
+        .allowedActions,
     ).toContain('SUBMIT_EVALUATION');
     expect(
-      getSopWorkflowProjection(
-        PeranPengguna.PENYUSUN,
-        StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI,
-      ).allowedActions,
+      getSopWorkflowProjection(PeranPengguna.PENYUSUN, StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI)
+        .allowedActions,
     ).not.toContain('SUBMIT_EVALUATION');
   });
 
