@@ -40,7 +40,7 @@ describe('Pengujian displayStatusSop', () => {
   });
 
   it('seharusnya menangani input kosong / null dengan string fallback (Edge Case)', () => {
-    const actual = displayStatusSop(null as any);
+    const actual = displayStatusSop(null);
     expect(actual.label).toBe('Status tidak dikenal');
     expect(actual.value).toBe('');
   });
