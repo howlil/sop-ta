@@ -1,4 +1,6 @@
 import { ConflictException, ForbiddenException } from '@nestjs/common';
+import { displayStatusSop } from '../../../common/status/status-display';
+import { isDetailSopEditable } from '../../../common/status/sop-editable.util';
 import { PeranPengguna, StatusSOP } from '../../../generated/prisma';
 
 export type SopWorkflowAction =
@@ -18,11 +20,15 @@ export type SopWorkflowStage =
   | 'SUPERSEDED'
   | 'REVOKED';
 
-export type SopWorkflowProjection = Readonly<{
+export type SopWorkflowState = Readonly<{
   stage: SopWorkflowStage;
   stateLabel: string;
-  allowedActions: readonly SopWorkflowAction[];
 }>;
+
+export type SopWorkflowProjection = SopWorkflowState &
+  Readonly<{
+    allowedActions: readonly SopWorkflowAction[];
+  }>;
 
 export type SopStatusTransitionInput = {
   role: PeranPengguna;
@@ -91,29 +97,15 @@ const STAGE_BY_STATUS: Readonly<Record<StatusSOP, SopWorkflowStage>> = {
   [StatusSOP.DICABUT]: 'REVOKED',
 };
 
-const STATE_LABEL_BY_STATUS: Readonly<Record<StatusSOP, string>> = {
-  [StatusSOP.DRAFT]: 'Draft',
-  [StatusSOP.SEDANG_DISUSUN]: 'Sedang disusun',
-  [StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI]: 'Siap diajukan',
-  [StatusSOP.DIAJUKAN_EVALUASI]: 'Diajukan ke evaluasi',
-  [StatusSOP.SEDANG_DIEVALUASI]: 'Sedang dievaluasi',
-  [StatusSOP.REVISI_DARI_EVALUATOR]: 'Perlu revisi',
-  [StatusSOP.DITOLAK_EVALUATOR]: 'Ditolak evaluator',
-  [StatusSOP.MENUNGGU_TTD_PJ_EVALUATOR]: 'Menunggu verifikasi akhir',
-  [StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI]: 'Siap disahkan',
-  [StatusSOP.BERLAKU]: 'Berlaku',
-  [StatusSOP.DIGANTIKAN]: 'Digantikan',
-  [StatusSOP.DICABUT]: 'Dicabut',
-};
-
-const EDITABLE_STATUSES = new Set<StatusSOP>([
-  StatusSOP.DRAFT,
-  StatusSOP.SEDANG_DISUSUN,
-  StatusSOP.REVISI_DARI_EVALUATOR,
-]);
-
 function transitionFor(current: StatusSOP, target: StatusSOP): TransitionRule | undefined {
   return TRANSITIONS[current]?.find((rule) => rule.target === target);
+}
+
+export function getSopWorkflowState(status: StatusSOP): SopWorkflowState {
+  return {
+    stage: STAGE_BY_STATUS[status],
+    stateLabel: displayStatusSop(status).label,
+  };
 }
 
 export function getSopWorkflowProjection(
@@ -122,7 +114,7 @@ export function getSopWorkflowProjection(
 ): SopWorkflowProjection {
   const actions: SopWorkflowAction[] = ['VIEW_HISTORY'];
 
-  if (AUTHORING_ROLES.has(role) && EDITABLE_STATUSES.has(status)) {
+  if (AUTHORING_ROLES.has(role) && isDetailSopEditable(status)) {
     actions.push('EDIT');
   }
   if (transitionFor(status, StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI)?.roles.includes(role) === true) {
@@ -145,8 +137,7 @@ export function getSopWorkflowProjection(
   }
 
   return {
-    stage: STAGE_BY_STATUS[status],
-    stateLabel: STATE_LABEL_BY_STATUS[status],
+    ...getSopWorkflowState(status),
     allowedActions: actions,
   };
 }
