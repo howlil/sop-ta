@@ -104,9 +104,7 @@ export function displayTampilanAlur(alur: string | null | undefined): StatusDisp
 }
 
 /** Status tindak lanjut umpan balik evaluasi pada baris NilaiEvaluasi. */
-export function displayStatusTindakLanjut(
-  status: string | null | undefined,
-): StatusDisplay | null {
+export function displayStatusTindakLanjut(status: string | null | undefined): StatusDisplay | null {
   if (status === null || status === undefined) {
     return null;
   }
