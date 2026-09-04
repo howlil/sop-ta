@@ -26,13 +26,11 @@ import {
   SopVersionCell,
 } from "@/components/sop/sop-table-cells";
 import { ROUTES } from "@/utils/constants";
-import type { StatusSOP } from "@/types/dto/sop.dto";
 import { SOPStatusFilterSelect } from "@/components/sop/sop-status-filter-select";
 import { SOP_STATUS_FILTER_OPTIONS } from "@/lib/status/sop-status.config";
 import { BuatSOPDialog } from "@/pages/penyusun/sop/components/BuatSOPDialog";
 import { BukaPengajuanEvaluasiDialog } from "@/pages/penyusun/sop/components/BukaPengajuanEvaluasiDialog";
 import {
-  canEditSop,
   canPjPenyusunRunCoordinatorActions,
   useDaftarSopData,
   useSopSuspense,
@@ -44,6 +42,7 @@ import { useDocumentTitle } from "@/hooks/use-document-title";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { SopDaftarRow } from "@/types/dto/sop.dto";
 import { canHapusSopDraftAwal, useHapusSopDraftAwal } from "@/api/sop";
+import { hasSopWorkflowAction } from "@/lib/sop/sop-workflow";
 
 const formatFilterDate = (value: string) =>
   new Intl.DateTimeFormat("id-ID", {
@@ -271,7 +270,7 @@ export function ManajemenSOP() {
                         <Table.ActionTd>
                           <RowActions
                             actions={[
-                              sop.status && canEditSop(sop.status as StatusSOP)
+                              hasSopWorkflowAction(sop, 'EDIT')
                                 ? {
                                     icon: Edit,
                                     to: ROUTES.PENYUSUN.DETAIL_SOP,
