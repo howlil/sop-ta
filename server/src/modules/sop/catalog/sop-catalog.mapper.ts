@@ -307,6 +307,8 @@ export function mapDaftarRow(row: SopDaftarDbRow, role?: PeranPengguna): SopDaft
     canBuatVersiBaru,
     canCabutSop,
     canHapusSopDraft,
-    ...(role === undefined ? {} : { workflow: getSopWorkflowProjection(role, d.status) }),
+    ...(role === undefined
+      ? {}
+      : { workflow: getSopWorkflowProjection(role, d.status as StatusSOP) }),
   };
 }
