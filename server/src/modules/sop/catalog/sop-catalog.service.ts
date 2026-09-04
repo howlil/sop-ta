@@ -122,6 +122,11 @@ export class SopCatalogService {
     detailOrSopId: string,
     logsLimitRaw?: number,
   ): Promise<PenyusunWorkbenchDataDto> {
+    assertSopWorkflowActionAllowed({
+      role: user.peran,
+      status: StatusSOP.BERLAKU,
+      action: 'REVOKE',
+    });
     const resolved = await this.sopCatalogRepository.findDetailIdByDetailOrSopId(detailOrSopId);
     if (resolved === null) {
       throw new NotFoundException('DetailSOP tidak ditemukan');
@@ -142,11 +147,6 @@ export class SopCatalogService {
     if (berlaku === undefined) {
       throw new ConflictException('SOP tidak memiliki versi berlaku yang dapat dicabut');
     }
-    assertSopWorkflowActionAllowed({
-      role: user.peran,
-      status: berlaku.status,
-      action: 'REVOKE',
-    });
     const logsLimit = this.clampLogsLimit(logsLimitRaw);
     await this.sopCatalogRepository.updateDetailSopStatus({
       detailSopId: berlaku.detailSopId,
@@ -209,6 +209,11 @@ export class SopCatalogService {
     detailOrSopId: string,
     logsLimitRaw?: number,
   ): Promise<PenyusunWorkbenchDataDto> {
+    assertSopWorkflowActionAllowed({
+      role: user.peran,
+      status: StatusSOP.REVISI_DARI_EVALUATOR,
+      action: 'RESUBMIT_EVALUATION',
+    });
     const ctx = await this.sopCatalogRepository.findLatestDetailStatusContext(detailOrSopId);
     if (ctx === null) {
       throw new NotFoundException('DetailSOP tidak ditemukan');
