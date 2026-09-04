@@ -1,8 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import type {
-  SopWorkflowAction,
-  SopWorkflowStage,
-} from '../sop-status-policy';
+import type { SopWorkflowAction, SopWorkflowStage } from '../sop-status-policy';
 
 export class SopWorkflowProjectionDto {
   @ApiProperty({
