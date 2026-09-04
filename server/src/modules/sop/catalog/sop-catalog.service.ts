@@ -85,6 +85,11 @@ export class SopCatalogService {
     return mapWorkbenchPayload(row, user.peran);
   }
 
+  /**
+   * Workbench untuk pratinjau SOP dalam konteks pengajuan evaluasi (batch).
+   * Keanggotaan batch dan akses pengajuan sudah divalidasi di modul evaluation;
+   * tanpa assert OPD agar PJ/Evaluator lintas OPD dapat memuat dokumen lengkap.
+   */
   async getPenyusunWorkbenchForEvaluasiContext(
     detailSopId: string,
     logsLimitRaw?: number,
@@ -100,6 +105,7 @@ export class SopCatalogService {
     return mapWorkbenchPayload(row);
   }
 
+  /** Dokumen SOP berlaku untuk arsip publik (tanpa log audit dan umpan balik evaluasi). */
   async getPublicDokumenBerlaku(detailSopId: string): Promise<PublicSopDokumenDto> {
     const row = await this.sopCatalogRepository.findWorkbenchPayloadByDetailOrSopId(detailSopId, 0);
     if (row === null) {
