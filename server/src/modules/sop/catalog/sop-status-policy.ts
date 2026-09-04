@@ -30,6 +30,12 @@ export type SopStatusTransitionInput = {
   target: StatusSOP;
 };
 
+export type SopWorkflowActionInput = {
+  role: PeranPengguna;
+  status: StatusSOP;
+  action: SopWorkflowAction;
+};
+
 type TransitionRule = Readonly<{
   target: StatusSOP;
   roles: readonly PeranPengguna[];
@@ -148,6 +154,29 @@ export function getSopWorkflowProjection(
     stateLabel: STATE_LABEL_BY_STATUS[status],
     allowedActions: actions,
   };
+}
+
+export function assertSopWorkflowActionAllowed(input: SopWorkflowActionInput): void {
+  if (getSopWorkflowProjection(input.role, input.status).allowedActions.includes(input.action)) {
+    return;
+  }
+  if (input.action === 'RESUBMIT_EVALUATION') {
+    if (input.status !== StatusSOP.REVISI_DARI_EVALUATOR) {
+      throw new ConflictException(
+        `Hanya SOP berstatus REVISI_DARI_EVALUATOR yang dapat dikirim ulang ke evaluator (status saat ini: ${String(input.status)})`,
+      );
+    }
+    throw new ForbiddenException(
+      'Hanya PJ Penyusun yang dapat mengirim ulang ke evaluator setelah revisi',
+    );
+  }
+  if (input.action === 'REVOKE') {
+    if (input.status !== StatusSOP.BERLAKU) {
+      throw new ConflictException('Hanya SOP berstatus BERLAKU yang dapat dicabut');
+    }
+    throw new ForbiddenException('Hanya Kepala OPD yang dapat mencabut SOP');
+  }
+  throw new ForbiddenException('Aksi workflow SOP tidak diizinkan');
 }
 
 /** Validasi transisi status DetailSOP per peran; loncat status tidak diizinkan. */
