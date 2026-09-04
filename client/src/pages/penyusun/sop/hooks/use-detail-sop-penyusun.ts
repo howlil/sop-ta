@@ -180,7 +180,7 @@ export interface UseDetailSopPenyusunDataResult {
 export function useDetailSopPenyusunData(
   sopDetailId: string | undefined,
   sopStatusOverride: StatusSOP | undefined,
-  role: string | null | undefined,
+  _role: string | null | undefined,
 ): UseDetailSopPenyusunDataResult {
   const { setSopStatusOverrideAsync } = useSopStatus();
   const { list: sopList } = useSop();
