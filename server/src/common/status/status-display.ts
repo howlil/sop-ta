@@ -55,8 +55,8 @@ const STATUS_TINDAK_LANJUT_LABELS: Record<StatusTindakLanjut, string> = {
   [StatusTindakLanjut.SELESAI]: 'Siap dinilai ulang',
 };
 
-function resolveEnumLabel<T extends string>(
-  value: T | string | null | undefined,
+function resolveEnumLabel(
+  value: string | null | undefined,
   labels: Record<string, string>,
   fallbackLabel: string,
 ): StatusDisplay {
@@ -69,12 +69,12 @@ function resolveEnumLabel<T extends string>(
 }
 
 /** Status dokumen SOP (enum StatusSOP). */
-export function displayStatusSop(status: StatusSOP | string): StatusDisplay {
+export function displayStatusSop(status: string | null | undefined): StatusDisplay {
   return resolveEnumLabel(status, SOP_STATUS_LABELS, 'Status tidak dikenal');
 }
 
 /** Status pengajuan evaluasi. */
-export function displayStatusPengajuan(status: StatusPengajuanEvaluasi | string): StatusDisplay {
+export function displayStatusPengajuan(status: string | null | undefined): StatusDisplay {
   return resolveEnumLabel(
     status,
     PENGAJUAN_STATUS_LABELS,
@@ -83,9 +83,7 @@ export function displayStatusPengajuan(status: StatusPengajuanEvaluasi | string)
 }
 
 /** Hasil penilaian per dokumen; null → BELUM_DINILAI (turunan API). */
-export function displayHasilEvaluasi(
-  hasil: HasilEvaluasi | string | null | undefined,
-): StatusDisplay {
+export function displayHasilEvaluasi(hasil: string | null | undefined): StatusDisplay {
   if (hasil === null || hasil === undefined) {
     return {
       value: HASIL_EVALUASI_BELUM_DINILAI,
@@ -101,13 +99,13 @@ export function displayHasilEvaluasi(
 }
 
 /** Alur tampilan workspace evaluator (dihitung server). */
-export function displayTampilanAlur(alur: TampilanAlurEvaluasi | string): StatusDisplay {
+export function displayTampilanAlur(alur: string | null | undefined): StatusDisplay {
   return resolveEnumLabel(alur, TAMPILAN_ALUR_LABELS, 'Alur tidak dikenal');
 }
 
 /** Status tindak lanjut umpan balik evaluasi pada baris NilaiEvaluasi. */
 export function displayStatusTindakLanjut(
-  status: StatusTindakLanjut | string | null | undefined,
+  status: string | null | undefined,
 ): StatusDisplay | null {
   if (status === null || status === undefined) {
     return null;
