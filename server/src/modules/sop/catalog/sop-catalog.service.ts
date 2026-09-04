@@ -27,7 +27,10 @@ import type { PublicSopDokumenDto } from '../public/dto/public-sop-dokumen.dto';
 import { assertSopCatalogRepoOk } from './sop-catalog-repo-error.util';
 import { assertSopWorkbenchCompleteForSiapDievaluasi } from './sop-completeness.validator';
 import { mapDaftarRow, mapWorkbenchPayload } from './sop-catalog.mapper';
-import { assertAllowedSopStatusTransition } from './sop-status-policy';
+import {
+  assertAllowedSopStatusTransition,
+  assertSopWorkflowActionAllowed,
+} from './sop-status-policy';
 import {
   SopCatalogRepository,
   type SopDaftarListFilters,
@@ -82,11 +85,6 @@ export class SopCatalogService {
     return mapWorkbenchPayload(row, user.peran);
   }
 
-  /**
-   * Workbench untuk pratinjau SOP dalam konteks pengajuan evaluasi (batch).
-   * Keanggotaan batch dan akses pengajuan sudah divalidasi di modul evaluation;
-   * tanpa assert OPD agar PJ/Evaluator lintas OPD dapat memuat dokumen lengkap.
-   */
   async getPenyusunWorkbenchForEvaluasiContext(
     detailSopId: string,
     logsLimitRaw?: number,
@@ -102,7 +100,6 @@ export class SopCatalogService {
     return mapWorkbenchPayload(row);
   }
 
-  /** Dokumen SOP berlaku untuk arsip publik (tanpa log audit dan umpan balik evaluasi). */
   async getPublicDokumenBerlaku(detailSopId: string): Promise<PublicSopDokumenDto> {
     const row = await this.sopCatalogRepository.findWorkbenchPayloadByDetailOrSopId(detailSopId, 0);
     if (row === null) {
@@ -125,9 +122,6 @@ export class SopCatalogService {
     detailOrSopId: string,
     logsLimitRaw?: number,
   ): Promise<PenyusunWorkbenchDataDto> {
-    if (user.peran !== PeranPengguna.KEPALA_OPD) {
-      throw new ForbiddenException('Hanya Kepala OPD yang dapat mencabut SOP');
-    }
     const resolved = await this.sopCatalogRepository.findDetailIdByDetailOrSopId(detailOrSopId);
     if (resolved === null) {
       throw new NotFoundException('DetailSOP tidak ditemukan');
@@ -148,6 +142,11 @@ export class SopCatalogService {
     if (berlaku === undefined) {
       throw new ConflictException('SOP tidak memiliki versi berlaku yang dapat dicabut');
     }
+    assertSopWorkflowActionAllowed({
+      role: user.peran,
+      status: berlaku.status,
+      action: 'REVOKE',
+    });
     const logsLimit = this.clampLogsLimit(logsLimitRaw);
     await this.sopCatalogRepository.updateDetailSopStatus({
       detailSopId: berlaku.detailSopId,
@@ -210,20 +209,15 @@ export class SopCatalogService {
     detailOrSopId: string,
     logsLimitRaw?: number,
   ): Promise<PenyusunWorkbenchDataDto> {
-    if (user.peran !== PeranPengguna.PJ_PENYUSUN) {
-      throw new ForbiddenException(
-        'Hanya PJ Penyusun yang dapat mengirim ulang ke evaluator setelah revisi',
-      );
-    }
     const ctx = await this.sopCatalogRepository.findLatestDetailStatusContext(detailOrSopId);
     if (ctx === null) {
       throw new NotFoundException('DetailSOP tidak ditemukan');
     }
-    if (ctx.status !== StatusSOP.REVISI_DARI_EVALUATOR) {
-      throw new ConflictException(
-        `Hanya SOP berstatus REVISI_DARI_EVALUATOR yang dapat dikirim ulang ke evaluator (status saat ini: ${String(ctx.status)})`,
-      );
-    }
+    assertSopWorkflowActionAllowed({
+      role: user.peran,
+      status: ctx.status,
+      action: 'RESUBMIT_EVALUATION',
+    });
     await this.assertOpdAccessForWorkbench(user, ctx.sopOpdId);
     const logsLimit = this.clampLogsLimit(logsLimitRaw);
     const draftPayload = await this.sopCatalogRepository.findWorkbenchPayloadByDetailOrSopId(
