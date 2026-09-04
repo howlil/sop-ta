@@ -21,13 +21,20 @@ export type SopWorkflowProjection = Readonly<{
   allowedActions: readonly SopWorkflowAction[]
 }>
 
-type WorkflowCarrier = Readonly<{
-  workflow?: SopWorkflowProjection
-}>
+function readWorkflow(value: unknown): SopWorkflowProjection | undefined {
+  if (typeof value !== 'object' || value === null || !('workflow' in value)) return undefined
+  const workflow = (value as { workflow?: unknown }).workflow
+  if (typeof workflow !== 'object' || workflow === null || !('allowedActions' in workflow)) {
+    return undefined
+  }
+  const allowedActions = (workflow as { allowedActions?: unknown }).allowedActions
+  if (!Array.isArray(allowedActions)) return undefined
+  return workflow as SopWorkflowProjection
+}
 
 export function hasSopWorkflowAction(
-  value: WorkflowCarrier | null | undefined,
+  value: unknown,
   action: SopWorkflowAction,
 ): boolean {
-  return value?.workflow?.allowedActions.includes(action) === true
+  return readWorkflow(value)?.allowedActions.includes(action) === true
 }
