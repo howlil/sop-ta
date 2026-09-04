@@ -17,13 +17,13 @@ export type TampilanAlurEvaluasi = 'perlu_evaluasi' | 'sedang_dievaluasi' | 'sel
 const SOP_STATUS_LABELS: Record<StatusSOP, string> = {
   [StatusSOP.DRAFT]: 'Draft',
   [StatusSOP.SEDANG_DISUSUN]: 'Sedang disusun',
-  [StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI]: 'Menunggu pengajuan evaluasi',
-  [StatusSOP.DIAJUKAN_EVALUASI]: 'Diajukan evaluasi',
-  [StatusSOP.SEDANG_DIEVALUASI]: 'Dalam penilaian',
+  [StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI]: 'Siap diajukan',
+  [StatusSOP.DIAJUKAN_EVALUASI]: 'Diajukan ke evaluasi',
+  [StatusSOP.SEDANG_DIEVALUASI]: 'Sedang dievaluasi',
   [StatusSOP.REVISI_DARI_EVALUATOR]: 'Perlu revisi',
   [StatusSOP.DITOLAK_EVALUATOR]: 'Ditolak evaluator',
-  [StatusSOP.MENUNGGU_TTD_PJ_EVALUATOR]: 'Menunggu TTD PJ Evaluator',
-  [StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI]: 'Menunggu pengesahan Kepala OPD',
+  [StatusSOP.MENUNGGU_TTD_PJ_EVALUATOR]: 'Menunggu verifikasi akhir',
+  [StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI]: 'Siap disahkan',
   [StatusSOP.BERLAKU]: 'Berlaku',
   [StatusSOP.DIGANTIKAN]: 'Digantikan',
   [StatusSOP.DICABUT]: 'Dicabut',
@@ -55,8 +55,8 @@ const STATUS_TINDAK_LANJUT_LABELS: Record<StatusTindakLanjut, string> = {
   [StatusTindakLanjut.SELESAI]: 'Siap dinilai ulang',
 };
 
-function resolveEnumLabel<T extends string>(
-  value: T | string | null | undefined,
+function resolveEnumLabel(
+  value: string | null | undefined,
   labels: Record<string, string>,
   fallbackLabel: string,
 ): StatusDisplay {
@@ -69,12 +69,12 @@ function resolveEnumLabel<T extends string>(
 }
 
 /** Status dokumen SOP (enum StatusSOP). */
-export function displayStatusSop(status: StatusSOP | string): StatusDisplay {
+export function displayStatusSop(status: string | null | undefined): StatusDisplay {
   return resolveEnumLabel(status, SOP_STATUS_LABELS, 'Status tidak dikenal');
 }
 
 /** Status pengajuan evaluasi. */
-export function displayStatusPengajuan(status: StatusPengajuanEvaluasi | string): StatusDisplay {
+export function displayStatusPengajuan(status: string | null | undefined): StatusDisplay {
   return resolveEnumLabel(
     status,
     PENGAJUAN_STATUS_LABELS,
@@ -83,9 +83,7 @@ export function displayStatusPengajuan(status: StatusPengajuanEvaluasi | string)
 }
 
 /** Hasil penilaian per dokumen; null → BELUM_DINILAI (turunan API). */
-export function displayHasilEvaluasi(
-  hasil: HasilEvaluasi | string | null | undefined,
-): StatusDisplay {
+export function displayHasilEvaluasi(hasil: string | null | undefined): StatusDisplay {
   if (hasil === null || hasil === undefined) {
     return {
       value: HASIL_EVALUASI_BELUM_DINILAI,
@@ -101,14 +99,12 @@ export function displayHasilEvaluasi(
 }
 
 /** Alur tampilan workspace evaluator (dihitung server). */
-export function displayTampilanAlur(alur: TampilanAlurEvaluasi | string): StatusDisplay {
+export function displayTampilanAlur(alur: string | null | undefined): StatusDisplay {
   return resolveEnumLabel(alur, TAMPILAN_ALUR_LABELS, 'Alur tidak dikenal');
 }
 
 /** Status tindak lanjut umpan balik evaluasi pada baris NilaiEvaluasi. */
-export function displayStatusTindakLanjut(
-  status: StatusTindakLanjut | string | null | undefined,
-): StatusDisplay | null {
+export function displayStatusTindakLanjut(status: string | null | undefined): StatusDisplay | null {
   if (status === null || status === undefined) {
     return null;
   }

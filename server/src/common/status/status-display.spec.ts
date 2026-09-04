@@ -27,17 +27,20 @@ describe('Pengujian displayStatusSop', () => {
     expect(actual.value).toBe('STATUS_GAIB');
   });
 
-  it('seharusnya memetakan status SOP rename ke label baru', () => {
-    expect(displayStatusSop(StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI).label).toBe(
-      'Menunggu pengajuan evaluasi',
-    );
+  it('seharusnya memakai vocabulary workflow canonical untuk status lifecycle', () => {
+    expect(displayStatusSop(StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI).label).toBe('Siap diajukan');
+    expect(displayStatusSop(StatusSOP.DIAJUKAN_EVALUASI).label).toBe('Diajukan ke evaluasi');
+    expect(displayStatusSop(StatusSOP.SEDANG_DIEVALUASI).label).toBe('Sedang dievaluasi');
     expect(displayStatusSop(StatusSOP.MENUNGGU_TTD_PJ_EVALUATOR).label).toBe(
-      'Menunggu TTD PJ Evaluator',
+      'Menunggu verifikasi akhir',
+    );
+    expect(displayStatusSop(StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI).label).toBe(
+      'Siap disahkan',
     );
   });
 
   it('seharusnya menangani input kosong / null dengan string fallback (Edge Case)', () => {
-    const actual = displayStatusSop(null as any);
+    const actual = displayStatusSop(null);
     expect(actual.label).toBe('Status tidak dikenal');
     expect(actual.value).toBe('');
   });

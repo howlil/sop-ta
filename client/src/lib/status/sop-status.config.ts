@@ -38,13 +38,13 @@ const SOP_STATUS_FILTER_VALUES = [
 const SOP_STATUS_FILTER_LABELS: Record<(typeof SOP_STATUS_FILTER_VALUES)[number], string> = {
   DRAFT: 'Draft',
   SEDANG_DISUSUN: 'Sedang disusun',
-  MENUNGGU_PENGAJUAN_EVALUASI: 'Menunggu pengajuan evaluasi',
-  DIAJUKAN_EVALUASI: 'Diajukan evaluasi',
-  SEDANG_DIEVALUASI: 'Dalam penilaian',
+  MENUNGGU_PENGAJUAN_EVALUASI: 'Siap diajukan',
+  DIAJUKAN_EVALUASI: 'Diajukan ke evaluasi',
+  SEDANG_DIEVALUASI: 'Sedang dievaluasi',
   REVISI_DARI_EVALUATOR: 'Perlu revisi',
   DITOLAK_EVALUATOR: 'Ditolak evaluator',
-  MENUNGGU_TTD_PJ_EVALUATOR: 'Menunggu TTD PJ Evaluator',
-  DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI: 'Menunggu pengesahan Kepala OPD',
+  MENUNGGU_TTD_PJ_EVALUATOR: 'Menunggu verifikasi akhir',
+  DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI: 'Siap disahkan',
   BERLAKU: 'Berlaku',
   DICABUT: 'Dicabut',
 }
@@ -53,7 +53,7 @@ export function getSopStatusColors(status: string): StatusBadgeColors {
   return SOP_STATUS_BADGE_COLORS[status] ?? STATUS_BADGE_COLORS_DEFAULT
 }
 
-/** Opsi filter — label placeholder; halaman filter memakai label dari API bila tersedia. */
+/** Opsi filter statis; label diselaraskan dengan vocabulary workflow dari server. */
 export const SOP_STATUS_FILTER_OPTIONS = [
   { value: 'all' as const, label: 'Semua Status' },
   ...SOP_STATUS_FILTER_VALUES.map((value) => ({

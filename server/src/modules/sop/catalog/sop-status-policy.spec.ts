@@ -4,6 +4,7 @@ import {
   assertAllowedSopStatusTransition,
   assertSopWorkflowActionAllowed,
   getSopWorkflowProjection,
+  getSopWorkflowState,
 } from './sop-status-policy';
 
 describe('Pengujian kebijakan status SOP', () => {
@@ -65,6 +66,17 @@ describe('Pengujian kebijakan status SOP', () => {
         target: StatusSOP.DICABUT,
       }),
     ).not.toThrow();
+  });
+
+  it('memproyeksikan vocabulary lifecycle tanpa actor', () => {
+    expect(getSopWorkflowState(StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI)).toEqual({
+      stage: 'AUTHORING',
+      stateLabel: 'Siap diajukan',
+    });
+    expect(getSopWorkflowState(StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI)).toEqual({
+      stage: 'FINAL_APPROVAL',
+      stateLabel: 'Siap disahkan',
+    });
   });
 
   it('memproyeksikan action authoring untuk penyusun', () => {
