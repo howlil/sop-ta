@@ -2,6 +2,7 @@ import { ConflictException, ForbiddenException } from '@nestjs/common';
 import { PeranPengguna, StatusSOP } from '../../../generated/prisma';
 import {
   assertAllowedSopStatusTransition,
+  assertSopWorkflowActionAllowed,
   getSopWorkflowProjection,
 } from './sop-status-policy';
 
@@ -74,6 +75,12 @@ describe('Pengujian kebijakan status SOP', () => {
     });
   });
 
+  it('tidak memberi action edit kepada evaluator walaupun status masih draft', () => {
+    expect(
+      getSopWorkflowProjection(PeranPengguna.EVALUATOR, StatusSOP.DRAFT).allowedActions,
+    ).not.toContain('EDIT');
+  });
+
   it('memproyeksikan submit evaluation hanya untuk PJ Penyusun', () => {
     expect(
       getSopWorkflowProjection(
@@ -111,5 +118,46 @@ describe('Pengujian kebijakan status SOP', () => {
     expect(
       getSopWorkflowProjection(PeranPengguna.PENYUSUN, StatusSOP.BERLAKU).allowedActions,
     ).not.toContain('REVOKE');
+  });
+
+  it('menggunakan policy yang sama untuk enforcement kirim ulang evaluasi', () => {
+    expect(() =>
+      assertSopWorkflowActionAllowed({
+        role: PeranPengguna.PJ_PENYUSUN,
+        status: StatusSOP.REVISI_DARI_EVALUATOR,
+        action: 'RESUBMIT_EVALUATION',
+      }),
+    ).not.toThrow();
+    expect(() =>
+      assertSopWorkflowActionAllowed({
+        role: PeranPengguna.PENYUSUN,
+        status: StatusSOP.REVISI_DARI_EVALUATOR,
+        action: 'RESUBMIT_EVALUATION',
+      }),
+    ).toThrow(ForbiddenException);
+    expect(() =>
+      assertSopWorkflowActionAllowed({
+        role: PeranPengguna.PJ_PENYUSUN,
+        status: StatusSOP.SEDANG_DIEVALUASI,
+        action: 'RESUBMIT_EVALUATION',
+      }),
+    ).toThrow(ConflictException);
+  });
+
+  it('menggunakan policy yang sama untuk enforcement pencabutan', () => {
+    expect(() =>
+      assertSopWorkflowActionAllowed({
+        role: PeranPengguna.KEPALA_OPD,
+        status: StatusSOP.BERLAKU,
+        action: 'REVOKE',
+      }),
+    ).not.toThrow();
+    expect(() =>
+      assertSopWorkflowActionAllowed({
+        role: PeranPengguna.PENYUSUN,
+        status: StatusSOP.BERLAKU,
+        action: 'REVOKE',
+      }),
+    ).toThrow(ForbiddenException);
   });
 });
