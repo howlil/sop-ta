@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { SopDaftarVersiSliceDto } from './sop-daftar-versi-slice.dto';
 import { TerakhirDieditDto } from './terakhir-diedit.dto';
+import { SopWorkflowProjectionDto } from './sop-workflow.dto';
 
 /** Satu baris daftar SOP (header + versi DetailSOP terbaru) untuk UI Manajemen SOP penyusun. */
 export class SopDaftarRowDto {
@@ -74,4 +75,7 @@ export class SopDaftarRowDto {
     description: 'Penyusun dapat menghapus SOP bila masih berupa draft awal satu-satunya',
   })
   readonly canHapusSopDraft!: boolean;
+
+  @ApiPropertyOptional({ type: () => SopWorkflowProjectionDto })
+  readonly workflow?: SopWorkflowProjectionDto;
 }
