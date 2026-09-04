@@ -3,7 +3,7 @@ import {
   hasRevisiInFlight,
   TERMINAL_DETAIL_STATUSES,
 } from '../../../common/status/sop-editable.util';
-import { StatusSOP } from '../../../generated/prisma';
+import { PeranPengguna, StatusSOP } from '../../../generated/prisma';
 import { buildNilaiEvaluasiClientId } from '../../evaluation/nilai/nilai-evaluasi-client-id';
 import { encodeLogEditSopClientId } from '../collaboration/log-edit-session.helper';
 import type { PenyusunWorkbenchDataDto } from './dto/penyusun-workbench-data.dto';
@@ -11,15 +11,17 @@ import type { SopDaftarRowDto } from './dto/sop-daftar-row.dto';
 import type { SopDaftarVersiSliceDto } from './dto/sop-daftar-versi-slice.dto';
 import type { SopDaftarDbRow, SopWorkbenchDbPayload } from './sop-catalog.repository';
 import { mapDiagramConfigsToWorkbenchDto } from '../diagram/diagram-workbench.mapper';
-
 import type { BeritaAcaraTteSignaturePayloadDto } from '../../evaluation/pengajuan-detail/dto/berita-acara-evaluasi-view.dto';
-import { PeranPengguna } from '../../../generated/prisma';
+import { getSopWorkflowProjection } from './sop-status-policy';
 
 export function toIso(d: Date): string {
   return d.toISOString();
 }
 
-export function mapWorkbenchPayload(row: SopWorkbenchDbPayload): PenyusunWorkbenchDataDto {
+export function mapWorkbenchPayload(
+  row: SopWorkbenchDbPayload,
+  role?: PeranPengguna,
+): PenyusunWorkbenchDataDto {
   const detailId = row.detailSopId;
   const sopHeader = {
     id: row.sop.sopId,
@@ -229,6 +231,7 @@ export function mapWorkbenchPayload(row: SopWorkbenchDbPayload): PenyusunWorkben
     logEdit,
     diagramKonfigurasi: mapDiagramConfigsToWorkbenchDto(row.konfigurasiDiagram),
     tteSignaturePayloadKepalaOpd,
+    ...(role === undefined ? {} : { workflow: getSopWorkflowProjection(role, row.status) }),
   };
 }
 
@@ -248,7 +251,7 @@ export function mapVersiSlice(slice: {
   };
 }
 
-export function mapDaftarRow(row: SopDaftarDbRow): SopDaftarRowDto {
+export function mapDaftarRow(row: SopDaftarDbRow, role?: PeranPengguna): SopDaftarRowDto {
   const d = row.detail;
   const inFlight = hasRevisiInFlight(row.allStatuses);
   const hasTerminalSource = row.allStatuses.some((status) => TERMINAL_DETAIL_STATUSES.has(status));
@@ -279,6 +282,7 @@ export function mapDaftarRow(row: SopDaftarDbRow): SopDaftarRowDto {
       canBuatVersiBaru: false,
       canCabutSop: false,
       canHapusSopDraft: false,
+      ...(role === undefined ? {} : { workflow: getSopWorkflowProjection(role, StatusSOP.DRAFT) }),
     };
   }
   const waktuIso = d.updatedAt.toISOString();
@@ -303,5 +307,6 @@ export function mapDaftarRow(row: SopDaftarDbRow): SopDaftarRowDto {
     canBuatVersiBaru,
     canCabutSop,
     canHapusSopDraft,
+    ...(role === undefined ? {} : { workflow: getSopWorkflowProjection(role, d.status) }),
   };
 }
