@@ -35,6 +35,11 @@ type TransitionRule = Readonly<{
   roles: readonly PeranPengguna[];
 }>;
 
+const AUTHORING_ROLES = new Set<PeranPengguna>([
+  PeranPengguna.PENYUSUN,
+  PeranPengguna.PJ_PENYUSUN,
+]);
+
 const TRANSITIONS: Readonly<Partial<Record<StatusSOP, readonly TransitionRule[]>>> = {
   [StatusSOP.DRAFT]: [
     {
@@ -114,7 +119,7 @@ export function getSopWorkflowProjection(
 ): SopWorkflowProjection {
   const actions: SopWorkflowAction[] = ['VIEW_HISTORY'];
 
-  if (EDITABLE_STATUSES.has(status)) {
+  if (AUTHORING_ROLES.has(role) && EDITABLE_STATUSES.has(status)) {
     actions.push('EDIT');
   }
   if (
