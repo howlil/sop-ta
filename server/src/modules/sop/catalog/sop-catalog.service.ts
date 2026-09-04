@@ -79,7 +79,7 @@ export class SopCatalogService {
       throw new NotFoundException('DetailSOP tidak ditemukan');
     }
     await this.assertOpdAccessForWorkbench(user, row.sop.opdId);
-    return mapWorkbenchPayload(row);
+    return mapWorkbenchPayload(row, user.peran);
   }
 
   /**
@@ -161,7 +161,7 @@ export class SopCatalogService {
     if (refreshed === null) {
       throw new NotFoundException('DetailSOP tidak ditemukan setelah pencabutan');
     }
-    return mapWorkbenchPayload(refreshed);
+    return mapWorkbenchPayload(refreshed, user.peran);
   }
 
   async transitionDetailSopStatus(
@@ -202,7 +202,7 @@ export class SopCatalogService {
     if (refreshed === null) {
       throw new NotFoundException('DetailSOP tidak ditemukan setelah ubah status');
     }
-    return mapWorkbenchPayload(refreshed);
+    return mapWorkbenchPayload(refreshed, user.peran);
   }
 
   async kirimUlangKeEvaluatorSetelahRevisi(
@@ -245,7 +245,7 @@ export class SopCatalogService {
     if (refreshed === null) {
       throw new NotFoundException('DetailSOP tidak ditemukan setelah kirim ulang evaluasi');
     }
-    return mapWorkbenchPayload(refreshed);
+    return mapWorkbenchPayload(refreshed, user.peran);
   }
 
   private collectChangedHeaderFields(dto: UpdateSopHeaderDto): string[] {
@@ -322,7 +322,7 @@ export class SopCatalogService {
     if (refreshed === null) {
       throw new NotFoundException('DetailSOP tidak ditemukan setelah update');
     }
-    return mapWorkbenchPayload(refreshed);
+    return mapWorkbenchPayload(refreshed, user.peran);
   }
 
   private normalizeListFilters(query?: ListSopQueryDto): SopDaftarListFilters {
@@ -347,11 +347,11 @@ export class SopCatalogService {
     const filters = this.normalizeListFilters(query);
     if (this.userOpdAccessService.isEvaluatorRole(user.peran)) {
       const rows = await this.sopCatalogRepository.findDaftarAll(filters);
-      return rows.map((row) => mapDaftarRow(row));
+      return rows.map((row) => mapDaftarRow(row, user.peran));
     }
     const opdId = await this.userOpdAccessService.getRequiredUserOpdId(user.sub);
     const rows = await this.sopCatalogRepository.findDaftarByOpdId(opdId, filters);
-    return rows.map((row) => mapDaftarRow(row));
+    return rows.map((row) => mapDaftarRow(row, user.peran));
   }
 
   async createForPenyusun(user: JwtAccessPayload, dto: CreateSopDto): Promise<SopDaftarRowDto> {
@@ -367,7 +367,7 @@ export class SopCatalogService {
         penggunaId: user.sub,
         namaLembaga,
       });
-      return mapDaftarRow(row);
+      return mapDaftarRow(row, user.peran);
     } catch (error) {
       if (isPrismaUniqueConstraintError(error)) {
         throw new ConflictException('Nomor SOP sudah digunakan');
