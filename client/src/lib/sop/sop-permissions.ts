@@ -10,10 +10,11 @@ export function canBuatVersiBaru(row: {
   return row.canBuatVersiBaru === true
 }
 
-export function canHapusSopDraftAwal(row: {
-  canHapusSopDraft?: boolean
-}): boolean {
-  return row.canHapusSopDraft === true
+export function canHapusSopDraftAwal(row: unknown): boolean {
+  if (typeof row !== 'object' || row === null || !('canHapusSopDraft' in row)) {
+    return false
+  }
+  return (row as { canHapusSopDraft?: unknown }).canHapusSopDraft === true
 }
 
 /**
