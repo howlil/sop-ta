@@ -41,10 +41,7 @@ type TransitionRule = Readonly<{
   roles: readonly PeranPengguna[];
 }>;
 
-const AUTHORING_ROLES = new Set<PeranPengguna>([
-  PeranPengguna.PENYUSUN,
-  PeranPengguna.PJ_PENYUSUN,
-]);
+const AUTHORING_ROLES = new Set<PeranPengguna>([PeranPengguna.PENYUSUN, PeranPengguna.PJ_PENYUSUN]);
 
 const TRANSITIONS: Readonly<Partial<Record<StatusSOP, readonly TransitionRule[]>>> = {
   [StatusSOP.DRAFT]: [
