@@ -65,7 +65,6 @@ describe('TtePdfSigningService provider boundary', () => {
         sub: 'user-1',
         email: 'kepala@example.test',
         peran: PeranPengguna.KEPALA_OPD,
-        opdId: 'opd-1',
       },
       {
         userId: 'user-1',
