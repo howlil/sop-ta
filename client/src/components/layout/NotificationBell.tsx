@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useInAppNotifications } from '@/hooks/useInAppNotifications'
+import { useInAppNotifications } from '@/hooks/use-in-app-notifications'
 import { resolveNotificationTarget } from '@/lib/notifications/notification-target'
 import { formatDateId } from '@/utils/format-date'
 

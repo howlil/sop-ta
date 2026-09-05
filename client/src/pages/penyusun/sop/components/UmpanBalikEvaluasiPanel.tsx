@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { LoadingState } from '@/components/ui/loading-state'
 import { EmptyState } from '@/components/ui/empty-state'
 import { HasilEvaluasiBadge } from '@/components/status/hasil-evaluasi-badge'
-import { useTandaiTindakLanjutSelesai } from '@/api/evaluasi'
+import { useTandaiTindakLanjutSelesai } from '@/features/evaluation'
 import {
   getStatusTindakLanjutBadgeClass,
   getStatusTindakLanjutLabel,

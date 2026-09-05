@@ -7,7 +7,7 @@ import {
   PengajuanTabbedTable,
 } from "@/components/pengajuan/pengajuan-tabbed-table";
 import { PengajuanStatusBadge } from "@/components/status/pengajuan-status-badge";
-import { useKepalaOpdPengajuan } from "@/api/evaluasi";
+import { useKepalaOpdPengajuan } from "@/features/evaluation";
 import { ROUTES } from "@/utils/constants";
 import { formatDateIdFull } from "@/utils/format-date";
 

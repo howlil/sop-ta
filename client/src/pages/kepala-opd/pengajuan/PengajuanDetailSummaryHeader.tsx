@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { DetailSummaryHeader } from '@/components/evaluasi/detail-summary-header'
+import { DetailSummaryHeader } from '@/features/evaluation/ui/detail-summary-header'
 import { formatDateIdFull } from '@/utils/format-date'
 
 export interface PengajuanDetailSummaryHeaderProps {

@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import type { AjukanEvaluasiSnapshotRow } from "@/api/evaluasi";
+import type { AjukanEvaluasiSnapshotRow } from "@/features/evaluation";
 import type { PengajuanEvaluasiSubmitError } from "@/types/dto/evaluasi.dto";
 
 export interface DetailEvaluasiOPDSubmitDialogProps {

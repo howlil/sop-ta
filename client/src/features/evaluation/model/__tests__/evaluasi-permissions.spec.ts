@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   assertCanMutateEvaluasiNilai,
   canMutateEvaluasiNilai,
-} from "@/lib/evaluasi/evaluasi-permissions";
+} from "../evaluasi-permissions";
 
 describe("evaluasi-permissions", () => {
   it("should_allow_only_evaluator", () => {

@@ -18,7 +18,7 @@ import {
   usePengajuanBeritaAcaraView,
   usePengajuanEvaluasiDetail,
   usePengajuanSopDokumenWorkbench,
-} from "@/api/evaluasi";
+} from "@/features/evaluation";
 import { mapPenyusunWorkbenchToPreviewProps } from "@/lib/sop/detailSop.mappers";
 import { parseTTESignaturePayload } from "@/lib/tte/parse-tte-signature-payload";
 import { RiwayatEvaluasiTimeline } from "@/pages/pj-evaluator/evaluasi/components/RiwayatEvaluasiTimeline";
@@ -34,7 +34,7 @@ import {
   CollapsibleSidePanelHeader,
   SimplePanelHeader,
 } from "@/components/ui/collapsible-side-panel";
-import { PengajuanEvaluasiStatusHeader } from "@/components/evaluasi/pengajuan-evaluasi-status-header";
+import { PengajuanEvaluasiStatusHeader } from "@/features/evaluation/ui/pengajuan-evaluasi-status-header";
 import { InfoField } from "@/components/ui/info-field";
 import { DocumentPreviewTabs } from "@/components/pengajuan/document-preview-tabs";
 import { useDocumentTitle } from "@/hooks/use-document-title";
