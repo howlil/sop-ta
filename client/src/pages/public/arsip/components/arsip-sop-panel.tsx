@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ArsipSearchField } from './arsip-chrome'
 import { ArsipSopTable, type ArsipSopTableVariant } from './arsip-sop-table'
 import type { PublicSopItem } from '@/types/dto/sop-public.dto'
-import type { PaginationMetaDto } from '@/types/dto/evaluasi.dto'
+import type { PaginationMetaDto } from '@/types/contracts/pagination.contract'
 
 export interface ArsipSopPanelProps {
   title: string
