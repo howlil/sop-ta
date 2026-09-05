@@ -22,23 +22,23 @@ describe('TtePdfSigningService provider boundary', () => {
       certValidFrom: new Date('2026-01-01T00:00:00.000Z'),
       certValidTo: new Date('2027-01-01T00:00:00.000Z'),
     } as const;
-    const provider: jest.Mocked<DocumentSigningProvider> = {
-      sign: jest.fn().mockResolvedValue({
-        signedDocument,
-        sha256SignedDocument: 'signed-sha256',
-        signatureFormat: 'PKCS7_DETACHED',
-        certificate: {
-          subject: 'CN=Signer',
-          issuer: 'CN=Issuer',
-          serialNumber: '01',
-          fingerprint: 'fingerprint',
-          validFrom: '2026-01-01T00:00:00.000Z',
-          validTo: '2027-01-01T00:00:00.000Z',
-        },
-        riwayatMetadata: metadata,
-      }),
-      verify: jest.fn(),
-    };
+    const sign: jest.MockedFunction<DocumentSigningProvider['sign']> = jest.fn();
+    sign.mockResolvedValue({
+      signedDocument,
+      sha256SignedDocument: 'signed-sha256',
+      signatureFormat: 'PKCS7_DETACHED',
+      certificate: {
+        subject: 'CN=Signer',
+        issuer: 'CN=Issuer',
+        serialNumber: '01',
+        fingerprint: 'fingerprint',
+        validFrom: '2026-01-01T00:00:00.000Z',
+        validTo: '2027-01-01T00:00:00.000Z',
+      },
+      riwayatMetadata: metadata,
+    });
+    const verify: jest.MockedFunction<DocumentSigningProvider['verify']> = jest.fn();
+    const provider: DocumentSigningProvider = { sign, verify };
     const repository = {
       findRiwayatForPdfSigning: jest.fn().mockResolvedValue({
         dokumenTte: { jenisDokumen: JenisDokumenTte.SOP_BERLAKU },
@@ -76,7 +76,7 @@ describe('TtePdfSigningService provider boundary', () => {
       },
     );
 
-    expect(provider.sign).toHaveBeenCalledWith({
+    expect(sign).toHaveBeenCalledWith({
       document: Buffer.from(pdfBase64, 'base64'),
       signer: { userId: 'user-1', name: 'Kepala OPD' },
       authorization: { pin: '123456' },
