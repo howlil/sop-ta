@@ -1,9 +1,1 @@
-export type Side = 'top' | 'right' | 'bottom' | 'left'
-
-export type UsedSides = Record<
-  string,
-  {
-    in?: Partial<Record<Side, string[]>>
-    out?: Partial<Record<Side, string[]>>
-  }
->
+export * from '@/features/sop/diagram/core/route/shared/connector-side.types'
