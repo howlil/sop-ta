@@ -10,27 +10,33 @@ import { encryptP12Passphrase } from '../shared/utils/tte-crypto.util';
 import { DOCUMENT_SIGNING_PROVIDER } from './signing/document-signing.provider';
 import { InternalP12SigningProvider } from './signing/internal-p12-signing.provider';
 
+type PdfKitDocument = {
+  on(event: string, listener: (...args: unknown[]) => void): void;
+  text(value: string): void;
+  end(): void;
+};
+
+type PdfKitDocumentConstructor = new () => PdfKitDocument;
+
+type RepositoryMock = {
+  findRiwayatForPdfSigning: jest.MockedFunction<TteRepository['findRiwayatForPdfSigning']>;
+  updateRiwayatPdfSignatureMetadata: jest.MockedFunction<
+    TteRepository['updateRiwayatPdfSignatureMetadata']
+  >;
+  findKredensial: jest.MockedFunction<TteRepository['findKredensial']>;
+};
+
+// pdfkit tersedia transitif melalui placeholder-plain dan hanya dipakai untuk fixture test.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const PDFDocument = require(
   require.resolve('pdfkit', { paths: [require.resolve('@signpdf/placeholder-plain')] }),
-);
+) as unknown as PdfKitDocumentConstructor;
 
 describe('Pengujian TtePdfSigningService', () => {
   let service: TtePdfSigningService;
-  let repository: {
-    findPenggunaAktif: jest.Mock;
-    findRiwayatForPdfSigning: jest.Mock;
-    updateRiwayatPdfSignatureMetadata: jest.Mock;
-    findKredensial: jest.Mock;
-  };
+  let repository: RepositoryMock;
   let p12Base64 = '';
   const passphrase = 'test-passphrase';
-  const kepalaOpdUser = {
-    sub: 'kepala-1',
-    email: 'k@opd.id',
-    peran: PeranPengguna.KEPALA_OPD,
-    opdId: 'opd-1',
-  };
 
   beforeAll(() => {
     const output = execSync(`node scripts/generate-pdf-signing-cert.cjs ${passphrase}`, {
@@ -45,7 +51,6 @@ describe('Pengujian TtePdfSigningService', () => {
 
   beforeEach(async () => {
     repository = {
-      findPenggunaAktif: jest.fn(),
       findRiwayatForPdfSigning: jest.fn(),
       updateRiwayatPdfSignatureMetadata: jest.fn(),
       findKredensial: jest.fn(),
@@ -79,18 +84,8 @@ describe('Pengujian TtePdfSigningService', () => {
       ],
     }).compile();
     service = module.get(TtePdfSigningService);
-    repository.findPenggunaAktif.mockResolvedValue({
-      penggunaId: kepalaOpdUser.sub,
-      peran: PeranPengguna.KEPALA_OPD,
-      opdId: 'opd-1',
-      nama: 'Kepala OPD',
-      nip: '123',
-      jabatan: 'Kepala',
-      pangkat: 'IV/a',
-      email: 'k@opd.id',
-    });
     repository.findKredensial.mockResolvedValue({
-      userId: kepalaOpdUser.sub,
+      userId: 'credential-user',
       p12Base64,
       p12PassphraseEncrypted: encryptP12Passphrase(passphrase, '123456'),
     });
@@ -169,18 +164,14 @@ describe('Pengujian TtePdfSigningService', () => {
       },
     );
     expect(actual.signed).toBe(true);
-    expect(repository.updateRiwayatPdfSignatureMetadata).toHaveBeenCalledWith(
-      expect.objectContaining({
-        userId,
-        dokumenTteId,
-        metadata: expect.objectContaining({
-          signatureAlgorithm: 'SHA256withRSA',
-          signatureFormat: 'PKCS7_DETACHED',
-          certFingerprint: actual.certificate?.fingerprint,
-          certSerialNumber: actual.certificate?.serialNumber,
-        }),
-      }),
-    );
+    const persisted = repository.updateRiwayatPdfSignatureMetadata.mock.calls[0]?.[0];
+    expect(persisted?.userId).toBe(userId);
+    expect(persisted?.dokumenTteId).toBe(dokumenTteId);
+    expect(persisted?.metadata.signatureAlgorithm).toBe('SHA256withRSA');
+    expect(persisted?.metadata.signatureFormat).toBe('PKCS7_DETACHED');
+    expect(persisted?.metadata.certFingerprint).toBe(actual.certificate?.fingerprint);
+    expect(persisted?.metadata.certSerialNumber).toBe(actual.certificate?.serialNumber);
+
     const verification = verifyPdfWithP12(
       Buffer.from(actual.signedPdfBase64, 'base64'),
       Buffer.from(p12Base64, 'base64'),
@@ -197,13 +188,11 @@ describe('Pengujian TtePdfSigningService', () => {
 
 function createSamplePdf(): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument() as {
-      on(event: string, listener: (...args: unknown[]) => void): void;
-      text(value: string): void;
-      end(): void;
-    };
+    const doc = new PDFDocument();
     const chunks: Buffer[] = [];
-    doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+    doc.on('data', (chunk: unknown) => {
+      if (Buffer.isBuffer(chunk)) chunks.push(chunk);
+    });
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
     doc.text('Dokumen uji Berita Acara arsip');
