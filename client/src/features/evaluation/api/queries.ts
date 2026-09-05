@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { evaluasiApi } from "@/features/evaluation/api/client";
 import { queryKeys } from "@/config/query-keys";
 import { SOP_EVALUASI_WORKFLOW_REFRESH_OPTIONS } from "@/lib/api/cache-invalidation";
-import { mapEvaluasiShellToPengajuan } from "@/lib/evaluasi/evaluasi-mappers";
+import { mapEvaluasiShellToPengajuan } from "@/features/evaluation/model/evaluasi-mappers";
 import type {
   EvaluasiGrafikTahunanQueryParams,
   EvaluasiListQueryParams,
