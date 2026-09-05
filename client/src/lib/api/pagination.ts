@@ -1,4 +1,4 @@
-import type { PaginationMetaDto } from '@/types/dto/evaluasi.dto'
+import type { PaginationMetaDto } from '@/types/contracts/pagination.contract'
 
 type PaginatedEnvelope = {
   pagination?: PaginationMetaDto
