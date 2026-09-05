@@ -5,7 +5,7 @@ import { Pagination } from '@/components/ui/pagination'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ArsipSearchField } from './arsip-chrome'
 import type { PublicOpdItem } from '@/types/dto/sop-public.dto'
-import type { PaginationMetaDto } from '@/types/dto/evaluasi.dto'
+import type { PaginationMetaDto } from '@/types/contracts/pagination.contract'
 
 export interface ArsipOpdSidebarProps {
   items: PublicOpdItem[]
