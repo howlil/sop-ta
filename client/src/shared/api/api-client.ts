@@ -79,34 +79,7 @@ function extractErrors(errorBody: ErrorResponseBody): {
   return { message, errors, code }
 }
 
-interface QueuedRequest<T = unknown> {
-  endpoint: string
-  options: RequestInit
-  resolve: (value: T) => void
-  reject: (reason: unknown) => void
-  retryCount: number
-}
-
-let isRefreshing = false
 let refreshPromise: Promise<boolean> | null = null
-let requestQueue: QueuedRequest<unknown>[] = []
-
-function processRequestQueue() {
-  const queue = [...requestQueue]
-  requestQueue = []
-
-  queue.forEach(({ endpoint, options, resolve, reject, retryCount }) => {
-    request(endpoint, options, retryCount)
-      .then((result) => resolve(result as unknown))
-      .catch(reject)
-  })
-}
-
-function rejectRequestQueue(error: Error | ApiError) {
-  const queue = [...requestQueue]
-  requestQueue = []
-  queue.forEach(({ reject }) => reject(error))
-}
 
 async function refreshAccessToken(): Promise<boolean> {
   try {
@@ -123,28 +96,20 @@ async function refreshAccessToken(): Promise<boolean> {
   }
 }
 
+/**
+ * Single-flight refresh: seluruh request yang menerima 401 pada waktu bersamaan
+ * menunggu promise refresh yang sama. Tidak ada request queue manual yang dapat
+ * ter-enqueue ulang saat refresh belum selesai dibersihkan.
+ */
 function waitForRefresh(): Promise<boolean> {
-  if (isRefreshing && refreshPromise) {
-    return refreshPromise
-  }
-
-  isRefreshing = true
-  refreshPromise = refreshAccessToken()
-  refreshPromise
-    .then((success) => {
-      if (success) {
-        processRequestQueue()
-      } else {
-        rejectRequestQueue(new ApiError(401, 'Token refresh failed'))
+  if (!refreshPromise) {
+    const activeRefresh = refreshAccessToken().finally(() => {
+      if (refreshPromise === activeRefresh) {
+        refreshPromise = null
       }
     })
-    .catch((error) => {
-      rejectRequestQueue(error)
-    })
-    .finally(() => {
-      isRefreshing = false
-      refreshPromise = null
-    })
+    refreshPromise = activeRefresh
+  }
 
   return refreshPromise
 }
@@ -152,18 +117,6 @@ function waitForRefresh(): Promise<boolean> {
 const REQUEST_TIMEOUT = 15000
 
 async function request<T>(endpoint: string, options: RequestInit = {}, retryCount = 0): Promise<T> {
-  if (isRefreshing && retryCount === 0) {
-    return new Promise<T>((resolve, reject) => {
-      requestQueue.push({
-        endpoint,
-        options,
-        resolve: resolve as (value: unknown) => void,
-        reject,
-        retryCount,
-      })
-    })
-  }
-
   const url = `${getApiBaseUrl()}${endpoint}`
   const method = (options.method ?? 'GET').toUpperCase()
   const mergedHeaders = { ...getHeaders(method), ...options.headers }
