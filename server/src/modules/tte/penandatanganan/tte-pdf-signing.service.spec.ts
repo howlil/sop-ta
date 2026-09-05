@@ -7,6 +7,8 @@ import { verifyPdfWithP12 } from '../shared/utils/pdf-signature-verification.uti
 import { TtePdfSigningService } from './tte-pdf-signing.service';
 import { TteRepository } from '../shared/repository/tte.repository';
 import { encryptP12Passphrase } from '../shared/utils/tte-crypto.util';
+import { DOCUMENT_SIGNING_PROVIDER } from './signing/document-signing.provider';
+import { InternalP12SigningProvider } from './signing/internal-p12-signing.provider';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const PDFDocument = require(
@@ -51,6 +53,11 @@ describe('Pengujian TtePdfSigningService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TtePdfSigningService,
+        InternalP12SigningProvider,
+        {
+          provide: DOCUMENT_SIGNING_PROVIDER,
+          useExisting: InternalP12SigningProvider,
+        },
         {
           provide: TteRepository,
           useValue: repository,
@@ -61,8 +68,6 @@ describe('Pengujian TtePdfSigningService', () => {
             get: jest.fn((key: string, defaultValue?: unknown) => {
               const values: Record<string, unknown> = {
                 PDF_SIGNING_ENABLED: true,
-                PDF_SIGNING_P12_BASE64: p12Base64,
-                PDF_SIGNING_P12_PASSPHRASE: passphrase,
                 PDF_SIGNING_REASON: 'Uji',
                 PDF_SIGNING_LOCATION: 'Indonesia',
                 PDF_SIGNING_CONTACT: '',
