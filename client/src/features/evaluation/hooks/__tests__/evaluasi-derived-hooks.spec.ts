@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildKepalaOpdPengajuanQueryParams } from '../hooks/evaluasi-derived-hooks'
+import { buildKepalaOpdPengajuanQueryParams } from '../evaluasi-derived-hooks'
 
 describe('buildKepalaOpdPengajuanQueryParams', () => {
   it('should_keep_query_enabled_when_opd_id_is_missing', () => {
