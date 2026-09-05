@@ -1,13 +1,11 @@
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import tsconfigPaths from 'vite-tsconfig-paths';
-import { fileURLToPath, URL } from 'url';
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import tsconfigPaths from 'vite-tsconfig-paths'
+import { clientTopologyAliases } from './topology-aliases'
 
 export default defineConfig({
   resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
+    alias: clientTopologyAliases,
   },
   plugins: [
     react(),
@@ -36,8 +34,8 @@ export default defineConfig({
         '**/*.spec.{ts,tsx}',
         'coverage/',
         'dist/',
-        '**/*.gen.ts',  // Exclude generated files
-        '**/generated/**',  // Exclude generated folders
+        '**/*.gen.ts',
+        '**/generated/**',
       ],
       thresholds: {
         global: {
@@ -48,16 +46,14 @@ export default defineConfig({
         },
       },
     },
-    // Fix for React 19
     poolOptions: {
       threads: {
         singleThread: true,
       },
     },
-    // Disable deprecation warnings for now
     clearMocks: true,
   },
   esbuild: {
     target: 'es2020',
   },
-});
+})
