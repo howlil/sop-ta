@@ -1,4 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  useSingleWriterAutosave,
+  type SingleWriterAutosaveStatus,
+} from '@/shared/hooks/use-single-writer-autosave'
 import type {
   JenisLangkahProsedur,
   LangkahPatchItem,
@@ -197,16 +200,15 @@ export function diffSopProsedurSnapshots(
   return dto
 }
 
-function hasAnyKey(dto: UpdateSopProsedurDto): boolean {
-  return dto.pelaksana !== undefined || dto.langkah !== undefined
+function buildPatch(
+  current: SopProsedurSnapshot,
+  baseline: SopProsedurSnapshot,
+): UpdateSopProsedurDto | null {
+  const diff = diffSopProsedurSnapshots(current, baseline)
+  return diff.pelaksana !== undefined || diff.langkah !== undefined ? diff : null
 }
 
-export type SopProsedurAutosaveStatus =
-  | 'idle'
-  | 'pending'
-  | 'saving'
-  | 'saved'
-  | 'error'
+export type SopProsedurAutosaveStatus = SingleWriterAutosaveStatus
 
 export interface UseSopProsedurAutosaveOptions {
   detailSopId: string | undefined
@@ -224,9 +226,8 @@ export interface SopProsedurAutosaveControls {
 }
 
 /**
- * Autosave debounced untuk PATCH prosedur SOP (swimlane + langkah). Strategi sejajar
- * `useSopHeaderAutosave` — diff replace-all per section, debounce 800ms idle, flush
- * eksplisit untuk aksi besar (selesai/unmount/beforeunload).
+ * Autosave prosedur SOP memakai scheduler single-writer yang sama dengan header.
+ * Mapping editor dan diff replace-all tetap domain-specific; tidak ada write paralel.
  */
 export function useSopProsedurAutosave(
   options: UseSopProsedurAutosaveOptions,
@@ -238,116 +239,13 @@ export function useSopProsedurAutosave(
     enabled = true,
     debounceMs = DEFAULT_DEBOUNCE_MS,
   } = options
-  const baselineRef = useRef<SopProsedurSnapshot>(snapshot)
-  const latestSnapshotRef = useRef<SopProsedurSnapshot>(snapshot)
-  const timerRef = useRef<number | null>(null)
-  const savedTimerRef = useRef<number | null>(null)
-  const inFlightRef = useRef<Promise<void> | null>(null)
-  const saveRef = useRef(save)
-  saveRef.current = save
 
-  const [status, setStatus] = useState<SopProsedurAutosaveStatus>('idle')
-  const [lastError, setLastError] = useState<Error | null>(null)
-
-  const clearSavedTimer = useCallback(() => {
-    if (savedTimerRef.current !== null) {
-      window.clearTimeout(savedTimerRef.current)
-      savedTimerRef.current = null
-    }
-  }, [])
-
-  const scheduleSavedFlash = useCallback(() => {
-    clearSavedTimer()
-    savedTimerRef.current = window.setTimeout(() => {
-      savedTimerRef.current = null
-      setStatus((prev) => (prev === 'saved' ? 'idle' : prev))
-    }, SAVED_INDICATOR_MS)
-  }, [clearSavedTimer])
-
-  const performSave = useCallback(async (): Promise<void> => {
-    if (!enabled || !detailSopId) return
-    const diff = diffSopProsedurSnapshots(latestSnapshotRef.current, baselineRef.current)
-    if (!hasAnyKey(diff)) return
-    const targetSnapshot = latestSnapshotRef.current
-    clearSavedTimer()
-    setStatus('saving')
-    const promise = saveRef
-      .current(diff)
-      .then(() => {
-        baselineRef.current = targetSnapshot
-        setLastError(null)
-        setStatus('saved')
-        scheduleSavedFlash()
-      })
-      .catch((err: unknown) => {
-        const error = err instanceof Error ? err : new Error(String(err))
-        setLastError(error)
-        setStatus('error')
-      })
-      .finally(() => {
-        if (inFlightRef.current === promise) {
-          inFlightRef.current = null
-        }
-      })
-    inFlightRef.current = promise
-    await promise
-  }, [clearSavedTimer, detailSopId, enabled, scheduleSavedFlash])
-
-  const cancelTimer = useCallback(() => {
-    if (timerRef.current !== null) {
-      window.clearTimeout(timerRef.current)
-      timerRef.current = null
-    }
-  }, [])
-
-  const flush = useCallback(async () => {
-    cancelTimer()
-    if (inFlightRef.current) {
-      await inFlightRef.current
-    }
-    await performSave()
-  }, [cancelTimer, performSave])
-
-  const resetBaseline = useCallback(
-    (next: SopProsedurSnapshot) => {
-      cancelTimer()
-      baselineRef.current = next
-      latestSnapshotRef.current = next
-      clearSavedTimer()
-      setStatus('idle')
-      setLastError(null)
-    },
-    [cancelTimer, clearSavedTimer],
-  )
-
-  useEffect(() => {
-    latestSnapshotRef.current = snapshot
-    if (!enabled || !detailSopId) return
-    const diff = diffSopProsedurSnapshots(snapshot, baselineRef.current)
-    if (!hasAnyKey(diff)) {
-      setStatus((prev) => (prev === 'pending' ? 'idle' : prev))
-      return
-    }
-    cancelTimer()
-    setStatus((prev) => (prev === 'saving' ? prev : 'pending'))
-    timerRef.current = window.setTimeout(() => {
-      timerRef.current = null
-      void performSave()
-    }, debounceMs)
-    return () => {
-      cancelTimer()
-    }
-  }, [snapshot, enabled, detailSopId, debounceMs, cancelTimer, performSave])
-
-  useEffect(() => {
-    return () => {
-      cancelTimer()
-      clearSavedTimer()
-    }
-  }, [cancelTimer, clearSavedTimer])
-
-  return useMemo(
-    () => ({ flush, resetBaseline, status, lastError }),
-    [flush, resetBaseline, status, lastError],
-  )
+  return useSingleWriterAutosave({
+    snapshot,
+    buildPatch,
+    save,
+    enabled: enabled && Boolean(detailSopId),
+    debounceMs,
+    savedIndicatorMs: SAVED_INDICATOR_MS,
+  })
 }
