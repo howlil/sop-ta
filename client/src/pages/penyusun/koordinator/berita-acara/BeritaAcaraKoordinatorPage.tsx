@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
-import { useBeritaAcaraPjPenyusun } from '@/api/evaluasi'
+import { useBeritaAcaraPjPenyusun } from '@/features/evaluation'
 import { ListPageLayout } from '@/components/layout/ListPageLayout'
 import { RowActions } from '@/components/data/row-actions'
 import {
