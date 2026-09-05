@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useNavigate } from '@tanstack/react-router'
 import { DetailPageLayout } from '@/components/layout/DetailPageLayout'
-import { useAppRole } from '@/hooks/useAppRole'
-import { useToast } from '@/hooks/useToast'
+import { useAppRole } from '@/hooks/use-app-role'
+import { useToast } from '@/hooks/use-toast'
 import { ROUTES } from '@/utils/constants'
-import { useUmpanBalikEvaluasi } from '@/api/evaluasi'
-import { getKirimUlangBlockingReason } from '@/lib/evaluasi/evaluasi-domain'
+import { useUmpanBalikEvaluasi } from '@/features/evaluation'
+import { getKirimUlangBlockingReason } from '@/features/evaluation/model/evaluasi-domain'
 import { getKirimUlangRoleBlockingReason } from '@/lib/sop/sop-permissions'
 import {
   useBuatVersiBaru,
