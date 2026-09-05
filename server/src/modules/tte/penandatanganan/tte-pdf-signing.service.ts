@@ -2,18 +2,12 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
-  InternalServerErrorException,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHash } from 'crypto';
-import { pdflibAddPlaceholder } from '@signpdf/placeholder-pdf-lib';
-import { plainAddPlaceholder } from '@signpdf/placeholder-plain';
-import { P12Signer } from '@signpdf/signer-p12';
-import { SignPdf } from '@signpdf/signpdf';
-import { PDFDocument } from 'pdf-lib';
 import type { JwtAccessPayload } from '../../../common';
 import {
   PDF_BASE64_MAX_LENGTH,
@@ -23,25 +17,19 @@ import { JenisDokumenTte } from '../../../generated/prisma';
 
 import { SignPdfDto } from '../shared/dto/sign-pdf.dto';
 import { VerifyPdfDto } from '../shared/dto/verify-pdf.dto';
-import {
-  loadTrustedCertificatesFromP12,
-  mapCertificateToResponse,
-  type PdfCertificateResponse,
-} from '../shared/utils/pdf-signing-certificate.util';
+import type { PdfCertificateResponse } from '../shared/utils/pdf-signing-certificate.util';
 
 export type { PdfCertificateResponse } from '../shared/utils/pdf-signing-certificate.util';
 import {
   assertValidPdfBuffer,
-  buildPdfTteSigningReason,
-  extractPdfSignatureFields,
-  verifyPdfSignaturesGeneric,
   type PdfSignatureVerificationEntry,
   type VerifyPdfSignaturesResult,
 } from '../shared/utils/pdf-signature-verification.util';
-import { decryptP12Passphrase } from '../shared/utils/tte-crypto.util';
 import { TteRepository, type PdfSignatureMetadataInput } from '../shared/repository/tte.repository';
-
-const DEFAULT_SIGNATURE_LENGTH = 32_000;
+import {
+  DOCUMENT_SIGNING_PROVIDER,
+  type DocumentSigningProvider,
+} from './signing/document-signing.provider';
 
 export type SignPdfResponse = {
   readonly signed: boolean;
@@ -92,24 +80,16 @@ export type PdfSignatureVerificationEntryWithTteMatch = PdfSignatureVerification
   readonly tteMatch: PdfSignatureTteMatch;
 };
 
-type PdfSigningConfig = {
-  readonly p12Base64?: string;
-  readonly passphrase: string;
-  readonly reason: string;
-  readonly location: string;
-  readonly contactInfo: string;
-};
-
 const PDF_VERIFICATION_DISCLAIMER =
   'Verifikasi ini memakai CA internal SOPFlow. Untuk TTE tersertifikasi nasional, gunakan portal resmi Komdigi atau BSrE.';
 
 @Injectable()
 export class TtePdfSigningService {
-  private readonly logger = new Logger(TtePdfSigningService.name);
-
   constructor(
     private readonly configService: ConfigService,
     private readonly repository: TteRepository,
+    @Inject(DOCUMENT_SIGNING_PROVIDER)
+    private readonly signingProvider: DocumentSigningProvider,
   ) {}
 
   getPdfSigningStatus(): PdfSigningStatusResponse {
@@ -125,7 +105,7 @@ export class TtePdfSigningService {
     const pdfBuffer = this.decodePdf(dto.pdfBase64);
     let verification: VerifyPdfSignaturesResult;
     try {
-      verification = verifyPdfSignaturesGeneric(pdfBuffer);
+      verification = this.signingProvider.verify(pdfBuffer);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Gagal memverifikasi PDF.';
       throw new BadRequestException(message);
@@ -163,37 +143,30 @@ export class TtePdfSigningService {
       return this.buildDisabledResponse(pdfBuffer);
     }
 
-    const kredensial = await this.repository.findKredensial(dto.userId);
-    if (!kredensial || !kredensial.p12Base64 || !kredensial.p12PassphraseEncrypted) {
-      throw new BadRequestException(
-        'Sertifikat TTE personal belum diatur. Silakan buat di halaman Profil.',
-      );
-    }
-
-    const p12Passphrase = this.decryptPassphrase({
-      pin: dto.pin,
-      encryptedPassphrase: kredensial.p12PassphraseEncrypted,
-    });
-
-    const config = this.getConfig();
-    const signed = await this.applyPkcs7Signature(
-      pdfBuffer,
-      { ...config, p12Base64: kredensial.p12Base64, passphrase: p12Passphrase },
-      {
+    const signed = await this.signingProvider.sign({
+      document: pdfBuffer,
+      signer: {
+        userId: dto.userId,
         name: riwayat.user.nama,
-        reason: buildPdfTteSigningReason(config.reason, {
-          dokumenTteId: dto.dokumenTteId,
-          userId: dto.userId,
-          jenisDokumen: String(dto.jenisDokumen),
-        }),
       },
-    );
+      authorization: { pin: dto.pin },
+      context: {
+        dokumenTteId: dto.dokumenTteId,
+        jenisDokumen: dto.jenisDokumen,
+      },
+    });
     await this.repository.updateRiwayatPdfSignatureMetadata({
       userId: dto.userId,
       dokumenTteId: dto.dokumenTteId,
       metadata: signed.riwayatMetadata,
     });
-    return signed.response;
+    return {
+      signed: true,
+      signedPdfBase64: signed.signedDocument.toString('base64'),
+      sha256SignedPdf: signed.sha256SignedDocument,
+      signatureFormat: signed.signatureFormat,
+      certificate: signed.certificate,
+    };
   }
 
   async signOfficialSopPdfWithUserCertificate(params: {
@@ -207,152 +180,29 @@ export class TtePdfSigningService {
       throw new ConflictException('Penandatanganan PDF kriptografis sedang dinonaktifkan.');
     }
 
-    const kredensial = await this.repository.findKredensial(params.userId);
-    if (!kredensial || !kredensial.p12Base64 || !kredensial.p12PassphraseEncrypted) {
-      throw new BadRequestException(
-        'Sertifikat TTE personal belum diatur. Silakan buat di halaman Profil.',
-      );
-    }
-
-    const p12Passphrase = this.decryptPassphrase({
-      pin: params.pin,
-      encryptedPassphrase: kredensial.p12PassphraseEncrypted,
-    });
-
-    const config = this.getConfig();
-    const signed = await this.applyPkcs7Signature(
-      params.pdfBuffer,
-      { ...config, p12Base64: kredensial.p12Base64, passphrase: p12Passphrase },
-      {
+    const signed = await this.signingProvider.sign({
+      document: params.pdfBuffer,
+      signer: {
+        userId: params.userId,
         name: params.signerName,
-        reason: buildPdfTteSigningReason(config.reason, {
-          dokumenTteId: params.dokumenTteId,
-          userId: params.userId,
-          jenisDokumen: String(JenisDokumenTte.SOP_BERLAKU),
-        }),
       },
-    );
-    if (!signed.response.signed || signed.response.certificate === null) {
-      throw new InternalServerErrorException('Gagal menandatangani PDF SOP resmi.');
-    }
+      authorization: { pin: params.pin },
+      context: {
+        dokumenTteId: params.dokumenTteId,
+        jenisDokumen: JenisDokumenTte.SOP_BERLAKU,
+      },
+    });
     return {
-      signedPdf: Buffer.from(signed.response.signedPdfBase64, 'base64'),
-      sha256SignedPdf: signed.response.sha256SignedPdf,
-      signatureFormat: 'PKCS7_DETACHED',
-      certificate: signed.response.certificate,
+      signedPdf: signed.signedDocument,
+      sha256SignedPdf: signed.sha256SignedDocument,
+      signatureFormat: signed.signatureFormat,
+      certificate: signed.certificate,
       riwayatMetadata: signed.riwayatMetadata,
     };
   }
 
-  private async buildPlaceholderPdf(
-    pdfBuffer: Buffer,
-    config: PdfSigningConfig,
-    placeholder: { name: string; reason: string },
-    signingTime: Date,
-  ): Promise<Buffer> {
-    const placeholderInput = {
-      reason: placeholder.reason,
-      contactInfo: config.contactInfo,
-      name: placeholder.name,
-      location: config.location,
-      signingTime,
-      signatureLength: DEFAULT_SIGNATURE_LENGTH,
-    };
-    try {
-      const pdfDoc = await PDFDocument.load(pdfBuffer, { ignoreEncryption: true });
-      pdflibAddPlaceholder({ pdfDoc, ...placeholderInput });
-      return Buffer.from(
-        await pdfDoc.save({
-          useObjectStreams: false,
-          addDefaultPage: false,
-          updateFieldAppearances: false,
-        }),
-      );
-    } catch (pdflibError) {
-      const detail =
-        pdflibError instanceof Error ? pdflibError.message : 'format PDF tidak dikenali';
-      this.logger.warn(`Placeholder pdf-lib gagal (${detail}); mencoba plainAddPlaceholder.`);
-      return plainAddPlaceholder({ pdfBuffer, ...placeholderInput });
-    }
-  }
-
-  private async applyPkcs7Signature(
-    pdfBuffer: Buffer,
-    config: PdfSigningConfig & { p12Base64: string },
-    placeholder: { name: string; reason: string },
-  ): Promise<{ response: SignPdfResponse; riwayatMetadata: PdfSignatureMetadataInput }> {
-    const p12Buffer = Buffer.from(config.p12Base64, 'base64');
-    const signingTime = new Date();
-    try {
-      const trusted = loadTrustedCertificatesFromP12(p12Buffer, config.passphrase);
-      const certificate = mapCertificateToResponse(trusted.signingCertificate);
-      const placeholderPdf = await this.buildPlaceholderPdf(
-        pdfBuffer,
-        config,
-        placeholder,
-        signingTime,
-      );
-      const signer = new P12Signer(p12Buffer, {
-        passphrase: config.passphrase,
-        asn1StrictParsing: false,
-      });
-      const signedPdf = await new SignPdf().sign(placeholderPdf, signer, signingTime);
-      const signatureFields = extractPdfSignatureFields(signedPdf);
-      const pkcs7Signature = signatureFields[signatureFields.length - 1]?.pkcs7Buffer;
-      const signatureValue =
-        pkcs7Signature === undefined ? this.sha256Hex(signedPdf) : this.sha256Hex(pkcs7Signature);
-      return {
-        response: {
-          signed: true,
-          signedPdfBase64: signedPdf.toString('base64'),
-          sha256SignedPdf: this.sha256Hex(signedPdf),
-          signatureFormat: 'PKCS7_DETACHED',
-          certificate,
-        },
-        riwayatMetadata: {
-          signatureValue: `sha256:${signatureValue}`,
-          signatureAlgorithm: 'SHA256withRSA',
-          signatureFormat: 'PKCS7_DETACHED',
-          certSerialNumber: certificate.serialNumber,
-          certIssuer: certificate.issuer,
-          certSubject: certificate.subject,
-          certFingerprint: certificate.fingerprint,
-          certValidFrom: new Date(certificate.validFrom),
-          certValidTo: new Date(certificate.validTo),
-        },
-      };
-    } catch (error) {
-      throw new InternalServerErrorException(
-        error instanceof Error
-          ? `Gagal menandatangani PDF: ${error.message}`
-          : 'Gagal menandatangani PDF.',
-      );
-    }
-  }
-
-  private decryptPassphrase(params: { pin: string; encryptedPassphrase: string }): string {
-    try {
-      return decryptP12Passphrase(params.encryptedPassphrase, params.pin);
-    } catch {
-      throw new ForbiddenException(
-        'PIN TTE salah atau kredensial sertifikat perlu disiapkan ulang.',
-      );
-    }
-  }
-
   private isPdfSigningEnabled(): boolean {
     return this.configService.get<boolean>('PDF_SIGNING_ENABLED', true);
-  }
-
-  private getConfig(): PdfSigningConfig {
-    const p12Raw = this.configService.get<string>('PDF_SIGNING_P12_BASE64');
-    return {
-      p12Base64: typeof p12Raw === 'string' && p12Raw.trim() !== '' ? p12Raw.trim() : undefined,
-      passphrase: this.configService.get<string>('PDF_SIGNING_P12_PASSPHRASE', ''),
-      reason: this.configService.get<string>('PDF_SIGNING_REASON', 'Pengesahan dokumen SOP'),
-      location: this.configService.get<string>('PDF_SIGNING_LOCATION', 'Indonesia'),
-      contactInfo: this.configService.get<string>('PDF_SIGNING_CONTACT', ''),
-    };
   }
 
   private decodePdf(pdfBase64: string): Buffer {
