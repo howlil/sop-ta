@@ -1,4 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  useSingleWriterAutosave,
+  type SingleWriterAutosaveStatus,
+} from '@/shared/hooks/use-single-writer-autosave'
 import type { UpdateSopHeaderDto } from '@/types/dto/sop.dto'
 import type { SOPDetailMetadata } from '@/types/ui/sop'
 
@@ -92,17 +95,16 @@ export function diffSopHeaderSnapshots(
   return dto
 }
 
-function hasAnyKey(dto: UpdateSopHeaderDto): boolean {
-  return Object.keys(dto).length > 0
+function buildPatch(
+  current: SopHeaderSnapshot,
+  baseline: SopHeaderSnapshot,
+): UpdateSopHeaderDto | null {
+  const diff = diffSopHeaderSnapshots(current, baseline)
+  return Object.keys(diff).length > 0 ? diff : null
 }
 
 /** Status autosave yang dapat ditampilkan ke user. */
-export type SopHeaderAutosaveStatus =
-  | 'idle'
-  | 'pending'
-  | 'saving'
-  | 'saved'
-  | 'error'
+export type SopHeaderAutosaveStatus = SingleWriterAutosaveStatus
 
 export interface UseSopHeaderAutosaveOptions {
   /** ID DetailSOP atau header SOP — autosave dimatikan jika kosong / `enabled=false`. */
@@ -118,138 +120,32 @@ export interface UseSopHeaderAutosaveOptions {
 }
 
 export interface SopHeaderAutosaveControls {
-  /** Paksa kirim diff sekarang (tanpa menunggu debounce); aman dipanggil saat unmount/save manual. */
+  /** Paksa kirim diff sekarang (tanpa menunggu debounce); aman dipanggil sebelum aksi besar. */
   flush: () => Promise<void>
   /** Setel ulang baseline tanpa kirim PATCH (mis. setelah workbench dimuat ulang dari server). */
   resetBaseline: (next: SopHeaderSnapshot) => void
   /** Status autosave saat ini (untuk indikator UI). */
   status: SopHeaderAutosaveStatus
-  /** Error terakhir (jika `status === 'error'`). Reference baru per error agar consumer bisa toast sekali. */
+  /** Error terakhir (jika `status === 'error'`). */
   lastError: Error | null
 }
 
 /**
- * Autosave debounced untuk PATCH header SOP. Strategi:
- * 1. Setiap perubahan `snapshot` dijadwalkan menjadi PATCH setelah `debounceMs` idle.
- * 2. Hanya field yang berubah dari `baseline` yang dikirim (diff minimal).
- * 3. PATCH yang sedang berjalan di-cancel/di-overwrite dengan diff terbaru saat user lanjut mengetik.
- * 4. `flush()` memaksa pengiriman synchronous untuk dipanggil sebelum aksi besar (selesai/save draft).
- * 5. Status (`idle | pending | saving | saved | error`) di-expose untuk indikator UI.
+ * Autosave header SOP memakai scheduler single-writer bersama prosedur SOP.
+ * Snapshot dan diff header tetap domain-specific; scheduler hanya mengatur debounce,
+ * serialization, coalescing perubahan terbaru, flush, dan status.
  */
 export function useSopHeaderAutosave(
   options: UseSopHeaderAutosaveOptions,
 ): SopHeaderAutosaveControls {
   const { detailSopId, snapshot, save, enabled = true, debounceMs = DEFAULT_DEBOUNCE_MS } = options
-  const baselineRef = useRef<SopHeaderSnapshot>(snapshot)
-  const latestSnapshotRef = useRef<SopHeaderSnapshot>(snapshot)
-  const timerRef = useRef<number | null>(null)
-  const savedTimerRef = useRef<number | null>(null)
-  const inFlightRef = useRef<Promise<void> | null>(null)
-  const saveRef = useRef(save)
-  saveRef.current = save
 
-  const [status, setStatus] = useState<SopHeaderAutosaveStatus>('idle')
-  const [lastError, setLastError] = useState<Error | null>(null)
-
-  const clearSavedTimer = useCallback(() => {
-    if (savedTimerRef.current !== null) {
-      window.clearTimeout(savedTimerRef.current)
-      savedTimerRef.current = null
-    }
-  }, [])
-
-  const scheduleSavedFlash = useCallback(() => {
-    clearSavedTimer()
-    savedTimerRef.current = window.setTimeout(() => {
-      savedTimerRef.current = null
-      setStatus((prev) => (prev === 'saved' ? 'idle' : prev))
-    }, SAVED_INDICATOR_MS)
-  }, [clearSavedTimer])
-
-  const performSave = useCallback(async (): Promise<void> => {
-    if (!enabled || !detailSopId) return
-    const diff = diffSopHeaderSnapshots(latestSnapshotRef.current, baselineRef.current)
-    if (!hasAnyKey(diff)) return
-    const targetSnapshot = latestSnapshotRef.current
-    clearSavedTimer()
-    setStatus('saving')
-    const promise = saveRef
-      .current(diff)
-      .then(() => {
-        baselineRef.current = targetSnapshot
-        setLastError(null)
-        setStatus('saved')
-        scheduleSavedFlash()
-      })
-      .catch((err: unknown) => {
-        const error = err instanceof Error ? err : new Error(String(err))
-        setLastError(error)
-        setStatus('error')
-      })
-      .finally(() => {
-        if (inFlightRef.current === promise) {
-          inFlightRef.current = null
-        }
-      })
-    inFlightRef.current = promise
-    await promise
-  }, [clearSavedTimer, detailSopId, enabled, scheduleSavedFlash])
-
-  const cancelTimer = useCallback(() => {
-    if (timerRef.current !== null) {
-      window.clearTimeout(timerRef.current)
-      timerRef.current = null
-    }
-  }, [])
-
-  const flush = useCallback(async () => {
-    cancelTimer()
-    if (inFlightRef.current) {
-      await inFlightRef.current
-    }
-    await performSave()
-  }, [cancelTimer, performSave])
-
-  const resetBaseline = useCallback(
-    (next: SopHeaderSnapshot) => {
-      cancelTimer()
-      baselineRef.current = next
-      latestSnapshotRef.current = next
-      clearSavedTimer()
-      setStatus('idle')
-      setLastError(null)
-    },
-    [cancelTimer, clearSavedTimer],
-  )
-
-  useEffect(() => {
-    latestSnapshotRef.current = snapshot
-    if (!enabled || !detailSopId) return
-    const diff = diffSopHeaderSnapshots(snapshot, baselineRef.current)
-    if (!hasAnyKey(diff)) {
-      setStatus((prev) => (prev === 'pending' ? 'idle' : prev))
-      return
-    }
-    cancelTimer()
-    setStatus((prev) => (prev === 'saving' ? prev : 'pending'))
-    timerRef.current = window.setTimeout(() => {
-      timerRef.current = null
-      void performSave()
-    }, debounceMs)
-    return () => {
-      cancelTimer()
-    }
-  }, [snapshot, enabled, detailSopId, debounceMs, cancelTimer, performSave])
-
-  useEffect(() => {
-    return () => {
-      cancelTimer()
-      clearSavedTimer()
-    }
-  }, [cancelTimer, clearSavedTimer])
-
-  return useMemo(
-    () => ({ flush, resetBaseline, status, lastError }),
-    [flush, resetBaseline, status, lastError],
-  )
+  return useSingleWriterAutosave({
+    snapshot,
+    buildPatch,
+    save,
+    enabled: enabled && Boolean(detailSopId),
+    debounceMs,
+    savedIndicatorMs: SAVED_INDICATOR_MS,
+  })
 }
