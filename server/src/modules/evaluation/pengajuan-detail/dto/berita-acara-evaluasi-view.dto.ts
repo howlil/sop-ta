@@ -1,4 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { BeritaAcaraTteSignaturePayloadDto } from '../../../../common/contracts/tte-signature-payload.dto';
+
+export { BeritaAcaraTteSignaturePayloadDto } from '../../../../common/contracts/tte-signature-payload.dto';
 
 /** Satu baris ringkasan hasil per SOP pada BA. */
 export class BeritaAcaraHasilPerSopDto {
@@ -28,24 +31,6 @@ export class BeritaAcaraTimEvaluasiDto {
     description: 'Nama evaluator unik (dari baris nilai / dinilaiOleh)',
   })
   readonly evaluatorNamaUnik!: string[];
-}
-
-/** Metadata dokumen TTE BA (tanpa blob tanda tangan). */
-export class BeritaAcaraTteSignaturePayloadDto {
-  @ApiProperty({ description: 'ID stabil turunan `dokumenTteId:userId` (kompatibilitas klien)' })
-  readonly id!: string;
-  @ApiProperty({ format: 'uuid' })
-  readonly dokumenTteId!: string;
-  @ApiProperty({ format: 'uuid' })
-  readonly userId!: string;
-  @ApiProperty()
-  readonly nip!: string;
-  @ApiProperty()
-  readonly namaLengkap!: string;
-  @ApiPropertyOptional()
-  readonly jabatan?: string;
-  @ApiPropertyOptional()
-  readonly signedAt?: string;
 }
 
 export class BeritaAcaraTteMetaDto {

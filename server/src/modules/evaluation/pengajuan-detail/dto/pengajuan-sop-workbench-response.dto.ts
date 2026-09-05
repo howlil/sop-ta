@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { PenyusunWorkbenchDataDto } from '../../../sop/catalog/dto/penyusun-workbench-data.dto';
-import { BeritaAcaraTteSignaturePayloadDto } from './berita-acara-evaluasi-view.dto';
+import { PenyusunWorkbenchDataDto } from '../../../../common/contracts/sop-workbench-read-model.dto';
+import { BeritaAcaraTteSignaturePayloadDto } from '../../../../common/contracts/tte-signature-payload.dto';
 
 /** Respons GET `/evaluasi/pengajuan/:pengajuanId/sop-dokumen/:detailSopId`. */
 export class PengajuanSopWorkbenchResponseDto {

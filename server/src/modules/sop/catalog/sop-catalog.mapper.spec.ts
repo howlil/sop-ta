@@ -4,7 +4,7 @@ import {
   SatuanWaktu,
   StatusSOP,
 } from '../../../generated/prisma';
-import { buildNilaiEvaluasiClientId } from '../../evaluation/nilai/nilai-evaluasi-client-id';
+import { buildNilaiEvaluasiClientId } from '../../../common/contracts/nilai-evaluasi-client-id';
 import type { SopWorkbenchDbPayload } from './sop-catalog.repository';
 import { mapDaftarRow, mapWorkbenchPayload, toIso } from './sop-catalog.mapper';
 

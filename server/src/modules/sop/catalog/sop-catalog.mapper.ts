@@ -3,15 +3,15 @@ import {
   hasRevisiInFlight,
   TERMINAL_DETAIL_STATUSES,
 } from '../../../common/status/sop-editable.util';
+import { buildNilaiEvaluasiClientId } from '../../../common/contracts/nilai-evaluasi-client-id';
+import type { BeritaAcaraTteSignaturePayloadDto } from '../../../common/contracts/tte-signature-payload.dto';
 import { PeranPengguna, StatusSOP } from '../../../generated/prisma';
-import { buildNilaiEvaluasiClientId } from '../../evaluation/nilai/nilai-evaluasi-client-id';
 import { encodeLogEditSopClientId } from '../collaboration/log-edit-session.helper';
 import type { PenyusunWorkbenchDataDto } from './dto/penyusun-workbench-data.dto';
 import type { SopDaftarRowDto } from './dto/sop-daftar-row.dto';
 import type { SopDaftarVersiSliceDto } from './dto/sop-daftar-versi-slice.dto';
 import type { SopDaftarDbRow, SopWorkbenchDbPayload } from './sop-catalog.repository';
 import { mapDiagramConfigsToWorkbenchDto } from '../diagram/diagram-workbench.mapper';
-import type { BeritaAcaraTteSignaturePayloadDto } from '../../evaluation/pengajuan-detail/dto/berita-acara-evaluasi-view.dto';
 import { getSopWorkflowProjection } from './sop-status-policy';
 
 export function toIso(d: Date): string {

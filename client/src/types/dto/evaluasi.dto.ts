@@ -1,5 +1,12 @@
-import type { PenyusunWorkbenchData } from "./sop.dto";
+import type { PaginationMetaDto } from "../contracts/pagination.contract";
+import type { EvaluasiWorkspacePreview } from "../contracts/sop-evaluation-read-model.contract";
 import type { TTESignaturePayload } from "./tte.dto";
+
+export type { PaginationMetaDto } from "../contracts/pagination.contract";
+export type {
+  PengajuanSopWorkbenchResponse,
+  EvaluasiWorkspacePreview,
+} from "../contracts/sop-evaluation-read-model.contract";
 
 export type StatusHasilEvaluasi = "SESUAI" | "PERLU_PERBAIKAN";
 
@@ -201,14 +208,6 @@ export interface PengajuanEvaluasiShell {
   updatedAt: string;
 }
 
-/** GET `/evaluasi/pengajuan/:id/sop-dokumen/:detailSopId`. */
-export interface PengajuanSopWorkbenchResponse {
-  detailSopId: string;
-  workbench: PenyusunWorkbenchData;
-  /** Payload QR TTE Kepala OPD bila SOP sudah ditandatangani. */
-  tteSignaturePayloadKepalaOpd?: TTESignaturePayload;
-}
-
 export interface BeritaAcaraHasilPerSopRow {
   nomorSOP: string;
   judul: string;
@@ -351,14 +350,6 @@ export interface EvaluasiListQueryParams {
   jenis?: string;
 }
 
-/** Meta pagination — selaras server `toPaginatedData` (`pagination` di dalam `data`). */
-export interface PaginationMetaDto {
-  page: number;
-  limit: number;
-  totalItems: number;
-  totalPages: number;
-}
-
 /** Satu baris GET `/evaluasi/ringkas`. */
 export interface PengajuanEvaluasiRingkasRow {
   pengajuanEvaluasiId: string;
@@ -444,11 +435,6 @@ export interface EvaluasiWorkspaceRiwayatOpdEntry {
   evaluatorNama: string;
   nilaiOPD?: number | null;
   pengajuanEvaluasiId: string;
-}
-
-export interface EvaluasiWorkspacePreview {
-  detailSopId: string;
-  workbench: PenyusunWorkbenchData;
 }
 
 export interface EvaluasiWorkspaceOpdResponse {

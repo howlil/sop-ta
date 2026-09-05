@@ -1,4 +1,4 @@
-import type { PaginationMetaDto } from '@/types/dto/evaluasi.dto'
+import type { PaginationMetaDto } from '@/types/contracts/pagination.contract'
 import type { LangkahSOP, PenyusunWorkbenchData, SopDetail } from '@/types/dto/sop.dto'
 
 export interface PublicArsipQueryParams {
