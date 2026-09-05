@@ -12,14 +12,14 @@ import { RowActions } from '@/components/data/row-actions'
 import {
   EvaluasiFilterTabs,
   type EvaluasiFilterTab,
-} from '@/components/evaluasi/evaluasi-filter-tabs'
-import { EvaluasiPengajuanGroupedList } from '@/components/evaluasi/evaluasi-pengajuan-grouped-list'
+} from '@/features/evaluation/ui/evaluasi-filter-tabs'
+import { EvaluasiPengajuanGroupedList } from '@/features/evaluation/ui/evaluasi-pengajuan-grouped-list'
 import { ROUTES } from '@/utils/constants'
 import {
   STATUS_PENGAJUAN_BERJALAN_EVALUATOR,
   STATUS_RIWAYAT_FINAL_EVALUASI,
   usePengajuanEvaluasiRingkas,
-} from '@/api/evaluasi'
+} from '@/features/evaluation'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { readPaginationMeta } from '@/lib/api/pagination'
 import { DEFAULT_PAGE_SIZE } from '@/utils/constants'
