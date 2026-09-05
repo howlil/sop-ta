@@ -90,6 +90,8 @@ export function useSingleWriterAutosave<TSnapshot, TPatch>(
 
     let run: Promise<void>
     run = (async () => {
+      let didSave = false
+
       while (enabledRef.current) {
         const targetSnapshot = latestSnapshotRef.current
         const patch = buildPatchRef.current(targetSnapshot, baselineRef.current)
@@ -109,6 +111,7 @@ export function useSingleWriterAutosave<TSnapshot, TPatch>(
           return
         }
 
+        didSave = true
         // resetBaseline() dapat terjadi ketika write lama masih berjalan. Hasil write
         // lama tidak boleh mengembalikan baseline lokal ke snapshot sebelum reset.
         if (baselineGenerationRef.current === generation) {
@@ -126,7 +129,7 @@ export function useSingleWriterAutosave<TSnapshot, TPatch>(
         latestSnapshotRef.current,
         baselineRef.current,
       )
-      if (remainingPatch === null) {
+      if (didSave && remainingPatch === null) {
         setStatus('saved')
         scheduleSavedFlash()
       }
