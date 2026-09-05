@@ -72,6 +72,7 @@
       "@/lib/pengajuan/*": ["./src/features/submission/model/*"],
       "@/lib/print/*": ["./src/shared/print/*"],
       "@/lib/sop/*": ["./src/features/sop/model/*"],
+      "@/lib/status": ["./src/shared/status/model/index.ts"],
       "@/lib/status/*": ["./src/shared/status/model/*"],
       "@/lib/tte/*": ["./src/features/tte/model/*"],
 
