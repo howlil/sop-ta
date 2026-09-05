@@ -9,7 +9,7 @@ import {
   SimplePanelHeader,
 } from '@/components/ui/collapsible-side-panel'
 import type { PublicOpdItem, PublicSopItem } from '@/types/dto/sop-public.dto'
-import type { PaginationMetaDto } from '@/types/dto/evaluasi.dto'
+import type { PaginationMetaDto } from '@/types/contracts/pagination.contract'
 import { ArsipOpdSidebar } from './arsip-opd-sidebar'
 import { ArsipSopPanel } from './arsip-sop-panel'
 import { ArsipSopPreviewPane } from './arsip-sop-preview-pane'
