@@ -85,9 +85,10 @@ describe('Pengujian TtePdfSigningService', () => {
     }).compile();
     service = module.get(TtePdfSigningService);
     repository.findKredensial.mockResolvedValue({
-      userId: 'credential-user',
+      hashPin: 'unused-by-pdf-provider',
       p12Base64,
       p12PassphraseEncrypted: encryptP12Passphrase(passphrase, '123456'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
     });
   });
 
