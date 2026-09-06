@@ -1,9 +1,38 @@
-/** Re-export dari domain SOP agar diagram dan seed pakai satu sumber. */
+/** Domain row tetap canonical; diagram mendapat projection khusus untuk compatibility renderer. */
 export type { ProsedurRow as ProsedurStepType } from '@/types/ui/sop'
-export type { ProsedurRow } from '@/types/ui/sop'
 
-import type { ProsedurRow as ProsedurRowType } from '@/types/ui/sop'
+import type { ProsedurRow as CanonicalProsedurRow } from '@/types/ui/sop'
 import { resolveProsedurPelaksanaIdOrFallback } from '@/lib/sop/resolve-prosedur-implementer'
+
+/**
+ * Shape khusus renderer flowchart lama. Alias presentation ini tidak menjadi editor state;
+ * `toDiagramProsedurRows` adalah satu-satunya boundary yang membentuknya.
+ */
+export interface ProsedurRow extends CanonicalProsedurRow {
+  no: number
+  mutu_kelengkapan?: string
+  time?: number
+  time_unit?: string
+  mutu_waktu?: string
+  output?: string
+}
+
+export function toDiagramProsedurRows(rows: CanonicalProsedurRow[]): ProsedurRow[] {
+  return rows.map((row) => ({
+    ...row,
+    no: row.urutan,
+    mutu_kelengkapan: row.kelengkapan,
+    time: row.waktu,
+    time_unit: row.satuanWaktu,
+    mutu_waktu:
+      row.waktu === undefined
+        ? undefined
+        : row.waktu === 0
+          ? ''
+          : `${row.waktu} ${getFullTimeUnit(row.satuanWaktu ?? 'm')}`,
+    output: row.keluaran,
+  }))
+}
 
 export interface LayoutConfig {
   widthKegiatan?: number
@@ -48,10 +77,10 @@ export interface ArrowConnectionConfig {
   bendPoints: ArrowPathPoint[]
 }
 
-/** Map connectionId → persisted path config. Parent stores; child uses for manual priority. */
+/** Map connectionId → persisted path config per connection. */
 export type ArrowConfig = Record<string, ArrowConnectionConfig>
 
-/** Connection descriptor for flowchart arrows (logic + UI). Dipakai flowchartPagination dan FlowchartArrowConnector. */
+/** Connection descriptor for flowchart arrows (logic + UI). */
 export interface FlowchartConnection {
   id: string
   from: string
@@ -59,35 +88,27 @@ export interface FlowchartConnection {
   label?: string | null
   sourceType?: string
   targetType?: string
-  /** Swimlane column metadata used by the deterministic flowchart channel router. */
   fromImplementerId?: string
   toImplementerId?: string
 }
 
-/** Label position for arrow label or BPMN decision text */
 export interface LabelPosition {
   x: number
   y: number
 }
 
-/** Custom labels for decision branches; key e.g. "step-3-yes" | "step-3-no" */
 export type CustomLabels = Record<string, string>
-
-/** Positions for labels; key = connectionId (arrow) or "step-{seq}" (BPMN decision text) */
 export type LabelPositions = Record<string, LabelPosition>
 
-/** Label config: custom text + persisted positions */
 export interface LabelConfig {
   custom_labels?: CustomLabels
   positions?: LabelPositions
 }
 
-/** Normalized "Ya" label for decision branches (ya|yes|y). */
 export function isYaLabel(lbl: string | null | undefined): boolean {
   return /^(ya|yes|y)$/.test((lbl ?? '').trim().toLowerCase())
 }
 
-/** Normalized "Tidak" label for decision branches (tidak|no|n). */
 export function isTidakLabel(lbl: string | null | undefined): boolean {
   return /^(tidak|no|n)$/.test((lbl ?? '').trim().toLowerCase())
 }
@@ -104,18 +125,18 @@ export function getFullTimeUnit(unit: string): string {
   return map[unit] ?? unit
 }
 
-/** Konversi ProsedurRow[] + implementers → SOPStep[] untuk diagram Flowchart/BPMN. */
+/** Konversi canonical procedure rows + implementers → SOPStep[] untuk diagram Flowchart/BPMN. */
 export function rowsToSteps(
-  rows: ProsedurRowType[],
+  rows: CanonicalProsedurRow[],
   implementers: Implementer[]
 ): SOPStep[] {
   return rows.map((row) => {
     const implementerId = resolveProsedurPelaksanaIdOrFallback(row, implementers[0]?.id)
     const type =
       row.type ??
-      (row.no === 1 || row.no === rows.length ? 'terminator' : 'task')
+      (row.urutan === 1 || row.urutan === rows.length ? 'terminator' : 'task')
     return {
-      seq_number: row.no ?? row.urutan,
+      seq_number: row.urutan,
       name: row.kegiatan,
       type,
       id_implementer: implementerId || implementers[0]?.id,
