@@ -33,7 +33,7 @@ function renderHeader(
 ) {
   const props: React.ComponentProps<typeof DetailSOPPenyusunHeader> = {
     metadata: {
-      nama: 'SOP Pelayanan Administrasi',
+      judul: 'SOP Pelayanan Administrasi',
       version: 2,
     } as SOPDetailMetadata,
     currentSopStatus: 'DRAFT',
