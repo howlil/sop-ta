@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { JwtAccessPayload } from '../../common';
-import {
-  PeranPengguna,
-  StatusPengajuanEvaluasi,
-  StatusSOP,
-} from '../../generated/prisma';
+import { PeranPengguna, StatusPengajuanEvaluasi, StatusSOP } from '../../generated/prisma';
 import {
   WorkItemsRepository,
   type WorkItemPengajuanRow,
@@ -64,10 +60,7 @@ function sopWorkItem(row: WorkItemSopRow): WorkItem {
   };
 }
 
-function evaluationWorkItem(
-  row: WorkItemPengajuanRow,
-  role: PeranPengguna,
-): WorkItem | null {
+function evaluationWorkItem(row: WorkItemPengajuanRow, role: PeranPengguna): WorkItem | null {
   const countLabel = `${row.nilaiEvaluasi.length} SOP`;
   const baLabel = row.nomorBA ? ` · BA ${row.nomorBA}` : '';
 
@@ -132,8 +125,7 @@ function kepalaOpdItems(row: WorkItemPengajuanRow): WorkItem[] {
 
   return row.nilaiEvaluasi
     .filter(
-      ({ detailSop }) =>
-        detailSop.status === StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
+      ({ detailSop }) => detailSop.status === StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
     )
     .map(({ detailSop }) => ({
       id: `approve-sop:${detailSop.detailSopId}`,
