@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import {
   KegiatanCell,
-  MutuWaktuCell,
+  WaktuCell,
 } from '@/pages/penyusun/sop/detail/components/ProsedurEditorCells'
 
 describe('ProsedurEditorCells', () => {
@@ -18,9 +18,9 @@ describe('ProsedurEditorCells', () => {
     expect(onChange).toHaveBeenCalledWith('Terima dan verifikasi dokumen')
   })
 
-  it('menampilkan jumlah dan satuan waktu sebagai satu compound control yang tetap fokus terpisah', () => {
+  it('menampilkan jumlah dan satuan waktu dari canonical fields sebagai compound control', () => {
     const onChange = vi.fn()
-    render(<MutuWaktuCell value="15 m" onChange={onChange} />)
+    render(<WaktuCell waktu={15} satuanWaktu="m" onChange={onChange} />)
 
     const group = screen.getByTestId('procedure-time-control')
     const amount = screen.getByRole('spinbutton', { name: 'Jumlah waktu' })
