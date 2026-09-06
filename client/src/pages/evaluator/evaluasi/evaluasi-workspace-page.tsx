@@ -33,7 +33,6 @@ export function EvaluasiWorkspacePage(props: EvaluasiWorkspacePageProps) {
   const {
     workspace,
     isLoadingWorkspace,
-    isFetchingWorkspace,
     workspaceError,
     resourceNotFound,
     notFoundMessage,
