@@ -4,14 +4,22 @@ export function getInitialSopDetailMetadata(): SOPDetailMetadata {
   return {
     id: "",
     nomorSOP: "",
-    nama: "",
-    lembaga: "",
+    judul: "",
+    namaLembaga: "",
     logoUrl: "",
     tanggalEfektif: "",
     tanggalRevisi: "",
     tanggalPembuatan: "",
-    picName: "",
-    picNumber: "",
+    kepalaOpdNama: "",
+    kepalaOpdNip: "",
+    dasarHukum: [],
+    dasarHukumPeraturanIds: [],
+    sopTerkait: [],
+    sopTerkaitDetailIds: [],
+    peringatan: [],
+    kualifikasiPelaksanaan: [],
+    peralatanPerlengkapan: [],
+    pencatatanPendataan: [],
   };
 }
 
