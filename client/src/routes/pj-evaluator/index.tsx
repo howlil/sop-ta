@@ -1,10 +1,6 @@
-import { createFileRoute, Navigate } from '@tanstack/react-router'
-import { ROUTES } from '@/utils/constants'
+import { createFileRoute } from '@tanstack/react-router'
+import { WorkItemsPage } from '@/pages/work-items/WorkItemsPage'
 
 export const Route = createFileRoute('/pj-evaluator/')({
-  component: PjEvaluatorIndex,
+  component: WorkItemsPage,
 })
-
-function PjEvaluatorIndex() {
-  return <Navigate to={ROUTES.PJ_EVALUATOR.GRAFIK_EVALUASI} />
-}
