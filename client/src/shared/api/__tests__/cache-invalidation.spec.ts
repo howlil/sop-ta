@@ -19,6 +19,7 @@ describe('invalidateSopEvaluasiWorkflow', () => {
       { queryKey: queryKeys.sop, refetchType: 'none' },
       { queryKey: queryKeys.detailSop, refetchType: 'none' },
       { queryKey: queryKeys.evaluasi, refetchType: 'none' },
+      { queryKey: queryKeys.workItems, refetchType: 'none' },
     ])
   })
 
