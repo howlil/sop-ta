@@ -10,6 +10,7 @@ import { EvaluationModule } from './modules/evaluation/evaluation.module';
 import { NotificationModule } from './modules/notifications/reminders/notification.module';
 import { SopModule } from './modules/sop/sop.module';
 import { TteModule } from './modules/tte/tte.module';
+import { WorkItemsModule } from './modules/work-items/work-items.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { TteModule } from './modules/tte/tte.module';
     EvaluationModule,
     TteModule,
     NotificationModule,
+    WorkItemsModule,
   ],
 })
 export class AppModule {}
