@@ -10,27 +10,13 @@ function isNonEmpty(value: string | undefined | null): boolean {
   return (value ?? '').trim().length > 0
 }
 
-function pickKelengkapan(row: ProsedurRow): string {
-  return (row.mutu_kelengkapan ?? row.kelengkapan ?? '').trim()
-}
-
-function pickKeluaran(row: ProsedurRow): string {
-  return (row.output ?? row.keluaran ?? '').trim()
-}
-
-function hasMutuWaktu(row: ProsedurRow): boolean {
-  const waktuRaw = row.waktu ?? row.time
-  if (typeof waktuRaw === 'number' && Number.isFinite(waktuRaw)) {
-    return true
-  }
-  const raw = (row.mutu_waktu ?? '').trim()
-  if (raw.length === 0) return false
-  return /^\d+/.test(raw)
+function hasWaktu(row: ProsedurRow): boolean {
+  return typeof row.waktu === 'number' && Number.isFinite(row.waktu)
 }
 
 /**
- * Validasi kelengkapan baris prosedur sebelum keluar dari mode edit.
- * Selaras dengan `assertWorkbenchCompleteForSiapDievaluasi` di server + kolom waktu di editor.
+ * Validasi kelengkapan canonical procedure rows sebelum keluar dari mode edit.
+ * Selaras dengan `assertWorkbenchCompleteForSiapDievaluasi` di server.
  */
 export function validateProsedurRows(
   rows: ProsedurRow[],
@@ -48,13 +34,13 @@ export function validateProsedurRows(
     if (!isNonEmpty(row.kegiatan)) {
       errors.push(`${prefix}: kegiatan wajib diisi`)
     }
-    if (!pickKelengkapan(row)) {
+    if (!isNonEmpty(row.kelengkapan)) {
       errors.push(`${prefix}: kelengkapan wajib diisi`)
     }
-    if (!pickKeluaran(row)) {
+    if (!isNonEmpty(row.keluaran)) {
       errors.push(`${prefix}: keluaran wajib diisi`)
     }
-    if (!hasMutuWaktu(row)) {
+    if (!hasWaktu(row)) {
       errors.push(`${prefix}: waktu wajib diisi`)
     }
     if (!isNonEmpty(row.keterangan)) {
