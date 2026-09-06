@@ -1,9 +1,5 @@
 import type { JwtAccessPayload } from '../../common';
-import {
-  PeranPengguna,
-  StatusPengajuanEvaluasi,
-  StatusSOP,
-} from '../../generated/prisma';
+import { PeranPengguna, StatusPengajuanEvaluasi, StatusSOP } from '../../generated/prisma';
 import type {
   WorkItemPengajuanRow,
   WorkItemSopRow,
@@ -87,9 +83,7 @@ describe('WorkItemsService', () => {
       .mockResolvedValue([sopRow(StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI)]);
     const findPengajuanCandidates = jest
       .fn()
-      .mockResolvedValue([
-        pengajuanRow(StatusPengajuanEvaluasi.DITANDATANGANI_PJ_EVALUATOR),
-      ]);
+      .mockResolvedValue([pengajuanRow(StatusPengajuanEvaluasi.DITANDATANGANI_PJ_EVALUATOR)]);
     const repository = buildRepository({ findSopCandidates, findPengajuanCandidates });
     const service = new WorkItemsService(repository);
 
@@ -109,12 +103,14 @@ describe('WorkItemsService', () => {
   });
 
   it('Kepala OPD hanya menerima SOP pada paket yang benar-benar siap disahkan', async () => {
-    const findPengajuanCandidates = jest.fn().mockResolvedValue([
-      pengajuanRow(StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN, [
-        StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
-        StatusSOP.BERLAKU,
-      ]),
-    ]);
+    const findPengajuanCandidates = jest
+      .fn()
+      .mockResolvedValue([
+        pengajuanRow(StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN, [
+          StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
+          StatusSOP.BERLAKU,
+        ]),
+      ]);
     const repository = buildRepository({ findPengajuanCandidates });
     const service = new WorkItemsService(repository);
 
