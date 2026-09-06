@@ -148,7 +148,7 @@ export function DetailSOPPenyusunHeader({
   const hasPrintAction = currentSopStatus === 'BERLAKU'
   const hasVersionAction = canBuatVersiBaru && onBuatVersiBaru !== undefined
   const hasSecondaryActions = hasPrintAction || hasVersionAction
-  const documentTitle = metadata.nama ?? metadata.judul ?? 'SOP'
+  const documentTitle = metadata.judul ?? 'SOP'
 
   const confirmTitle = isRevisionFlow ? 'Kirim ulang evaluasi?' : 'Yakin SOP sudah siap?'
   const confirmDescription = isRevisionFlow

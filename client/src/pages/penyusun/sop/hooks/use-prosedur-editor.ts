@@ -1,13 +1,9 @@
-/**
- * useProsedurEditor hook
- * Extracted from DetailSOPProsedurEditor component
- */
+/** Procedure editor mutations over the canonical SOP editor model. */
 
 import { useState, useCallback } from "react";
 import type { ProsedurRow } from "@/types/ui/sop";
 
 export interface UseProsedurEditorReturn {
-  // Dialog state
   isDecisionDialogOpen: boolean;
   setIsDecisionDialogOpen: (open: boolean) => void;
   decisionStepIndex: number | null;
@@ -17,7 +13,6 @@ export interface UseProsedurEditorReturn {
   decisionNoId: string;
   setDecisionNoId: (id: string) => void;
 
-  // Row operations
   handleAddRow: (
     index: number,
     implementers: { id: string; name: string }[],
@@ -34,9 +29,9 @@ export interface UseProsedurEditorReturn {
     implementerId: string,
     implementers: { id: string; name: string }[],
   ) => void;
-  handleMutuKelengkapanChange: (index: number, value: string) => void;
-  handleMutuWaktuChange: (index: number, amount: string, unit: string) => void;
-  handleOutputChange: (index: number, value: string) => void;
+  handleKelengkapanChange: (index: number, value: string) => void;
+  handleWaktuChange: (index: number, amount: string, unit: string) => void;
+  handleKeluaranChange: (index: number, value: string) => void;
   handleKeteranganChange: (index: number, value: string) => void;
   handleDecisionConfig: (index: number, yesId: string, noId: string) => void;
 }
@@ -45,15 +40,11 @@ export function useProsedurEditor(
   _prosedurRows: ProsedurRow[],
   setProsedurRows: React.Dispatch<React.SetStateAction<ProsedurRow[]>>,
 ): UseProsedurEditorReturn {
-  // Dialog state
   const [isDecisionDialogOpen, setIsDecisionDialogOpen] = useState(false);
-  const [decisionStepIndex, setDecisionStepIndex] = useState<number | null>(
-    null,
-  );
+  const [decisionStepIndex, setDecisionStepIndex] = useState<number | null>(null);
   const [decisionYesId, setDecisionYesId] = useState<string>("");
   const [decisionNoId, setDecisionNoId] = useState<string>("");
 
-  // Row operations
   const handleAddRow = useCallback(
     (index: number, implementers: { id: string; name: string }[]) => {
       setProsedurRows((prev) => {
@@ -61,7 +52,6 @@ export function useProsedurEditor(
         const newRow: ProsedurRow = {
           id: `${idBase}-${index + 1}`,
           urutan: index + 2,
-          no: index + 2,
           kegiatan: "",
           pelaksana: implementers[0]?.id ?? "",
           pelaksanaMapping: implementers.reduce(
@@ -71,14 +61,13 @@ export function useProsedurEditor(
             }),
             {} as Record<string, string>,
           ),
-          mutu_kelengkapan: "",
-          mutu_waktu: "",
-          output: "",
+          kelengkapan: "",
+          keluaran: "",
           keterangan: "",
         };
         const next = [...prev];
         next.splice(index + 1, 0, newRow);
-        return next.map((r, i) => ({ ...r, no: i + 1 }));
+        return next.map((row, i) => ({ ...row, urutan: i + 1 }));
       });
     },
     [setProsedurRows],
@@ -89,10 +78,7 @@ export function useProsedurEditor(
       setProsedurRows((prev) =>
         prev
           .filter((_, i) => i !== index)
-          .map((r, i) => ({
-            ...r,
-            no: i + 1,
-          })),
+          .map((row, i) => ({ ...row, urutan: i + 1 })),
       );
     },
     [setProsedurRows],
@@ -105,14 +91,14 @@ export function useProsedurEditor(
       terminatorRole?: "start" | "end",
     ) => {
       setProsedurRows((prev) =>
-        prev.map((r, i) =>
+        prev.map((row, i) =>
           i === index
             ? {
-                ...r,
+                ...row,
                 type,
                 terminatorRole: type === "terminator" ? terminatorRole : undefined,
               }
-            : r,
+            : row,
         ),
       );
     },
@@ -122,7 +108,7 @@ export function useProsedurEditor(
   const handleKegiatanChange = useCallback(
     (index: number, kegiatan: string) => {
       setProsedurRows((prev) =>
-        prev.map((r, i) => (i === index ? { ...r, kegiatan } : r)),
+        prev.map((row, i) => (i === index ? { ...row, kegiatan } : row)),
       );
     },
     [setProsedurRows],
@@ -135,16 +121,16 @@ export function useProsedurEditor(
       implementers: { id: string; name: string }[],
     ) => {
       setProsedurRows((prev) =>
-        prev.map((r, i) => {
-          if (i !== index) return r;
-          const nextPelaksana: Record<string, string> = {};
+        prev.map((row, i) => {
+          if (i !== index) return row;
+          const pelaksanaMapping: Record<string, string> = {};
           implementers.forEach((impl) => {
-            nextPelaksana[impl.id] = impl.id === implementerId ? "√" : "";
+            pelaksanaMapping[impl.id] = impl.id === implementerId ? "√" : "";
           });
           return {
-            ...r,
+            ...row,
             pelaksana: implementerId,
-            pelaksanaMapping: nextPelaksana,
+            pelaksanaMapping,
           };
         }),
       );
@@ -152,63 +138,46 @@ export function useProsedurEditor(
     [setProsedurRows],
   );
 
-  const handleMutuKelengkapanChange = useCallback(
+  const handleKelengkapanChange = useCallback(
     (index: number, value: string) => {
       setProsedurRows((prev) =>
-        prev.map((r, i) =>
-          i === index ? { ...r, mutu_kelengkapan: value, kelengkapan: value } : r,
-        ),
+        prev.map((row, i) => (i === index ? { ...row, kelengkapan: value } : row)),
       );
     },
     [setProsedurRows],
   );
 
-  const handleMutuWaktuChange = useCallback(
+  const handleWaktuChange = useCallback(
     (index: number, amount: string, unit: string) => {
-      const unitLabelMap: Record<string, string> = {
-        m: "Menit",
-        h: "Jam",
-        d: "Hari",
-        w: "Minggu",
-        mo: "Bulan",
-      };
       const normalizedAmount = amount.trim();
       const parsedAmount = Number.parseInt(normalizedAmount, 10);
-      const validAmount =
+      const waktu =
         normalizedAmount.length > 0 && Number.isFinite(parsedAmount)
           ? Math.max(0, parsedAmount)
           : undefined;
-      const normalizedUnit = ["m", "h", "d", "w", "mo"].includes(unit)
+      const satuanWaktu = ["m", "h", "d", "w", "mo", "y"].includes(unit)
         ? unit
         : "m";
-      const label = unitLabelMap[normalizedUnit] || "";
-      const value = validAmount !== undefined ? `${validAmount} ${label}` : "";
+
       setProsedurRows((prev) =>
-        prev.map((r, i) =>
+        prev.map((row, i) =>
           i === index
             ? {
-                ...r,
-                mutu_waktu: value,
-                waktu: validAmount,
-                time: validAmount,
-                satuanWaktu:
-                  validAmount !== undefined ? normalizedUnit : undefined,
-                time_unit:
-                  validAmount !== undefined ? normalizedUnit : undefined,
+                ...row,
+                waktu,
+                satuanWaktu: waktu !== undefined ? satuanWaktu : undefined,
               }
-            : r,
+            : row,
         ),
       );
     },
     [setProsedurRows],
   );
 
-  const handleOutputChange = useCallback(
+  const handleKeluaranChange = useCallback(
     (index: number, value: string) => {
       setProsedurRows((prev) =>
-        prev.map((r, i) =>
-          i === index ? { ...r, output: value, keluaran: value } : r,
-        ),
+        prev.map((row, i) => (i === index ? { ...row, keluaran: value } : row)),
       );
     },
     [setProsedurRows],
@@ -217,7 +186,7 @@ export function useProsedurEditor(
   const handleKeteranganChange = useCallback(
     (index: number, value: string) => {
       setProsedurRows((prev) =>
-        prev.map((r, i) => (i === index ? { ...r, keterangan: value } : r)),
+        prev.map((row, i) => (i === index ? { ...row, keterangan: value } : row)),
       );
     },
     [setProsedurRows],
@@ -234,7 +203,6 @@ export function useProsedurEditor(
   );
 
   return {
-    // Dialog state
     isDecisionDialogOpen,
     setIsDecisionDialogOpen,
     decisionStepIndex,
@@ -243,16 +211,14 @@ export function useProsedurEditor(
     setDecisionYesId,
     decisionNoId,
     setDecisionNoId,
-
-    // Row operations
     handleAddRow,
     handleDeleteRow,
     handleTypeChange,
     handleKegiatanChange,
     handlePelaksanaChange,
-    handleMutuKelengkapanChange,
-    handleMutuWaktuChange,
-    handleOutputChange,
+    handleKelengkapanChange,
+    handleWaktuChange,
+    handleKeluaranChange,
     handleKeteranganChange,
     handleDecisionConfig,
   };

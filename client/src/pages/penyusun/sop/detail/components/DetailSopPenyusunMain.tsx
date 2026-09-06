@@ -17,12 +17,6 @@ export interface DetailSOPPenyusunMainProps {
   setIsEditingSteps: (editing: boolean) => void
 }
 
-function toArrayField(value: string | string[] | undefined): string[] {
-  if (Array.isArray(value)) return value
-  if (typeof value === 'string' && value.length > 0) return [value]
-  return []
-}
-
 function scheduleDiagramIdleMount(onReady: () => void): () => void {
   if (typeof requestIdleCallback !== 'undefined') {
     const id = requestIdleCallback(onReady, { timeout: 3000 })
@@ -32,29 +26,25 @@ function scheduleDiagramIdleMount(onReady: () => void): () => void {
   return () => clearTimeout(id)
 }
 
+/** Presentation adapter: canonical editor metadata -> document/header props. */
 function toPreviewMetadata(meta: SOPDetailMetadata) {
-  const institutionLines =
-    meta.institutionLines !== undefined && meta.institutionLines.length > 0
-      ? meta.institutionLines
-      : namaLembagaToInstitutionLines(meta.lembaga)
   return {
-    name: meta.nama ?? meta.judul ?? '',
-    number: meta.nomorSOP ?? meta.nomor ?? '',
-    lembaga: meta.lembaga,
-    institutionLines,
+    name: meta.judul ?? '',
+    number: meta.nomorSOP ?? '',
+    institutionLines: namaLembagaToInstitutionLines(meta.namaLembaga),
     logoUrl: meta.logoUrl,
     version: meta.version ?? 1,
     createdDate: meta.tanggalPembuatan ?? '',
     revisionDate: meta.tanggalRevisi ?? '',
     effectiveDate: meta.tanggalEfektif ?? '',
-    picName: meta.picName ?? '',
-    picNumber: meta.picNumber ?? '',
-    lawBasis: meta.lawBasis ?? [],
-    relatedSop: meta.relatedSop ?? [],
-    warning: toArrayField(meta.warning),
-    implementQualification: toArrayField(meta.implementQualification),
-    equipment: toArrayField(meta.equipment),
-    recordData: toArrayField(meta.recordData),
+    picName: meta.kepalaOpdNama ?? '',
+    picNumber: meta.kepalaOpdNip ?? '',
+    lawBasis: meta.dasarHukum ?? [],
+    relatedSop: meta.sopTerkait ?? [],
+    warning: meta.peringatan ?? [],
+    implementQualification: meta.kualifikasiPelaksanaan ?? [],
+    equipment: meta.peralatanPerlengkapan ?? [],
+    recordData: meta.pencatatanPendataan ?? [],
   }
 }
 

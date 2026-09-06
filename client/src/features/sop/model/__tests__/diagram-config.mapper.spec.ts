@@ -23,8 +23,8 @@ describe('diagram-config.mapper', () => {
 
   it('should_map_path_overrides_to_connection_ids', () => {
     const rows = [
-      { id: 'l1', no: 1, kegiatan: 'A', pelaksana: 'p1' },
-      { id: 'l2', no: 2, kegiatan: 'B', pelaksana: 'p1' },
+      { id: 'l1', urutan: 1, kegiatan: 'A', pelaksana: 'p1' },
+      { id: 'l2', urutan: 2, kegiatan: 'B', pelaksana: 'p1' },
     ]
     const steps = [
       { seq_number: 1, name: 'A', type: 'task', id_step: 'l1', id_implementer: 'p1' },
@@ -55,8 +55,8 @@ describe('diagram-config.mapper', () => {
 
   it('should_map_bpmn_terminator_shapes_to_real_langkah_ids', () => {
     const rows = [
-      { id: 'langkah-awal', no: 1, kegiatan: 'A', pelaksana: 'p1' },
-      { id: 'langkah-akhir', no: 2, kegiatan: 'B', pelaksana: 'p1' },
+      { id: 'langkah-awal', urutan: 1, kegiatan: 'A', pelaksana: 'p1' },
+      { id: 'langkah-akhir', urutan: 2, kegiatan: 'B', pelaksana: 'p1' },
     ]
     const steps = [
       { seq_number: 1, name: 'A', type: 'task', id_step: 'langkah-awal', id_implementer: 'p1' },
@@ -155,8 +155,8 @@ describe('diagram-config.mapper', () => {
 
   it('should_build_preview_state_for_active_tab', () => {
     const rows = [
-      { id: 'l1', no: 1, kegiatan: 'A', pelaksana: 'p1' },
-      { id: 'l2', no: 2, kegiatan: 'B', pelaksana: 'p1' },
+      { id: 'l1', urutan: 1, kegiatan: 'A', pelaksana: 'p1' },
+      { id: 'l2', urutan: 2, kegiatan: 'B', pelaksana: 'p1' },
     ]
     const state = buildDiagramStateForPreviewTab({
       diagramKonfigurasi: {

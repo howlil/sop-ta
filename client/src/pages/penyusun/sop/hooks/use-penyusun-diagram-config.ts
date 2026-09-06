@@ -3,10 +3,10 @@ import type { PathUpdatedPayload } from '@/components/sop/sop-diagram/shapes/Flo
 import type {
   ArrowConfig,
   LabelConfig,
-  ProsedurRow,
   SOPStep,
 } from '@/components/sop/sop-diagram/core/sopDiagramTypes'
 import { rowsToSteps } from '@/components/sop/sop-diagram/core/sopDiagramTypes'
+import type { ProsedurRow } from '@/types/ui/sop'
 import type { PenyusunWorkbenchData } from '@/types/dto/sop.dto'
 import {
   arrowConfigToPathOverrides,
@@ -144,7 +144,7 @@ export function usePenyusunDiagramConfig({
   const rowIdToSeq = useMemo(() => {
     const map = new Map<string, number>()
     for (const row of prosedurRows) {
-      if (row.id && row.no != null) map.set(row.id, row.no)
+      if (row.id) map.set(row.id, row.urutan)
     }
     return map
   }, [prosedurRows])

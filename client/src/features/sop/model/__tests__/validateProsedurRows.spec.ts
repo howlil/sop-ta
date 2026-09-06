@@ -8,9 +8,10 @@ function completeRow(overrides: Partial<ProsedurRow> = {}): ProsedurRow {
     urutan: 1,
     kegiatan: 'Kegiatan uji',
     pelaksana: 'impl-1',
-    mutu_kelengkapan: 'Form A',
-    mutu_waktu: '5 m',
-    output: 'Dokumen',
+    kelengkapan: 'Form A',
+    waktu: 5,
+    satuanWaktu: 'm',
+    keluaran: 'Dokumen',
     keterangan: 'Catatan',
     type: 'task',
     ...overrides,
@@ -35,7 +36,7 @@ describe('validateProsedurRows', () => {
   })
 
   it('should_fail_when_kegiatan_or_kelengkapan_missing', () => {
-    const rows = [completeRow({ kegiatan: '', mutu_kelengkapan: '' })]
+    const rows = [completeRow({ kegiatan: '', kelengkapan: '' })]
     const result = validateProsedurRows(rows, 1)
     expect(result.valid).toBe(false)
     expect(result.errors).toContain('Langkah 1: kegiatan wajib diisi')

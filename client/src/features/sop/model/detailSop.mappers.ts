@@ -14,18 +14,6 @@ const API_JENIS_TO_ROW_TYPE: Record<JenisLangkahProsedur, ProsedurRow["type"]> =
   KEPUTUSAN: "decision",
 };
 
-function satuanWaktuToLabel(unit: string): string {
-  const map: Record<string, string> = {
-    h: 'Jam',
-    m: 'Menit',
-    d: 'Hari',
-    w: 'Minggu',
-    mo: 'Bulan',
-    y: 'Tahun',
-  }
-  return map[unit] ?? unit
-}
-
 /** Memecah `namaLembaga` API (boleh multi-baris) jadi maks. 4 baris untuk header SOP. */
 export function namaLembagaToInstitutionLines(namaLembaga: string | undefined | null): string[] {
   if (namaLembaga == null || namaLembaga.trim() === "") {
@@ -38,34 +26,32 @@ export function namaLembagaToInstitutionLines(namaLembaga: string | undefined | 
     .slice(0, 4);
 }
 
-/** Transform API SopDetail -> UI SOPDetailMetadata */
+/** Adapter boundary: API SopDetail -> canonical editor metadata. */
 export function transformSopDetailToMetadata(detail: SopDetail): SOPDetailMetadata {
-  const lines = namaLembagaToInstitutionLines(detail.namaLembaga);
-  const lawBasisIds =
+  const dasarHukumPeraturanIds =
     detail.dasarHukumPeraturanIds ??
     detail.dasarHukum?.map((d) => d.id.includes("-") ? d.id.split("-").slice(-1)[0] : d.id) ??
     [];
-  const lawBasisLabels =
+  const dasarHukum =
     detail.dasarHukum?.map((d) => `${d.nomor}/${d.tahun} tentang ${d.judul}`) ?? [];
-  const relatedSopDetailIds =
+  const sopTerkaitDetailIds =
     detail.sopTerkaitDetailIds ??
     detail.relasiSopKeluar?.map((rel) => rel.sopTerkaitId) ??
     [];
-  const relatedSopLabels =
+  const sopTerkait =
     detail.relasiSopKeluar
       ?.map((rel) => {
         const nested = rel.sopTerkait as { sop?: { judul?: string } } | undefined;
         return nested?.sop?.judul ?? "";
       })
-      .filter((j) => j.length > 0) ?? [];
+      .filter((judul) => judul.length > 0) ?? [];
+
   return {
     id: detail.id,
     sopId: detail.sopId,
     nomorSOP: detail.nomorSOP,
-    nama: detail.sop?.judul ?? "",
-    judul: detail.sop?.judul,
-    lembaga: detail.namaLembaga,
-    institutionLines: lines.length > 0 ? lines : undefined,
+    judul: detail.sop?.judul ?? "",
+    namaLembaga: detail.namaLembaga ?? "",
     logoUrl: SOP_INSTITUTION_LOGO_URL,
     tanggalPembuatan: detail.tanggalPembuatan,
     tanggalEfektif: detail.tanggalEfektif ?? "",
@@ -73,40 +59,31 @@ export function transformSopDetailToMetadata(detail: SopDetail): SOPDetailMetada
     version: detail.versi,
     revisiDariDetailSopId: detail.revisiDariDetailSopId ?? null,
     revisiDariVersi: detail.revisiDariVersi ?? null,
-    picName: detail.kepalaOpd?.nama?.trim() ?? "",
-    picNumber: detail.kepalaOpd?.nip?.trim() ?? "",
-    lawBasis: lawBasisLabels,
-    lawBasisIds,
-    relatedSop: relatedSopLabels,
-    relatedSopDetailIds,
-    warning: (detail.lampiran?.peringatan ?? []).map((i) => i.teks),
-    implementQualification: (detail.lampiran?.kualifikasiPelaksanaan ?? []).map((i) => i.teks),
-    equipment: (detail.lampiran?.peralatanPerlengkapan ?? []).map((i) => i.teks),
-    recordData: (detail.lampiran?.pencatatanPendataan ?? []).map((i) => i.teks),
+    kepalaOpdNama: detail.kepalaOpd?.nama?.trim() ?? "",
+    kepalaOpdNip: detail.kepalaOpd?.nip?.trim() ?? "",
+    dasarHukum,
+    dasarHukumPeraturanIds,
+    sopTerkait,
+    sopTerkaitDetailIds,
+    peringatan: (detail.lampiran?.peringatan ?? []).map((item) => item.teks),
+    kualifikasiPelaksanaan: (detail.lampiran?.kualifikasiPelaksanaan ?? []).map((item) => item.teks),
+    peralatanPerlengkapan: (detail.lampiran?.peralatanPerlengkapan ?? []).map((item) => item.teks),
+    pencatatanPendataan: (detail.lampiran?.pencatatanPendataan ?? []).map((item) => item.teks),
   };
 }
 
-/** Transform API LangkahSOP -> UI ProsedurRow */
+/** Adapter boundary: API LangkahSOP -> canonical editor procedure row. */
 export function transformLangkahToProsedurRow(langkah: LangkahSOP): ProsedurRow {
-  const waktu = Number.isFinite(langkah.waktu) ? Math.max(0, langkah.waktu) : 0
-  const satuanWaktu = langkah.satuanWaktu
-  const satuanLabel = satuanWaktuToLabel(satuanWaktu)
-  const mutuWaktu = waktu > 0 ? `${waktu} ${satuanLabel}` : ''
+  const waktu = Number.isFinite(langkah.waktu) ? Math.max(0, langkah.waktu) : 0;
   return {
     id: langkah.id,
     urutan: langkah.urutan,
-    no: langkah.urutan,
     kegiatan: langkah.kegiatan,
     pelaksana: langkah.pelaksanaId,
     waktu,
-    time: waktu,
-    satuanWaktu,
-    time_unit: satuanWaktu,
-    mutu_waktu: mutuWaktu,
+    satuanWaktu: langkah.satuanWaktu,
     kelengkapan: langkah.kelengkapan,
-    mutu_kelengkapan: langkah.kelengkapan,
     keluaran: langkah.keluaran,
-    output: langkah.keluaran,
     type: API_JENIS_TO_ROW_TYPE[langkah.jenis] ?? "task",
     id_next_step_if_yes: langkah.langkahSelanjutnyaYaId ?? undefined,
     id_next_step_if_no: langkah.langkahSelanjutnyaTidakId ?? undefined,

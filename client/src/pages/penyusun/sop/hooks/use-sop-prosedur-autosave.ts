@@ -15,91 +15,37 @@ import { resolveProsedurPelaksanaId } from '@/lib/sop/resolve-prosedur-implement
 const DEFAULT_DEBOUNCE_MS = 800
 const SAVED_INDICATOR_MS = 1500
 
-/* Mapping UI row.type -> API JenisLangkahProsedur. Sejajar dengan
-   `ROW_TYPE_TO_API_JENIS` di detailSop.mappers.ts agar perilaku konsisten. */
 const ROW_TYPE_TO_JENIS: Record<NonNullable<ProsedurRow['type']>, JenisLangkahProsedur> = {
   task: 'KEGIATAN',
   decision: 'KEPUTUSAN',
   terminator: 'AWAL_AKHIR',
 }
 
-const SATUAN_ALIASES: Record<string, SatuanWaktu> = {
-  m: 'm',
-  h: 'h',
-  d: 'd',
-  w: 'w',
-  mo: 'mo',
-  y: 'y',
-  menit: 'm',
-  jam: 'h',
-  hari: 'd',
-  minggu: 'w',
-  bulan: 'mo',
-  tahun: 'y',
-  Menit: 'm',
-  Jam: 'h',
-  Hari: 'd',
-  Minggu: 'w',
-  Bulan: 'mo',
-  Tahun: 'y',
-}
+const SATUAN_WAKTU = new Set<SatuanWaktu>(['m', 'h', 'd', 'w', 'mo', 'y'])
 
 function normalizeSatuan(input: string | undefined): SatuanWaktu | undefined {
-  if (input === undefined || input === '') return undefined
-  return SATUAN_ALIASES[input]
+  if (!input || !SATUAN_WAKTU.has(input as SatuanWaktu)) return undefined
+  return input as SatuanWaktu
 }
 
-/**
- * Ambil teks pertama yang setelah trim tidak kosong.
- * Dipakai untuk menggabungkan field UI (`mutu_kelengkapan`, `output`) dengan field kanonis API,
- * karena `''` bukan nullish — `??` saja tidak cukup.
- */
-export function pickNonEmptyTrimmed(
-  ...candidates: (string | undefined | null)[]
-): string | undefined {
-  for (const c of candidates) {
-    const t = (c ?? '').trim()
-    if (t.length > 0) {
-      return t
-    }
-  }
-  return undefined
+function trimmedOrUndefined(value: string | undefined): string | undefined {
+  const trimmed = (value ?? '').trim()
+  return trimmed.length > 0 ? trimmed : undefined
 }
 
-function parseMutuWaktuFallback(
-  mutuWaktu: string | undefined,
-): { waktu?: number; satuanWaktu?: SatuanWaktu } {
-  const raw = (mutuWaktu ?? '').trim()
-  if (raw.length === 0) return {}
-  const match = raw.match(/^(\d+)\s*([A-Za-z]+)?$/)
-  if (!match) return {}
-  const parsed = Number.parseInt(match[1], 10)
-  if (!Number.isFinite(parsed)) return {}
-  const satuan = normalizeSatuan(match[2])
-  return {
-    waktu: Math.max(0, parsed),
-    satuanWaktu: satuan ?? 'm',
-  }
-}
-
-/** Snapshot stabil dari editor — input sumber kebenaran perubahan untuk diff & PATCH. */
+/** Snapshot stabil dari canonical editor state untuk diff & PATCH. */
 export interface SopProsedurSnapshot {
   pelaksana: PelaksanaPatchItem[]
   langkah: LangkahPatchItem[]
 }
 
-/**
- * Bangun snapshot dari state editor (`implementers` swimlane + `prosedurRows`).
- * `tempId` langkah memakai existing UUID langkahSopId; row baru memakai prefix `temp-*`
- * yang sudah dihasilkan oleh editor. Tidak mengubah ID di state UI.
- */
 export function buildSopProsedurSnapshot(
   implementers: SopEditorImplementer[],
   rows: ProsedurRow[],
 ): SopProsedurSnapshot {
   const pelaksana: PelaksanaPatchItem[] = implementers
-    .filter((p) => p.id.length > 0)
-    .map((p) => ({ pelaksanaId: p.id }))
+    .filter((item) => item.id.length > 0)
+    .map((item) => ({ pelaksanaId: item.id }))
 
   const langkah: LangkahPatchItem[] = rows
     .map((row) => mapRowToLangkah(row))
@@ -108,39 +54,30 @@ export function buildSopProsedurSnapshot(
   return { pelaksana, langkah }
 }
 
+/** Adapter boundary: canonical procedure row -> API patch item. */
 function mapRowToLangkah(row: ProsedurRow): LangkahPatchItem | null {
-  /* Baris benar-benar kosong tidak dikirim agar autosave tidak gagal validasi server.
-     Kriteria minimal: ada kegiatan ATAU pelaksana terisi. */
-  const kegiatan = (row.kegiatan ?? '').trim()
+  const kegiatan = row.kegiatan.trim()
   const pelaksanaId = resolveProsedurPelaksanaId(row)
   if (kegiatan.length === 0 && pelaksanaId.length === 0) return null
 
   const jenis: JenisLangkahProsedur = row.type
     ? (ROW_TYPE_TO_JENIS[row.type] ?? 'KEGIATAN')
     : 'KEGIATAN'
-
   const isKeputusan = jenis === 'KEPUTUSAN'
-
-  const waktuRaw = row.waktu ?? row.time
-  const waktuFromField =
-    typeof waktuRaw === 'number' && Number.isFinite(waktuRaw)
-      ? Math.max(0, waktuRaw)
+  const waktu =
+    typeof row.waktu === 'number' && Number.isFinite(row.waktu)
+      ? Math.max(0, row.waktu)
       : undefined
-  const satuanRaw = row.satuanWaktu ?? row.time_unit
-  const satuanFromField = normalizeSatuan(satuanRaw)
-  const waktuFallback = parseMutuWaktuFallback(row.mutu_waktu)
-  const waktu = waktuFromField ?? waktuFallback.waktu
-  const satuanWaktu = satuanFromField ?? waktuFallback.satuanWaktu
 
   return {
     tempId: row.id,
     jenis,
     kegiatan,
-    kelengkapan: pickNonEmptyTrimmed(row.mutu_kelengkapan, row.kelengkapan),
-    keluaran: pickNonEmptyTrimmed(row.output, row.keluaran),
+    kelengkapan: trimmedOrUndefined(row.kelengkapan),
+    keluaran: trimmedOrUndefined(row.keluaran),
     waktu,
-    satuanWaktu,
-    keterangan: (row.keterangan ?? '').trim() || undefined,
+    satuanWaktu: waktu !== undefined ? normalizeSatuan(row.satuanWaktu) : undefined,
+    keterangan: trimmedOrUndefined(row.keterangan),
     pelaksanaId: pelaksanaId.length > 0 ? pelaksanaId : undefined,
     langkahSelanjutnyaYaTempId: isKeputusan
       ? (row.id_next_step_if_yes ?? null) || null
@@ -183,9 +120,6 @@ function langkahListEqual(a: LangkahPatchItem[], b: LangkahPatchItem[]): boolean
   return true
 }
 
-/**
- * Diff snapshot prosedur. PATCH replace-all per section: hanya kirim section yang berubah.
- */
 export function diffSopProsedurSnapshots(
   current: SopProsedurSnapshot,
   baseline: SopProsedurSnapshot,
@@ -227,7 +161,7 @@ export interface SopProsedurAutosaveControls {
 
 /**
  * Autosave prosedur SOP memakai scheduler single-writer yang sama dengan header.
- * Mapping editor dan diff replace-all tetap domain-specific; tidak ada write paralel.
+ * Mapping canonical editor -> API dan diff replace-all tetap domain-specific.
  */
 export function useSopProsedurAutosave(
   options: UseSopProsedurAutosaveOptions,

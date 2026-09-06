@@ -3,10 +3,10 @@ import type {
   ArrowConnectionConfig,
   LabelConfig,
   LabelPositions,
-  ProsedurRow,
   SOPStep,
 } from '@/components/sop/sop-diagram/core/sopDiagramTypes'
 import { isYaLabel, isTidakLabel, rowsToSteps } from '@/components/sop/sop-diagram/core/sopDiagramTypes'
+import type { ProsedurRow } from '@/types/ui/sop'
 
 export type CabangDiagram = 'UTAMA' | 'YA' | 'TIDAK'
 export type JenisDiagramClient = 'FLOWCHART' | 'BPMN'
@@ -112,7 +112,7 @@ export function buildConnectionEdgeMetas(
 ): ConnectionEdgeMeta[] {
   const seqToRowId = new Map<number, string>()
   for (const row of rows) {
-    if (row.id && row.no != null) seqToRowId.set(row.no, row.id)
+    if (row.id) seqToRowId.set(row.urutan, row.id)
   }
   const shapePrefixPatterns = [/^sop-step-(\d+)$/, /^bpmn-step-(\d+)$/]
   const opcOutPattern = /^opc-out-step-(\d+)-to-step-(\d+)$/
@@ -131,9 +131,9 @@ export function buildConnectionEdgeMetas(
   }
 
   const sortedRowIds = rows
-    .filter((row) => row.id && row.no != null)
-    .sort((a, b) => (a.no ?? 0) - (b.no ?? 0))
-    .map((row) => row.id as string)
+    .filter((row) => row.id)
+    .sort((a, b) => a.urutan - b.urutan)
+    .map((row) => row.id)
   const firstLangkahId =
     sortedRowIds[0] ??
     [...steps]
@@ -395,7 +395,7 @@ export function buildDiagramStateForPreviewTab(
   const sortedSteps = [...diagramSteps].sort((a, b) => a.seq_number - b.seq_number)
   const rowIdToSeq = new Map<string, number>()
   for (const row of input.prosedurRows) {
-    if (row.id && row.no != null) rowIdToSeq.set(row.id, row.no)
+    if (row.id) rowIdToSeq.set(row.id, row.urutan)
   }
   const flowchartConnections = buildFlowchartConnections(sortedSteps, rowIdToSeq)
   const connections =

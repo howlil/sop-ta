@@ -188,36 +188,26 @@ export function ImplementerCell({ row, implementers, onImplementerChange }: Impl
   )
 }
 
-export interface MutuKelengkapanCellProps {
+export interface KelengkapanCellProps {
   value: string
   onChange: (value: string) => void
 }
 
-export function MutuKelengkapanCell({ value, onChange }: MutuKelengkapanCellProps) {
+export function KelengkapanCell({ value, onChange }: KelengkapanCellProps) {
   return <CompactTextCell label="Kelengkapan" value={value} onChange={onChange} />
 }
 
-export interface MutuWaktuCellProps {
-  value: string
+export interface WaktuCellProps {
+  waktu?: number
+  satuanWaktu?: string
   onChange: (amount: string, unit: string) => void
 }
 
-export function MutuWaktuCell({ value, onChange }: MutuWaktuCellProps) {
-  const match = (value || '').match(/^(\d+)\s*(\w+)?/i)
-  const amount = match ? match[1] : ''
-  const rawUnit = match && match[2] ? match[2].toLowerCase() : ''
-
-  const unit = rawUnit.startsWith('menit') || rawUnit === 'm'
-    ? 'm'
-    : rawUnit.startsWith('jam') || rawUnit === 'h'
-      ? 'h'
-      : rawUnit.startsWith('hari') || rawUnit === 'd'
-        ? 'd'
-        : rawUnit.startsWith('minggu') || rawUnit === 'w'
-          ? 'w'
-          : rawUnit.startsWith('bulan') || rawUnit === 'mo'
-            ? 'mo'
-            : 'm'
+export function WaktuCell({ waktu, satuanWaktu, onChange }: WaktuCellProps) {
+  const amount = waktu === undefined ? '' : String(waktu)
+  const unit = ['m', 'h', 'd', 'w', 'mo'].includes(satuanWaktu ?? '')
+    ? (satuanWaktu as string)
+    : 'm'
 
   return (
     <div
@@ -250,12 +240,12 @@ export function MutuWaktuCell({ value, onChange }: MutuWaktuCellProps) {
   )
 }
 
-export interface OutputCellProps {
+export interface KeluaranCellProps {
   value: string
   onChange: (value: string) => void
 }
 
-export function OutputCell({ value, onChange }: OutputCellProps) {
+export function KeluaranCell({ value, onChange }: KeluaranCellProps) {
   return <CompactTextCell label="Output" value={value} onChange={onChange} />
 }
 

@@ -1,6 +1,4 @@
-/**
- * Dialog pilih dasar hukum (peraturan) untuk metadata SOP.
- */
+/** Dialog pilih dasar hukum (peraturan) untuk metadata SOP. */
 import { SearchableSelectDialog } from '@/components/ui/searchable-select-dialog'
 import type { Peraturan } from '@/types/dto/peraturan.dto'
 import { useSopEditor } from '../SopEditorContext'
@@ -15,9 +13,9 @@ export interface LawBasisDialogProps {
   onOpenChange: (open: boolean) => void
   /** Override opsional saat dipakai di luar editor SOP (contoh: dialog import). */
   peraturanList?: Peraturan[]
-  /** Override label yang sudah terpasang. Default: `metadata.lawBasis` dari context. */
+  /** Override label yang sudah terpasang. Default dari canonical editor metadata. */
   existingLawBasis?: string[]
-  /** Override id yang sudah terpasang. Default: `metadata.lawBasisIds` dari context. */
+  /** Override id yang sudah terpasang. Default dari canonical editor metadata. */
   existingLawBasisIds?: string[]
   onAdd: (next: LawBasisDialogResult) => void
 }
@@ -36,8 +34,8 @@ export function LawBasisDialog({
 }: LawBasisDialogProps) {
   const { peraturanList: peraturanListCtx, metadata } = useSopEditor()
   const peraturanList = peraturanListOverride ?? peraturanListCtx
-  const existingLawBasis = existingLawBasisOverride ?? metadata.lawBasis ?? []
-  const existingLawBasisIds = existingLawBasisIdsOverride ?? metadata.lawBasisIds ?? []
+  const existingLawBasis = existingLawBasisOverride ?? metadata.dasarHukum ?? []
+  const existingLawBasisIds = existingLawBasisIdsOverride ?? metadata.dasarHukumPeraturanIds ?? []
 
   return (
     <SearchableSelectDialog

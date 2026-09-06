@@ -8,10 +8,7 @@ import type { SOPDetailMetadata } from '@/types/ui/sop'
 const DEFAULT_DEBOUNCE_MS = 800
 const SAVED_INDICATOR_MS = 1500
 
-/**
- * Snapshot ringkas metadata header yang dilacak autosave. Menjaga kontrak diff
- * agar tidak mengirim PATCH untuk perubahan yang tidak relevan dengan header SOP.
- */
+/** Snapshot ringkas metadata header yang dilacak autosave. */
 export interface SopHeaderSnapshot {
   judul: string
   nomorSOP: string
@@ -24,33 +21,22 @@ export interface SopHeaderSnapshot {
   pencatatanPendataan: string[]
 }
 
-function asArray(value: string | string[] | undefined): string[] {
-  if (Array.isArray(value)) return value.map((v) => v.trim()).filter((v) => v.length > 0)
-  if (typeof value === 'string' && value.trim().length > 0) return [value.trim()]
-  return []
+function normalizedList(values: string[] | undefined): string[] {
+  return (values ?? []).map((value) => value.trim()).filter((value) => value.length > 0)
 }
 
-/**
- * Pisahkan `metadata` UI menjadi snapshot ringkas yang akan dibandingkan untuk diff.
- * Multi-baris `lembaga` digabung dari `institutionLines` jika tersedia.
- */
+/** Adapter editor state -> autosave snapshot. Tidak ada compatibility fallback di editor layer. */
 export function buildSopHeaderSnapshot(metadata: SOPDetailMetadata): SopHeaderSnapshot {
-  const lembagaFromLines = (metadata.institutionLines ?? [])
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0)
-    .join('\n')
-  const lembaga =
-    lembagaFromLines.length > 0 ? lembagaFromLines : (metadata.lembaga ?? '').trim()
   return {
-    judul: (metadata.judul ?? metadata.nama ?? '').trim(),
-    nomorSOP: (metadata.nomorSOP ?? metadata.nomor ?? '').trim(),
-    namaLembaga: lembaga,
-    peringatan: asArray(metadata.warning),
-    dasarHukumPeraturanIds: [...(metadata.lawBasisIds ?? [])],
-    sopTerkaitDetailIds: [...(metadata.relatedSopDetailIds ?? [])],
-    kualifikasiPelaksanaan: asArray(metadata.implementQualification),
-    peralatanPerlengkapan: asArray(metadata.equipment),
-    pencatatanPendataan: asArray(metadata.recordData),
+    judul: (metadata.judul ?? '').trim(),
+    nomorSOP: (metadata.nomorSOP ?? '').trim(),
+    namaLembaga: (metadata.namaLembaga ?? '').trim(),
+    peringatan: normalizedList(metadata.peringatan),
+    dasarHukumPeraturanIds: [...(metadata.dasarHukumPeraturanIds ?? [])],
+    sopTerkaitDetailIds: [...(metadata.sopTerkaitDetailIds ?? [])],
+    kualifikasiPelaksanaan: normalizedList(metadata.kualifikasiPelaksanaan),
+    peralatanPerlengkapan: normalizedList(metadata.peralatanPerlengkapan),
+    pencatatanPendataan: normalizedList(metadata.pencatatanPendataan),
   }
 }
 
@@ -62,10 +48,7 @@ function arraysEqual(a: string[], b: string[]): boolean {
   return true
 }
 
-/**
- * Hitung diff antara snapshot terbaru dengan baseline tersimpan.
- * Field yang tidak berubah tidak dimasukkan ke payload sehingga PATCH minimal.
- */
+/** Hitung PATCH minimal antara snapshot terbaru dengan baseline tersimpan. */
 export function diffSopHeaderSnapshots(
   current: SopHeaderSnapshot,
   baseline: SopHeaderSnapshot,
@@ -103,37 +86,26 @@ function buildPatch(
   return Object.keys(diff).length > 0 ? diff : null
 }
 
-/** Status autosave yang dapat ditampilkan ke user. */
 export type SopHeaderAutosaveStatus = SingleWriterAutosaveStatus
 
 export interface UseSopHeaderAutosaveOptions {
-  /** ID DetailSOP atau header SOP — autosave dimatikan jika kosong / `enabled=false`. */
   detailSopId: string | undefined
-  /** Snapshot metadata terbaru hasil `buildSopHeaderSnapshot`. */
   snapshot: SopHeaderSnapshot
-  /** Mutator untuk menyimpan perubahan; harus mengembalikan promise (mis. `mutateAsync`). */
   save: (payload: UpdateSopHeaderDto) => Promise<unknown>
-  /** Boleh dimatikan saat data awal belum siap. Default `true`. */
   enabled?: boolean
-  /** Override durasi debounce, default 800ms. */
   debounceMs?: number
 }
 
 export interface SopHeaderAutosaveControls {
-  /** Paksa kirim diff sekarang (tanpa menunggu debounce); aman dipanggil sebelum aksi besar. */
   flush: () => Promise<void>
-  /** Setel ulang baseline tanpa kirim PATCH (mis. setelah workbench dimuat ulang dari server). */
   resetBaseline: (next: SopHeaderSnapshot) => void
-  /** Status autosave saat ini (untuk indikator UI). */
   status: SopHeaderAutosaveStatus
-  /** Error terakhir (jika `status === 'error'`). */
   lastError: Error | null
 }
 
 /**
  * Autosave header SOP memakai scheduler single-writer bersama prosedur SOP.
- * Snapshot dan diff header tetap domain-specific; scheduler hanya mengatur debounce,
- * serialization, coalescing perubahan terbaru, flush, dan status.
+ * Snapshot/diff tetap domain-specific; scheduler hanya mengatur concurrency lifecycle.
  */
 export function useSopHeaderAutosave(
   options: UseSopHeaderAutosaveOptions,

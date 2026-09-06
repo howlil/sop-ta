@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { SOPDiagramBpmn } from '@/components/sop/sop-diagram'
 import { SOPDiagramFlowchart } from '@/components/sop/sop-diagram'
-import { rowsToSteps } from '@/components/sop/sop-diagram'
+import { rowsToSteps, toDiagramProsedurRows } from '@/components/sop/sop-diagram'
 import { SOP_DOCUMENT_CONTENT_WRAPPER_CLASS } from '@/components/sop/sop-diagram/layout/sopDocumentLayout'
 import { buildDiagramStateForPreviewTab } from '@/lib/sop/diagram-config.mapper'
 import type { SopDiagramExportInput } from '@/lib/print/sop-diagram-export.util'
@@ -21,33 +21,38 @@ export function SopDiagramExportHost({
       })),
     [input.implementers],
   )
+  const canonicalRows = input.prosedurRows ?? []
   const diagramSteps = useMemo(
-    () => rowsToSteps(input.prosedurRows ?? [], safeImplementers),
-    [input.prosedurRows, safeImplementers],
+    () => rowsToSteps(canonicalRows, safeImplementers),
+    [canonicalRows, safeImplementers],
+  )
+  const flowchartRows = useMemo(
+    () => toDiagramProsedurRows(canonicalRows),
+    [canonicalRows],
   )
   const flowchartState = useMemo(
     () =>
       buildDiagramStateForPreviewTab({
         diagramKonfigurasi: input.diagramKonfigurasi,
-        prosedurRows: input.prosedurRows ?? [],
+        prosedurRows: canonicalRows,
         implementers: safeImplementers,
         activeTab: 'flowchart',
       }),
-    [input.diagramKonfigurasi, input.prosedurRows, safeImplementers],
+    [input.diagramKonfigurasi, canonicalRows, safeImplementers],
   )
   const bpmnState = useMemo(
     () =>
       buildDiagramStateForPreviewTab({
         diagramKonfigurasi: input.diagramKonfigurasi,
-        prosedurRows: input.prosedurRows ?? [],
+        prosedurRows: canonicalRows,
         implementers: safeImplementers,
         activeTab: 'bpmn',
       }),
-    [input.diagramKonfigurasi, input.prosedurRows, safeImplementers],
+    [input.diagramKonfigurasi, canonicalRows, safeImplementers],
   )
   const flowchartProps = {
     data: {
-      rows: input.prosedurRows ?? [],
+      rows: flowchartRows,
       steps: diagramSteps,
       implementers: safeImplementers,
     },

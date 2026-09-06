@@ -28,10 +28,6 @@ import { SopEditorProvider, type SopEditorContextValue } from './SopEditorContex
 
 type CombinedAutosaveStatus = SopHeaderAutosaveStatus
 
-/**
- * Gabungkan dua status autosave (header + prosedur) menjadi satu indikator UI.
- * Prioritas: error > saving > pending > saved > idle.
- */
 function combineAutosaveStatus(
   header: SopHeaderAutosaveStatus,
   prosedur: SopProsedurAutosaveStatus,
@@ -92,8 +88,6 @@ export function DetailSOPPenyusun() {
       setIsEditingSteps(false)
     }
   }, [isReadOnly, setIsEditingSteps])
-  /* `setMetadata` perlu di-cast karena hook mengembalikan dispatcher yang sama persis
-     bentuknya dengan tipe context — alias ini hanya untuk memenuhi naming convention. */
   const setMetadata = _setMetadata
 
   const { data: umpanBalik, isLoading: isUmpanBalikLoading } = useUmpanBalikEvaluasi(
@@ -116,7 +110,6 @@ export function DetailSOPPenyusun() {
   const terminalSource = riwayatVersi.find((row) => isTerminalVersionStatus(row.status))
   const historyBuatVersiBlockingReason = getBuatVersiDariRiwayatBlockingReason(terminalSource)
 
-  /* Toast error autosave sekali per error reference (hindari spam saat re-render). */
   const lastHeaderErrorRef = useRef<Error | null>(null)
   useEffect(() => {
     if (isReadOnly) return
@@ -144,7 +137,6 @@ export function DetailSOPPenyusun() {
     }
   }, [prosedurAutosaveError, showToast, isReadOnly])
 
-  /* Best-effort flush sebelum tab disembunyikan / ditutup / refresh. */
   useEffect(() => {
     if (isReadOnly) return
     const flushBothFireAndForget = (): void => {
@@ -213,8 +205,6 @@ export function DetailSOPPenyusun() {
     ],
   )
 
-  /* Status gabungan header + prosedur untuk satu indikator autosave di header.
-     Prioritas: error > saving > pending > saved > idle. */
   const combinedAutosaveStatus = useMemo(() => combineAutosaveStatus(autosaveStatus, prosedurAutosaveStatus), [
     autosaveStatus,
     prosedurAutosaveStatus,
@@ -231,7 +221,7 @@ export function DetailSOPPenyusun() {
           { label: isReadOnly ? 'Lihat SOP' : 'Edit SOP' },
         ]}
         title={isReadOnly ? 'Lihat Dokumen SOP' : 'Edit Dokumen SOP'}
-        description={metadata.nama ?? metadata.judul ?? ''}
+        description={metadata.judul ?? ''}
         backTo={ROUTES.PENYUSUN.SOP}
         backSize="icon"
         header={
@@ -290,7 +280,7 @@ export function DetailSOPPenyusun() {
         onOpenChange={(open) => {
           if (!open) setBuatVersiSource(null)
         }}
-        judulSop={metadata.nama ?? metadata.judul ?? 'SOP'}
+        judulSop={metadata.judul ?? 'SOP'}
         versiSumber={buatVersiSource?.versi ?? 0}
         statusSumber={buatVersiSource?.statusLabel ?? ''}
         versiBaru={nextVersion}

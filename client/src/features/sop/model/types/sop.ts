@@ -2,13 +2,11 @@ export interface SOPDetailMetadata {
   id?: string;
   sopId?: string;
   judul?: string;
-  nomor?: string;
   nomorSOP?: string;
-  nama?: string;
   tahun?: number;
   tentang?: string;
   opdId?: string;
-  lembaga?: string;
+  namaLembaga?: string;
   logoUrl?: string;
   tanggalEfektif?: string;
   tanggalRevisi?: string;
@@ -17,41 +15,31 @@ export interface SOPDetailMetadata {
   version?: number;
   revisiDariDetailSopId?: string | null;
   revisiDariVersi?: number | null;
-  name?: string;
-  number?: string;
-  institutionLogo?: string;
-  institutionLines?: string[];
-  lawBasis?: string[];
-  /** ID kanonis peraturan untuk PATCH header (sejajar urutan dengan `lawBasis`). */
-  lawBasisIds?: string[];
-  relatedSop?: string[];
-  /** ID kanonis DetailSOP terkait untuk PATCH header (sejajar urutan dengan `relatedSop`). */
-  relatedSopDetailIds?: string[];
-  warning?: string | string[];
-  implementQualification?: string | string[];
-  equipment?: string | string[];
-  recordData?: string | string[];
+  dasarHukum?: string[];
+  /** ID kanonis peraturan untuk PATCH header (sejajar urutan dengan `dasarHukum`). */
+  dasarHukumPeraturanIds?: string[];
+  sopTerkait?: string[];
+  /** ID kanonis DetailSOP terkait untuk PATCH header (sejajar urutan dengan `sopTerkait`). */
+  sopTerkaitDetailIds?: string[];
+  peringatan?: string[];
+  kualifikasiPelaksanaan?: string[];
+  peralatanPerlengkapan?: string[];
+  pencatatanPendataan?: string[];
   /** Nama untuk blok DISAHKAN OLEH (Kepala OPD). */
-  picName?: string;
+  kepalaOpdNama?: string;
   /** NIP untuk blok DISAHKAN OLEH. */
-  picNumber?: string;
+  kepalaOpdNip?: string;
 }
 
 export interface ProsedurRow {
   id: string;
   urutan: number;
-  no?: number;
   kegiatan: string;
   pelaksana: string;
   waktu?: number;
   satuanWaktu?: string;
-  time?: number;
-  time_unit?: string;
-  mutu_kelengkapan?: string;
   kelengkapan?: string;
-  mutu_waktu?: string;
   keluaran?: string;
-  output?: string;
   keterangan?: string;
   type?: "terminator" | "task" | "decision";
   /** UI-only: pilihan user antara Mulai vs Selesai untuk row terminator.

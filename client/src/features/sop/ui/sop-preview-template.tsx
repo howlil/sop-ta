@@ -7,17 +7,30 @@ import {
 } from "./sop-diagram";
 import { SOPDiagramFlowchart } from "./sop-diagram";
 import { SOPDiagramBpmn } from "./sop-diagram";
-import { rowsToSteps } from "./sop-diagram";
+import { rowsToSteps, toDiagramProsedurRows } from "./sop-diagram";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { TTESignaturePayload } from "@/types/dto/tte.dto";
-import type { ProsedurRow, SOPDetailMetadata } from "@/types/ui/sop";
-import {
-  getInitialSopDetailMetadata,
-  getInitialSopDetailImplementers,
-} from "@/lib/sop/detailSop.initial-state";
+import type { ProsedurRow } from "@/types/ui/sop";
+import { getInitialSopDetailImplementers } from "@/lib/sop/detailSop.initial-state";
 import { SOP_DOCUMENT_CONTENT_WRAPPER_CLASS } from "./sop-diagram";
 
-const DEFAULT_METADATA = getInitialSopDetailMetadata();
+const DEFAULT_METADATA: SOPHeaderInfoProps = {
+  name: "",
+  number: "",
+  version: 1,
+  createdDate: "",
+  revisionDate: "",
+  effectiveDate: "",
+  institutionLines: [],
+  picName: "",
+  picNumber: "",
+  lawBasis: [],
+  implementQualification: [],
+  relatedSop: [],
+  equipment: [],
+  warning: [],
+  recordData: [],
+};
 const DEFAULT_PROSEDUR_ROWS: ProsedurRow[] = [];
 const DEFAULT_IMPLEMENTERS = getInitialSopDetailImplementers().map((p) => ({
   id: p.id,
@@ -51,10 +64,8 @@ interface SopPreviewDiagramState {
   onResetSelectedPath?: () => void;
 }
 
-type SopPreviewMetadata = Partial<
-  Omit<SOPHeaderInfoProps, "implementQualification" | "equipment" | "recordData">
-> &
-  Partial<SOPDetailMetadata> & { name?: string };
+/** Presentation contract only. Canonical editor metadata is adapted before entering this component. */
+export type SopPreviewMetadata = Partial<SOPHeaderInfoProps>;
 
 export interface SOPPreviewTemplateProps {
   name?: string;
@@ -66,7 +77,6 @@ export interface SOPPreviewTemplateProps {
   onMetadataChange?: (field: string, value: unknown) => void;
   previewOptions?: SopPreviewOptions;
   diagramState?: SopPreviewDiagramState;
-
 }
 
 export function SOPPreviewTemplate({
@@ -114,7 +124,6 @@ export function SOPPreviewTemplate({
     : setInternalActiveTab;
   const requestDiagramMount = effectiveDiagramState.onRequestDiagramMount;
 
-  // Defensive normalization: persisted data may contain empty implementer names.
   const safeImplementers = useMemo(
     () =>
       (implementers ?? []).map((impl, index) => ({
@@ -128,63 +137,32 @@ export function SOPPreviewTemplate({
     () => rowsToSteps(prosedurRows, safeImplementers),
     [prosedurRows, safeImplementers],
   );
+  const diagramRows = useMemo(
+    () => toDiagramProsedurRows(prosedurRows),
+    [prosedurRows],
+  );
 
-  /** Selaraskan field metadata penyusun/API (`tanggalPembuatan`, `nama`) ke props header cetak. */
   const metadata: SOPHeaderInfoProps = {
     ...DEFAULT_METADATA,
     ...(nameOverride != null && { name: nameOverride }),
     ...(numberOverride != null && { number: numberOverride }),
     ...metadataOverride,
-    implementQualification:
-      typeof metadataOverride?.implementQualification === "string"
-        ? [metadataOverride.implementQualification]
-        : metadataOverride?.implementQualification ??
-          (Array.isArray(DEFAULT_METADATA.implementQualification)
-            ? DEFAULT_METADATA.implementQualification
-            : []),
-    equipment:
-      typeof metadataOverride?.equipment === "string"
-        ? [metadataOverride.equipment]
-        : metadataOverride?.equipment ??
-          (Array.isArray(DEFAULT_METADATA.equipment) ? DEFAULT_METADATA.equipment : []),
-    recordData:
-      typeof metadataOverride?.recordData === "string"
-        ? [metadataOverride.recordData]
-        : metadataOverride?.recordData ??
-          (Array.isArray(DEFAULT_METADATA.recordData) ? DEFAULT_METADATA.recordData : []),
-    ...(metadataOverride &&
-    metadataOverride.tanggalPembuatan != null &&
-    String(metadataOverride.tanggalPembuatan).trim() !== ""
-      ? { createdDate: String(metadataOverride.tanggalPembuatan) }
-      : {}),
-    ...(metadataOverride &&
-    metadataOverride.tanggalRevisi != null &&
-    String(metadataOverride.tanggalRevisi).trim() !== ""
-      ? { revisionDate: String(metadataOverride.tanggalRevisi) }
-      : {}),
-    ...(metadataOverride &&
-    metadataOverride.tanggalEfektif != null &&
-    String(metadataOverride.tanggalEfektif).trim() !== ""
-      ? { effectiveDate: String(metadataOverride.tanggalEfektif) }
-      : {}),
-    ...(metadataOverride &&
-    !metadataOverride.name &&
-    metadataOverride.nama != null &&
-    String(metadataOverride.nama).trim() !== ""
-      ? { name: String(metadataOverride.nama) }
-      : {}),
-  } as SOPHeaderInfoProps;
+    name: nameOverride ?? metadataOverride?.name ?? DEFAULT_METADATA.name,
+    picName: metadataOverride?.picName ?? DEFAULT_METADATA.picName,
+    picNumber: metadataOverride?.picNumber ?? DEFAULT_METADATA.picNumber,
+    implementQualification: metadataOverride?.implementQualification ?? [],
+    equipment: metadataOverride?.equipment ?? [],
+    recordData: metadataOverride?.recordData ?? [],
+  };
 
   const hasDiagramToolbar = effectiveOptions.toolbar != null;
 
-  /** Hanya mount diagram yang pernah dibuka — hindari routing ganda flowchart+BPMN sejak load. */
   const [visitedTabs, setVisitedTabs] = useState<Set<"flowchart" | "bpmn">>(() => {
     const mountEnabled = diagramState.diagramMountEnabled ?? true;
     if (!mountEnabled) return new Set();
     const initialTab = diagramState.activeTab ?? "flowchart";
     return new Set([initialTab]);
   });
-
 
   useEffect(() => {
     setVisitedTabs((prev) => {
@@ -219,13 +197,11 @@ export function SOPPreviewTemplate({
     [requestDiagramMount, setActiveTab],
   );
 
-
-
   const diagramDataProps = useMemo(
     () => ({
       flowchart: {
         data: {
-          rows: prosedurRows,
+          rows: diagramRows,
           steps: diagramSteps,
           implementers: safeImplementers,
         },
@@ -261,7 +237,7 @@ export function SOPPreviewTemplate({
       },
     }),
     [
-      prosedurRows,
+      diagramRows,
       diagramSteps,
       safeImplementers,
       metadata.name,
@@ -294,21 +270,21 @@ export function SOPPreviewTemplate({
       }
     >
       <div className="sop-print-document sop-a4-preview flex flex-col gap-10 p-4 print:gap-0 print:p-0">
-          <section className="sop-print-header">
+        <section className="sop-print-header">
           <SOPHeaderInfo
             {...metadata}
             editable={effectiveOptions.editable}
             onMetadataChange={onMetadataChange}
             tteSignaturePayload={tteSignaturePayload}
           />
-          </section>
+        </section>
 
-          {effectiveOptions.diagramAlternate != null ? (
-            <section className="sop-print-langkah flex flex-col gap-6 print:gap-0 w-full">
+        {effectiveOptions.diagramAlternate != null ? (
+          <section className="sop-print-langkah flex flex-col gap-6 print:gap-0 w-full">
             <div className="flex justify-center w-full">{effectiveOptions.diagramAlternate}</div>
-            </section>
-          ) : (
-            <section className="sop-print-langkah flex flex-col gap-6 print:gap-0">
+          </section>
+        ) : (
+          <section className="sop-print-langkah flex flex-col gap-6 print:gap-0">
             <>
               {!effectiveOptions.hideDiagramTabs && (
                 <div className="flex justify-center px-1 print:hidden">
@@ -394,8 +370,8 @@ export function SOPPreviewTemplate({
                 </div>
               </div>
             </>
-            </section>
-          )}
+          </section>
+        )}
       </div>
     </div>
   );

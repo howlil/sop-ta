@@ -13,9 +13,9 @@ import {
   KegiatanCell,
   TypeCell,
   ImplementerCell,
-  MutuKelengkapanCell,
-  MutuWaktuCell,
-  OutputCell,
+  KelengkapanCell,
+  WaktuCell,
+  KeluaranCell,
   KeteranganCell,
 } from './ProsedurEditorCells'
 import { DecisionStepDialog } from './DecisionStepDialog'
@@ -52,9 +52,9 @@ export function DetailSOPProsedurEditor({
     handleTypeChange,
     handleKegiatanChange,
     handlePelaksanaChange,
-    handleMutuKelengkapanChange,
-    handleMutuWaktuChange,
-    handleOutputChange,
+    handleKelengkapanChange,
+    handleWaktuChange,
+    handleKeluaranChange,
     handleKeteranganChange,
     handleDecisionConfig,
   } = useProsedurEditor(prosedurRows, setProsedurRows)
@@ -190,21 +190,22 @@ export function DetailSOPProsedurEditor({
                   />
                 </Table.Td>
                 <Table.Td className="px-1.5 py-1.5 align-top">
-                  <MutuKelengkapanCell
-                    value={row.mutu_kelengkapan ?? ''}
-                    onChange={(value) => handleMutuKelengkapanChange(realIdx, value)}
+                  <KelengkapanCell
+                    value={row.kelengkapan ?? ''}
+                    onChange={(value) => handleKelengkapanChange(realIdx, value)}
                   />
                 </Table.Td>
                 <Table.Td className="px-1.5 py-1.5 align-top">
-                  <MutuWaktuCell
-                    value={row.mutu_waktu ?? ''}
-                    onChange={(amount, unit) => handleMutuWaktuChange(realIdx, amount, unit)}
+                  <WaktuCell
+                    waktu={row.waktu}
+                    satuanWaktu={row.satuanWaktu}
+                    onChange={(amount, unit) => handleWaktuChange(realIdx, amount, unit)}
                   />
                 </Table.Td>
                 <Table.Td className="px-1.5 py-1.5 align-top">
-                  <OutputCell
-                    value={row.output ?? ''}
-                    onChange={(value) => handleOutputChange(realIdx, value)}
+                  <KeluaranCell
+                    value={row.keluaran ?? ''}
+                    onChange={(value) => handleKeluaranChange(realIdx, value)}
                   />
                 </Table.Td>
                 <Table.Td className="px-1.5 py-1.5 align-top">
@@ -262,23 +263,24 @@ export function DetailSOPProsedurEditor({
               </div>
               <div className="space-y-1.5">
                 <p className="text-xs font-medium text-secondary-foreground">Kelengkapan</p>
-                <MutuKelengkapanCell
-                  value={row.mutu_kelengkapan ?? ''}
-                  onChange={(value) => handleMutuKelengkapanChange(realIdx, value)}
+                <KelengkapanCell
+                  value={row.kelengkapan ?? ''}
+                  onChange={(value) => handleKelengkapanChange(realIdx, value)}
                 />
               </div>
               <div className="space-y-1.5">
                 <p className="text-xs font-medium text-secondary-foreground">Waktu</p>
-                <MutuWaktuCell
-                  value={row.mutu_waktu ?? ''}
-                  onChange={(amount, unit) => handleMutuWaktuChange(realIdx, amount, unit)}
+                <WaktuCell
+                  waktu={row.waktu}
+                  satuanWaktu={row.satuanWaktu}
+                  onChange={(amount, unit) => handleWaktuChange(realIdx, amount, unit)}
                 />
               </div>
               <div className="space-y-1.5">
                 <p className="text-xs font-medium text-secondary-foreground">Output</p>
-                <OutputCell
-                  value={row.output ?? ''}
-                  onChange={(value) => handleOutputChange(realIdx, value)}
+                <KeluaranCell
+                  value={row.keluaran ?? ''}
+                  onChange={(value) => handleKeluaranChange(realIdx, value)}
                 />
               </div>
               <div className="space-y-1.5">
