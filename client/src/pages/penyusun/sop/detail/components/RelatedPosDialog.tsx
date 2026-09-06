@@ -22,9 +22,9 @@ export interface RelatedPosDialogProps {
   onOpenChange: (open: boolean) => void
   /** Override opsional bila dipakai di luar editor SOP. */
   options?: RelatedSopOption[]
-  /** Override label yang sudah terpasang. Default dari context. */
+  /** Override label yang sudah terpasang. Default dari canonical editor metadata. */
   existingRelatedSop?: string[]
-  /** Override ID DetailSOP terpasang. Default dari context. */
+  /** Override ID DetailSOP terpasang. Default dari canonical editor metadata. */
   existingRelatedSopIds?: string[]
   onAdd: (next: RelatedSopDialogResult) => void
 }
@@ -39,8 +39,8 @@ export function RelatedPosDialog({
 }: RelatedPosDialogProps) {
   const { relatedSopOptions, metadata } = useSopEditor()
   const options = optionsOverride ?? relatedSopOptions
-  const existingRelatedSop = existingRelatedSopOverride ?? metadata.relatedSop ?? []
-  const existingRelatedSopIds = existingRelatedSopIdsOverride ?? metadata.relatedSopDetailIds ?? []
+  const existingRelatedSop = existingRelatedSopOverride ?? metadata.sopTerkait ?? []
+  const existingRelatedSopIds = existingRelatedSopIdsOverride ?? metadata.sopTerkaitDetailIds ?? []
 
   return (
     <SearchableSelectDialog
