@@ -138,8 +138,25 @@ const SIDEBAR_ITEMS: Record<RoleKey, AppSidebarItem[]> = {
   ],
 };
 
+const ROLE_WORK_ROOTS = new Set<string>([
+  ROUTES.PJ_EVALUATOR.PEKERJAAN,
+  ROUTES.PENYUSUN.PEKERJAAN,
+  ROUTES.KEPALA_OPD.PEKERJAAN,
+  ROUTES.EVALUATOR.PEKERJAAN,
+]);
+
+function normalizePath(path: string): string {
+  const normalized = path.replace(/\/+$/, "");
+  return normalized || "/";
+}
+
 function isActivePath(pathname: string, itemTo: string): boolean {
-  return pathname.startsWith(itemTo.replace("/$id", ""));
+  const current = normalizePath(pathname);
+  const target = normalizePath(itemTo.replace("/$id", ""));
+  if (ROLE_WORK_ROOTS.has(target)) {
+    return current === target;
+  }
+  return current === target || current.startsWith(`${target}/`);
 }
 
 export function DashboardLayout() {
@@ -187,7 +204,6 @@ export function DashboardLayout() {
         Lewati ke konten utama
       </a>
 
-      {/* Mobile nav */}
       <nav
         data-print-hide
         className="shrink-0 border-b border-border bg-surface lg:hidden"
@@ -271,7 +287,6 @@ export function DashboardLayout() {
         onOpenChange={handleDesktopSidebarOpenChange}
       />
 
-      {/* Main content */}
       <div suppressHydrationWarning className="flex-1 flex flex-col min-w-0 min-h-0">
         <PageHeaderProvider>
           <HeaderBar />
