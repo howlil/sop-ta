@@ -6,37 +6,8 @@ import { FormField } from '@/components/ui/form-field'
 import { Textarea } from '@/components/ui/textarea'
 import { AddItemIconButton, EditableStringList } from '@/components/ui/editable-string-list'
 import { FieldWithCornerRemoveButton } from '@/components/ui/field-with-corner-remove-button'
-import type { SOPDetailMetadata } from '@/types/ui/sop'
 import { cn } from '@/utils/cn'
 import { useSopEditor } from '../SopEditorContext'
-
-/** Memecah teks jadi array baris; baris kosong dipertahankan agar Enter = baris baru. */
-function toLinesKeepEmpty(value: string): string[] {
-  return value.split('\n')
-}
-
-/** Sama seperti panel utama / `toPreviewMetadata`: judul & nomor dari field API. */
-function metadataDisplayName(meta: SOPDetailMetadata): string {
-  return meta.nama ?? meta.judul ?? meta.name ?? ''
-}
-
-function metadataDisplayNumber(meta: SOPDetailMetadata): string {
-  return meta.nomorSOP ?? meta.nomor ?? meta.number ?? ''
-}
-
-/** Tampilan textarea lembaga: baris terstruktur atau teks `lembaga` mentah. */
-function metadataInstitutionTextareaValue(meta: SOPDetailMetadata): string {
-  if (meta.institutionLines !== undefined && meta.institutionLines.length > 0) {
-    return meta.institutionLines.join('\n')
-  }
-  return meta.lembaga ?? ''
-}
-
-function asArray(v: string | string[] | undefined): string[] {
-  if (Array.isArray(v)) return v
-  if (typeof v === 'string' && v.length > 0) return [v]
-  return []
-}
 
 function InspectorSection({
   title,
@@ -88,10 +59,7 @@ export interface SOPHeaderSectionProps {
   onOpenPelaksanaDialog?: () => void
 }
 
-/**
- * Inspector metadata header SOP. Mengonsumsi state metadata/implementers dari
- * `useSopEditor()` dan hanya menerima callback untuk membuka dialog pemilih.
- */
+/** Inspector metadata header SOP over the canonical editor model. */
 export function SOPHeaderSection({
   onOpenLawBasisDialog,
   onOpenRelatedPosDialog,
@@ -100,9 +68,9 @@ export function SOPHeaderSection({
   const { metadata, handleMetadataChange, implementers, setImplementers, isReadOnly } =
     useSopEditor()
 
-  const institutionText = metadataInstitutionTextareaValue(metadata)
-  const sopName = metadataDisplayName(metadata)
-  const sopNumber = metadataDisplayNumber(metadata)
+  const institutionText = metadata.namaLembaga ?? ''
+  const sopName = metadata.judul ?? ''
+  const sopNumber = metadata.nomorSOP ?? ''
 
   return (
     <div>
@@ -113,11 +81,7 @@ export function SOPHeaderSection({
           <Textarea
             className="min-h-[84px] text-xs"
             value={institutionText}
-            onChange={(e) => {
-              const lines = toLinesKeepEmpty(e.target.value)
-              handleMetadataChange('institutionLines', lines)
-              handleMetadataChange('lembaga', lines.join('\n'))
-            }}
+            onChange={(event) => handleMetadataChange('namaLembaga', event.target.value)}
             placeholder="Baris 1&#10;Baris 2&#10;Baris 3&#10;Baris 4"
           />
         )}
@@ -133,11 +97,7 @@ export function SOPHeaderSection({
               minRows={1}
               maxRows={8}
               value={sopName}
-              onChange={(e) => {
-                const value = e.target.value
-                handleMetadataChange('judul', value)
-                handleMetadataChange('nama', value)
-              }}
+              onChange={(event) => handleMetadataChange('judul', event.target.value)}
               placeholder="Judul SOP"
             />
           )}
@@ -149,11 +109,7 @@ export function SOPHeaderSection({
             <Input
               className="h-9 text-xs"
               value={sopNumber}
-              onChange={(e) => {
-                const value = e.target.value
-                handleMetadataChange('nomorSOP', value)
-                handleMetadataChange('nomor', value)
-              }}
+              onChange={(event) => handleMetadataChange('nomorSOP', event.target.value)}
               placeholder="Mis. 001/SOP/2026"
             />
           )}
@@ -169,20 +125,20 @@ export function SOPHeaderSection({
         }
       >
         <div className="space-y-1">
-          {(metadata.lawBasis ?? []).length === 0 ? (
+          {(metadata.dasarHukum ?? []).length === 0 ? (
             <p className="text-xs text-muted-foreground">Belum ada dasar hukum.</p>
           ) : (
-            (metadata.lawBasis ?? []).map((item: string, idx: number) =>
+            (metadata.dasarHukum ?? []).map((item, idx) =>
               !isReadOnly ? (
                 <FieldWithCornerRemoveButton
                   key={`${idx}-${item}`}
                   className="rounded-md border border-border bg-surface"
                   contentClassName="px-2.5 py-2 pr-8 text-xs text-secondary-foreground"
                   onRemove={() => {
-                    const nextLabels = (metadata.lawBasis ?? []).filter((_, i) => i !== idx)
-                    const nextIds = (metadata.lawBasisIds ?? []).filter((_, i) => i !== idx)
-                    handleMetadataChange('lawBasis', nextLabels)
-                    handleMetadataChange('lawBasisIds', nextIds)
+                    const nextLabels = (metadata.dasarHukum ?? []).filter((_, i) => i !== idx)
+                    const nextIds = (metadata.dasarHukumPeraturanIds ?? []).filter((_, i) => i !== idx)
+                    handleMetadataChange('dasarHukum', nextLabels)
+                    handleMetadataChange('dasarHukumPeraturanIds', nextIds)
                   }}
                 >
                   {item}
@@ -206,20 +162,20 @@ export function SOPHeaderSection({
         }
       >
         <div className="space-y-1">
-          {(metadata.relatedSop ?? []).length === 0 ? (
+          {(metadata.sopTerkait ?? []).length === 0 ? (
             <p className="text-xs text-muted-foreground">Belum ada keterkaitan SOP.</p>
           ) : (
-            (metadata.relatedSop ?? []).map((item: string, idx: number) =>
+            (metadata.sopTerkait ?? []).map((item, idx) =>
               !isReadOnly ? (
                 <FieldWithCornerRemoveButton
                   key={`${idx}-${item}`}
                   className="rounded-md border border-border bg-surface"
                   contentClassName="px-2.5 py-2 pr-8 text-xs text-secondary-foreground"
                   onRemove={() => {
-                    const nextLabels = (metadata.relatedSop ?? []).filter((_, i) => i !== idx)
-                    const nextIds = (metadata.relatedSopDetailIds ?? []).filter((_, i) => i !== idx)
-                    handleMetadataChange('relatedSop', nextLabels)
-                    handleMetadataChange('relatedSopDetailIds', nextIds)
+                    const nextLabels = (metadata.sopTerkait ?? []).filter((_, i) => i !== idx)
+                    const nextIds = (metadata.sopTerkaitDetailIds ?? []).filter((_, i) => i !== idx)
+                    handleMetadataChange('sopTerkait', nextLabels)
+                    handleMetadataChange('sopTerkaitDetailIds', nextIds)
                   }}
                 >
                   {item}
@@ -239,7 +195,7 @@ export function SOPHeaderSection({
         action={
           !isReadOnly ? (
             <AddItemIconButton
-              onClick={() => handleMetadataChange('warning', [...asArray(metadata.warning), ''])}
+              onClick={() => handleMetadataChange('peringatan', [...(metadata.peringatan ?? []), ''])}
               label="Tambah peringatan"
             />
           ) : undefined
@@ -247,10 +203,10 @@ export function SOPHeaderSection({
       >
         {isReadOnly ? (
           <ul className="list-disc space-y-1 pl-4">
-            {asArray(metadata.warning).length === 0 ? (
+            {(metadata.peringatan ?? []).length === 0 ? (
               <li className="text-xs text-muted-foreground">Tidak ada peringatan.</li>
             ) : (
-              asArray(metadata.warning).map((line, idx) => (
+              (metadata.peringatan ?? []).map((line, idx) => (
                 <li key={`${idx}-${line}`} className="text-xs text-secondary-foreground">
                   {line}
                 </li>
@@ -259,8 +215,8 @@ export function SOPHeaderSection({
           </ul>
         ) : (
           <EditableStringList
-            items={asArray(metadata.warning)}
-            onChange={(next) => handleMetadataChange('warning', next)}
+            items={metadata.peringatan ?? []}
+            onChange={(next) => handleMetadataChange('peringatan', next)}
             placeholder="Peringatan"
             emptyMessage="Belum ada peringatan."
             showAddButton={false}
@@ -274,8 +230,8 @@ export function SOPHeaderSection({
           !isReadOnly ? (
             <AddItemIconButton
               onClick={() =>
-                handleMetadataChange('implementQualification', [
-                  ...asArray(metadata.implementQualification),
+                handleMetadataChange('kualifikasiPelaksanaan', [
+                  ...(metadata.kualifikasiPelaksanaan ?? []),
                   '',
                 ])
               }
@@ -286,10 +242,10 @@ export function SOPHeaderSection({
       >
         {isReadOnly ? (
           <ul className="list-disc space-y-1 pl-4">
-            {asArray(metadata.implementQualification).length === 0 ? (
+            {(metadata.kualifikasiPelaksanaan ?? []).length === 0 ? (
               <li className="text-xs text-muted-foreground">Belum ada kualifikasi.</li>
             ) : (
-              asArray(metadata.implementQualification).map((line, idx) => (
+              (metadata.kualifikasiPelaksanaan ?? []).map((line, idx) => (
                 <li key={`${idx}-${line}`} className="text-xs text-secondary-foreground">
                   {line}
                 </li>
@@ -298,8 +254,8 @@ export function SOPHeaderSection({
           </ul>
         ) : (
           <EditableStringList
-            items={asArray(metadata.implementQualification)}
-            onChange={(next) => handleMetadataChange('implementQualification', next)}
+            items={metadata.kualifikasiPelaksanaan ?? []}
+            onChange={(next) => handleMetadataChange('kualifikasiPelaksanaan', next)}
             placeholder="Kualifikasi"
             emptyMessage="Belum ada kualifikasi."
             showAddButton={false}
@@ -312,7 +268,12 @@ export function SOPHeaderSection({
         action={
           !isReadOnly ? (
             <AddItemIconButton
-              onClick={() => handleMetadataChange('equipment', [...asArray(metadata.equipment), ''])}
+              onClick={() =>
+                handleMetadataChange('peralatanPerlengkapan', [
+                  ...(metadata.peralatanPerlengkapan ?? []),
+                  '',
+                ])
+              }
               label="Tambah peralatan"
             />
           ) : undefined
@@ -320,10 +281,10 @@ export function SOPHeaderSection({
       >
         {isReadOnly ? (
           <ul className="list-disc space-y-1 pl-4">
-            {asArray(metadata.equipment).length === 0 ? (
+            {(metadata.peralatanPerlengkapan ?? []).length === 0 ? (
               <li className="text-xs text-muted-foreground">Belum ada peralatan/perlengkapan.</li>
             ) : (
-              asArray(metadata.equipment).map((line, idx) => (
+              (metadata.peralatanPerlengkapan ?? []).map((line, idx) => (
                 <li key={`${idx}-${line}`} className="text-xs text-secondary-foreground">
                   {line}
                 </li>
@@ -332,8 +293,8 @@ export function SOPHeaderSection({
           </ul>
         ) : (
           <EditableStringList
-            items={asArray(metadata.equipment)}
-            onChange={(next) => handleMetadataChange('equipment', next)}
+            items={metadata.peralatanPerlengkapan ?? []}
+            onChange={(next) => handleMetadataChange('peralatanPerlengkapan', next)}
             placeholder="Peralatan"
             emptyMessage="Belum ada peralatan/perlengkapan."
             showAddButton={false}
@@ -346,7 +307,12 @@ export function SOPHeaderSection({
         action={
           !isReadOnly ? (
             <AddItemIconButton
-              onClick={() => handleMetadataChange('recordData', [...asArray(metadata.recordData), ''])}
+              onClick={() =>
+                handleMetadataChange('pencatatanPendataan', [
+                  ...(metadata.pencatatanPendataan ?? []),
+                  '',
+                ])
+              }
               label="Tambah pencatatan"
             />
           ) : undefined
@@ -354,10 +320,10 @@ export function SOPHeaderSection({
       >
         {isReadOnly ? (
           <ul className="list-disc space-y-1 pl-4">
-            {asArray(metadata.recordData).length === 0 ? (
+            {(metadata.pencatatanPendataan ?? []).length === 0 ? (
               <li className="text-xs text-muted-foreground">Belum ada pencatatan/pendataan.</li>
             ) : (
-              asArray(metadata.recordData).map((line, idx) => (
+              (metadata.pencatatanPendataan ?? []).map((line, idx) => (
                 <li key={`${idx}-${line}`} className="text-xs text-secondary-foreground">
                   {line}
                 </li>
@@ -366,8 +332,8 @@ export function SOPHeaderSection({
           </ul>
         ) : (
           <EditableStringList
-            items={asArray(metadata.recordData)}
-            onChange={(next) => handleMetadataChange('recordData', next)}
+            items={metadata.pencatatanPendataan ?? []}
+            onChange={(next) => handleMetadataChange('pencatatanPendataan', next)}
             placeholder="Pencatatan"
             emptyMessage="Belum ada pencatatan/pendataan."
             showAddButton={false}
