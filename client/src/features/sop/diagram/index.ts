@@ -3,6 +3,7 @@ export { SOPDiagramFlowchart, type SOPDiagramFlowchartProps } from './components
 export { SOPHeaderInfo, type SOPHeaderInfoProps } from './components/SOPHeaderInfo'
 export {
   rowsToSteps,
+  toDiagramProsedurRows,
   type ArrowConfig,
   type ArrowConnectionConfig,
   type ArrowPathPoint,
