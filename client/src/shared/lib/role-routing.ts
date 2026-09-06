@@ -2,15 +2,13 @@ import type { RoleKey } from '@/types/dto/access.dto';
 import { ROUTES } from '@/utils/constants';
 import { toNavigationRole } from '@/utils/role-key';
 
-/**
- * Halaman pertama sidebar per peran (indeks 0) — dipakai untuk redirect `/` dan setelah login.
- */
+/** Halaman kerja pertama per peran — dipakai untuk redirect `/` dan setelah login. */
 export const ROLE_DEFAULT_LANDING: Record<RoleKey, string> = {
-  PJ_EVALUATOR: ROUTES.PJ_EVALUATOR.GRAFIK_EVALUASI,
-  PENYUSUN: ROUTES.PENYUSUN.SOP,
-  PJ_PENYUSUN: ROUTES.PENYUSUN.SOP,
-  KEPALA_OPD: ROUTES.KEPALA_OPD.SOP,
-  EVALUATOR: ROUTES.EVALUATOR.EVALUASI,
+  PJ_EVALUATOR: ROUTES.PJ_EVALUATOR.PEKERJAAN,
+  PENYUSUN: ROUTES.PENYUSUN.PEKERJAAN,
+  PJ_PENYUSUN: ROUTES.PENYUSUN.PEKERJAAN,
+  KEPALA_OPD: ROUTES.KEPALA_OPD.PEKERJAAN,
+  EVALUATOR: ROUTES.EVALUATOR.PEKERJAAN,
 };
 
 /** Prefiks area aplikasi yang dibatasi per peran (guard kasar untuk redirect aman). */
@@ -104,7 +102,7 @@ export function parseSafeInternalRedirect(redirect: string | undefined): string 
 }
 
 /**
- * Tujuan setelah login: gunakan `redirect` hanya jika internal & cocok dengan peran; selain itu landing peran (sidebar indeks 0).
+ * Tujuan setelah login: gunakan `redirect` hanya jika internal & cocok dengan peran; selain itu landing peran.
  */
 export function resolvePostLoginPath(redirect: string | undefined, peran: string): string {
   const internal = parseSafeInternalRedirect(redirect);
