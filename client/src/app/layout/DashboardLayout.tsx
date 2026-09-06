@@ -10,6 +10,7 @@ import {
   FileSignature,
   FileText,
   UserCog,
+  ListTodo,
   Menu,
   X,
 } from "lucide-react";
@@ -34,6 +35,11 @@ const DESKTOP_SIDEBAR_STORAGE_KEY = "ui:desktop-sidebar-collapsed";
 /** Item pertama per peran harus selaras dengan @/utils/role-routing ROLE_DEFAULT_LANDING (redirect setelah login & `/`). */
 const SIDEBAR_ITEMS: Record<RoleKey, AppSidebarItem[]> = {
   PJ_EVALUATOR: [
+    {
+      to: ROUTES.PJ_EVALUATOR.PEKERJAAN,
+      label: "Pekerjaan Saya",
+      icon: ListTodo,
+    },
     {
       to: ROUTES.PJ_EVALUATOR.GRAFIK_EVALUASI,
       label: "Grafik Evaluasi",
@@ -62,6 +68,11 @@ const SIDEBAR_ITEMS: Record<RoleKey, AppSidebarItem[]> = {
   ],
   PENYUSUN: [
     {
+      to: ROUTES.PENYUSUN.PEKERJAAN,
+      label: "Pekerjaan Saya",
+      icon: ListTodo,
+    },
+    {
       to: ROUTES.PENYUSUN.SOP,
       label: "SOP",
       icon: FileText,
@@ -78,6 +89,11 @@ const SIDEBAR_ITEMS: Record<RoleKey, AppSidebarItem[]> = {
     },
   ],
   PJ_PENYUSUN: [
+    {
+      to: ROUTES.PENYUSUN.PEKERJAAN,
+      label: "Pekerjaan Saya",
+      icon: ListTodo,
+    },
     {
       to: ROUTES.PENYUSUN.SOP,
       label: "SOP",
@@ -100,6 +116,11 @@ const SIDEBAR_ITEMS: Record<RoleKey, AppSidebarItem[]> = {
     },
   ],
   KEPALA_OPD: [
+    {
+      to: ROUTES.KEPALA_OPD.PEKERJAAN,
+      label: "Pekerjaan Saya",
+      icon: ListTodo,
+    },
     { to: ROUTES.KEPALA_OPD.SOP, label: "Pantau SOP", icon: FileText },
     {
       to: ROUTES.KEPALA_OPD.PENGAJUAN,
@@ -108,6 +129,11 @@ const SIDEBAR_ITEMS: Record<RoleKey, AppSidebarItem[]> = {
     },
   ],
   EVALUATOR: [
+    {
+      to: ROUTES.EVALUATOR.PEKERJAAN,
+      label: "Pekerjaan Saya",
+      icon: ListTodo,
+    },
     { to: ROUTES.EVALUATOR.EVALUASI, label: "Evaluasi SOP", icon: FileCheck },
   ],
 };
