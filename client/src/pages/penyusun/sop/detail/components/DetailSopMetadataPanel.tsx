@@ -37,8 +37,8 @@ export function DetailSOPMetadataPanel() {
             open={isLawBasisOpen}
             onOpenChange={setIsLawBasisOpen}
             onAdd={({ ids, labels }) => {
-              handleMetadataChange('lawBasis', labels)
-              handleMetadataChange('lawBasisIds', ids)
+              handleMetadataChange('dasarHukum', labels)
+              handleMetadataChange('dasarHukumPeraturanIds', ids)
             }}
           />
 
@@ -46,8 +46,8 @@ export function DetailSOPMetadataPanel() {
             open={isRelatedPosOpen}
             onOpenChange={setIsRelatedPosOpen}
             onAdd={({ ids, labels }) => {
-              handleMetadataChange('relatedSop', labels)
-              handleMetadataChange('relatedSopDetailIds', ids)
+              handleMetadataChange('sopTerkait', labels)
+              handleMetadataChange('sopTerkaitDetailIds', ids)
             }}
           />
 
