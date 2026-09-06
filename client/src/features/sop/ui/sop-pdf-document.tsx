@@ -11,11 +11,10 @@ import {
 } from "@react-pdf/renderer";
 import appLogoUrl from "@/assets/logo.svg";
 import { SOP_INSTITUTION_LOGO_URL } from "@/lib/sop/sop-institution-logo";
-import { getInitialSopDetailMetadata } from "@/lib/sop/detailSop.initial-state";
 import { getFullTimeUnit } from "@/components/sop/sop-diagram/core/sopDiagramTypes";
 import type { DiagramPageSnapshot } from "@/lib/print/sop-diagram-export.util";
 import type { SOPPreviewTemplateProps } from "@/components/sop/sop-preview-template";
-import type { ProsedurRow, SOPDetailMetadata } from "@/types/ui/sop";
+import type { ProsedurRow } from "@/types/ui/sop";
 import type { PenyusunWorkbenchDiagramKonfigurasi } from "@/types/dto/sop.dto";
 import type { TTESignaturePayload } from "@/types/dto/tte.dto";
 import { formatIsoToDdMmYyyyWib } from "@/utils/format-date";
@@ -42,7 +41,23 @@ export interface SopPdfDocumentProps {
   diagramKonfigurasi?: PenyusunWorkbenchDiagramKonfigurasi;
 }
 
-const DEFAULT_METADATA = getInitialSopDetailMetadata();
+const DEFAULT_METADATA: NonNullable<SOPPreviewTemplateProps["metadata"]> = {
+  name: "",
+  number: "",
+  version: 1,
+  createdDate: "",
+  revisionDate: "",
+  effectiveDate: "",
+  institutionLines: [],
+  picName: "",
+  picNumber: "",
+  lawBasis: [],
+  implementQualification: [],
+  relatedSop: [],
+  equipment: [],
+  warning: [],
+  recordData: [],
+};
 const A4_LANDSCAPE: [number, number] = [841.89, 595.28];
 const PAGE_PADDING = 28;
 const CONTENT_WIDTH = A4_LANDSCAPE[0] - PAGE_PADDING * 2;
@@ -230,41 +245,15 @@ function normalizeMetadata(
   numberOverride?: string,
   metadataOverride?: SOPPreviewTemplateProps["metadata"],
 ) {
-  const metadata = metadataOverride as Partial<SOPDetailMetadata> | undefined;
   return {
     ...DEFAULT_METADATA,
-    ...(nameOverride != null && { name: nameOverride }),
-    ...(numberOverride != null && { number: numberOverride }),
     ...metadataOverride,
-    implementQualification:
-      typeof metadataOverride?.implementQualification === "string"
-        ? [metadataOverride.implementQualification]
-        : (metadataOverride?.implementQualification ??
-          (Array.isArray(DEFAULT_METADATA.implementQualification)
-            ? DEFAULT_METADATA.implementQualification
-            : [])),
-    equipment:
-      typeof metadataOverride?.equipment === "string"
-        ? [metadataOverride.equipment]
-        : (metadataOverride?.equipment ??
-          (Array.isArray(DEFAULT_METADATA.equipment) ? DEFAULT_METADATA.equipment : [])),
-    recordData:
-      typeof metadataOverride?.recordData === "string"
-        ? [metadataOverride.recordData]
-        : (metadataOverride?.recordData ??
-          (Array.isArray(DEFAULT_METADATA.recordData) ? DEFAULT_METADATA.recordData : [])),
-    ...(metadata?.tanggalPembuatan != null && String(metadata.tanggalPembuatan).trim() !== ""
-      ? { createdDate: String(metadata.tanggalPembuatan) }
-      : {}),
-    ...(metadata?.tanggalRevisi != null && String(metadata.tanggalRevisi).trim() !== ""
-      ? { revisionDate: String(metadata.tanggalRevisi) }
-      : {}),
-    ...(metadata?.tanggalEfektif != null && String(metadata.tanggalEfektif).trim() !== ""
-      ? { effectiveDate: String(metadata.tanggalEfektif) }
-      : {}),
-    ...(metadata && !metadata.name && metadata.nama != null && String(metadata.nama).trim() !== ""
-      ? { name: String(metadata.nama) }
-      : {}),
+    name: nameOverride ?? metadataOverride?.name ?? DEFAULT_METADATA.name,
+    number: numberOverride ?? metadataOverride?.number ?? DEFAULT_METADATA.number,
+    implementQualification: toArrayField(metadataOverride?.implementQualification),
+    equipment: toArrayField(metadataOverride?.equipment),
+    warning: toArrayField(metadataOverride?.warning),
+    recordData: toArrayField(metadataOverride?.recordData),
   };
 }
 
@@ -330,7 +319,7 @@ function HeaderPage({
             </View>
             <View style={{ width: "55%" }}>
               {[
-                ["NOMOR SOP", metadata.number || metadata.nomorSOP || " - "],
+                ["NOMOR SOP", metadata.number || " - "],
                 ["TANGGAL PEMBUATAN", headerDisplayDate(metadata.createdDate)],
                 ["TANGGAL REVISI", revisionDate],
                 ["TANGGAL EFEKTIF", headerDisplayDate(metadata.effectiveDate) || " - "],
@@ -477,10 +466,9 @@ function FlowShape({ type }: { type?: ProsedurRow["type"] }) {
 }
 
 function rowTime(row: ProsedurRow): string {
-  if (row.time !== undefined && row.time_unit != null) {
-    return row.time === 0 ? "" : `${row.time} ${getFullTimeUnit(row.time_unit)}`;
-  }
-  return row.mutu_waktu || " - ";
+  if (row.waktu === undefined) return " - ";
+  if (row.waktu === 0) return "";
+  return `${row.waktu} ${getFullTimeUnit(row.satuanWaktu ?? "m")}`;
 }
 
 function StepsPage({
@@ -563,7 +551,7 @@ function StepsPage({
           {rows.map((row) => (
             <View key={row.id} style={styles.row} wrap={false}>
               <View style={[styles.stepBodyCell, { width: "5%" }]}>
-                <Text style={[styles.centerText, styles.stepText]}>{row.no ?? row.urutan}</Text>
+                <Text style={[styles.centerText, styles.stepText]}>{row.urutan}</Text>
               </View>
               <View style={[styles.stepBodyCell, { width: "24%" }]}>
                 <Text style={[styles.justifyText, styles.stepText]}>{row.kegiatan || " - "}</Text>
@@ -583,7 +571,7 @@ function StepsPage({
               ))}
               <View style={[styles.stepBodyCell, { width: "14%" }]}>
                 <Text style={[styles.justifyText, styles.stepText]}>
-                  {row.mutu_kelengkapan || row.kelengkapan || " - "}
+                  {row.kelengkapan || " - "}
                 </Text>
               </View>
               <View style={[styles.stepBodyCell, { width: "8%" }]}>
@@ -591,7 +579,7 @@ function StepsPage({
               </View>
               <View style={[styles.stepBodyCell, { width: "13%" }]}>
                 <Text style={[styles.justifyText, styles.stepText]}>
-                  {row.output || row.keluaran || " - "}
+                  {row.keluaran || " - "}
                 </Text>
               </View>
               <View style={[styles.stepBodyCell, { width: "12%" }]}>
@@ -653,7 +641,7 @@ export function SopPdfDocument({
   diagramSnapshots = [],
 }: SopPdfDocumentProps) {
   const metadata = normalizeMetadata(name, number, metadataOverride);
-  const normalizedRows = [...prosedurRows].sort((a, b) => (a.no ?? a.urutan) - (b.no ?? b.urutan));
+  const normalizedRows = [...prosedurRows].sort((a, b) => a.urutan - b.urutan);
   const stepPages = splitRows(normalizedRows, STEP_ROWS_PER_PAGE);
   const sections = resolvePrintSections({
     includeHeader,
