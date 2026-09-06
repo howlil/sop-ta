@@ -124,9 +124,7 @@ function kepalaOpdItems(row: WorkItemPengajuanRow): WorkItem[] {
   }
 
   return row.nilaiEvaluasi
-    .filter(
-      ({ detailSop }) => detailSop.status === StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
-    )
+    .filter(({ detailSop }) => detailSop.status === StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI)
     .map(({ detailSop }) => ({
       id: `approve-sop:${detailSop.detailSopId}`,
       kind: 'APPROVE_SOP' as const,
