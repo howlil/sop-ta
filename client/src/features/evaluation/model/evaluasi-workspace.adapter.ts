@@ -91,7 +91,9 @@ export function resolveEvaluasiWorkspacePengajuanAktif(
         version: nilai.version,
         statusTindakLanjut: nilai.statusTindakLanjut ?? null,
         statusTindakLanjutLabel: nilai.statusTindakLanjutLabel ?? null,
-        ditindaklanjutiPada: nilai.ditindaklanjutiPada ?? null,
+        // Pertahankan projection lama: fallback GET /evaluasi tidak membawa timestamp
+        // tindak lanjut ke workspace view-model.
+        ditindaklanjutiPada: null,
         versi: 1,
         detailUpdatedAt: new Date(0).toISOString(),
       }
