@@ -1,0 +1,173 @@
+name: One-shot SOP concurrency client patch
+
+on:
+  push:
+    branches:
+      - feat/sop-optimistic-concurrency
+    paths:
+      - .github/workflows/sop-concurrency-client-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Thread revisions through SOP autosave clients
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace(path_s, old, new, count=1):
+              path = Path(path_s)
+              text = path.read_text()
+              actual = text.count(old)
+              if actual != count:
+                  raise SystemExit(f'{path}: expected {count} occurrences, found {actual}: {old[:90]!r}')
+              path.write_text(text.replace(old, new, count))
+
+          # Public client contracts.
+          path = 'client/src/types/dto/sop.dto.ts'
+          replace(
+              path,
+              '  versi: number;\n  revisiDariDetailSopId?: string | null;\n',
+              '  versi: number;\n  prosedurRevision: number;\n  diagramRevision: number;\n  revisiDariDetailSopId?: string | null;\n',
+          )
+          replace(
+              path,
+              'export interface UpdateSopDiagramDto {\n  jenis: JenisDiagram;\n',
+              'export interface UpdateSopDiagramDto {\n  jenis: JenisDiagram;\n  expectedRevision: number;\n',
+          )
+          replace(
+              path,
+              'export interface UpdateSopProsedurDto {\n  pelaksana?: PelaksanaPatchItem[];\n',
+              'export interface UpdateSopProsedurDto {\n  expectedRevision: number;\n  pelaksana?: PelaksanaPatchItem[];\n',
+          )
+
+          # Procedure autosave keeps revision outside the editor snapshot/diff.
+          path = 'client/src/features/sop/application/editor/use-sop-prosedur-autosave.ts'
+          replace(
+              path,
+              "import {\n  useSingleWriterAutosave,\n",
+              "import { useCallback, useEffect, useRef } from 'react'\nimport {\n  useSingleWriterAutosave,\n",
+          )
+          replace(
+              path,
+              "  PelaksanaPatchItem,\n  SatuanWaktu,\n  UpdateSopProsedurDto,\n",
+              "  PelaksanaPatchItem,\n  PenyusunWorkbenchData,\n  SatuanWaktu,\n  UpdateSopProsedurDto,\n",
+          )
+          replace(
+              path,
+              "export interface SopProsedurSnapshot {\n  pelaksana: PelaksanaPatchItem[]\n  langkah: LangkahPatchItem[]\n}\n",
+              "export interface SopProsedurSnapshot {\n  pelaksana: PelaksanaPatchItem[]\n  langkah: LangkahPatchItem[]\n}\n\nexport type SopProsedurPatch = Omit<UpdateSopProsedurDto, 'expectedRevision'>\n",
+          )
+          replace(
+              path,
+              "): UpdateSopProsedurDto {\n  const dto: UpdateSopProsedurDto = {}\n",
+              "): SopProsedurPatch {\n  const dto: SopProsedurPatch = {}\n",
+          )
+          replace(
+              path,
+              "): UpdateSopProsedurDto | null {\n",
+              "): SopProsedurPatch | null {\n",
+          )
+          replace(
+              path,
+              "  snapshot: SopProsedurSnapshot\n  save: (payload: UpdateSopProsedurDto) => Promise<unknown>\n",
+              "  snapshot: SopProsedurSnapshot\n  expectedRevision: number\n  save: (payload: UpdateSopProsedurDto) => Promise<PenyusunWorkbenchData>\n",
+          )
+          replace(
+              path,
+              "    snapshot,\n    save,\n    enabled = true,\n",
+              "    snapshot,\n    expectedRevision,\n    save,\n    enabled = true,\n",
+          )
+          replace(
+              path,
+              "  } = options\n\n  return useSingleWriterAutosave({\n    snapshot,\n    buildPatch,\n    save,\n",
+              "  } = options\n\n  const revisionRef = useRef(expectedRevision)\n  useEffect(() => {\n    revisionRef.current = expectedRevision\n  }, [detailSopId, expectedRevision])\n\n  const saveWithRevision = useCallback(\n    async (patch: SopProsedurPatch): Promise<PenyusunWorkbenchData> => {\n      const data = await save({ ...patch, expectedRevision: revisionRef.current })\n      revisionRef.current = data.detail.prosedurRevision\n      return data\n    },\n    [save],\n  )\n\n  return useSingleWriterAutosave({\n    snapshot,\n    buildPatch,\n    save: saveWithRevision,\n",
+          )
+
+          # Editor data controller supplies the workbench revision.
+          path = 'client/src/features/sop/application/editor/use-detail-sop-penyusun-data.ts'
+          replace(
+              path,
+              "    snapshot: prosedurSnapshot,\n    save: updateSopProsedurMutation.mutateAsync,\n",
+              "    snapshot: prosedurSnapshot,\n    expectedRevision: workbench?.detail.prosedurRevision ?? 0,\n    save: updateSopProsedurMutation.mutateAsync,\n",
+          )
+
+          # Diagram autosave uses the same response-driven revision handoff.
+          path = 'client/src/pages/penyusun/sop/hooks/use-sop-diagram-autosave.ts'
+          replace(
+              path,
+              "import type { UpdateSopDiagramDto } from '@/types/dto/sop.dto'\n",
+              "import type { PenyusunWorkbenchData, UpdateSopDiagramDto } from '@/types/dto/sop.dto'\n",
+          )
+          replace(
+              path,
+              "  slice: DiagramConfigSlice\n  save: (payload: UpdateSopDiagramDto) => Promise<unknown>\n",
+              "  slice: DiagramConfigSlice\n  expectedRevision: number\n  save: (payload: UpdateSopDiagramDto) => Promise<PenyusunWorkbenchData>\n",
+          )
+          replace(
+              path,
+              "    slice,\n    save,\n    enabled = true,\n",
+              "    slice,\n    expectedRevision,\n    save,\n    enabled = true,\n",
+          )
+          replace(
+              path,
+              "  const saveRef = useRef(save)\n  saveRef.current = save\n",
+              "  const saveRef = useRef(save)\n  saveRef.current = save\n  const revisionRef = useRef(expectedRevision)\n  useEffect(() => {\n    revisionRef.current = expectedRevision\n  }, [detailSopId, expectedRevision])\n",
+          )
+          replace(
+              path,
+              "    const payload = diagramSliceToPatchPayload(jenisRef.current, targetSlice)\n    const promise = saveRef\n      .current(payload)\n      .then(() => {\n        baselineRef.current = targetSlice\n",
+              "    const payload: UpdateSopDiagramDto = {\n      ...diagramSliceToPatchPayload(jenisRef.current, targetSlice),\n      expectedRevision: revisionRef.current,\n    }\n    const promise = saveRef\n      .current(payload)\n      .then((data) => {\n        revisionRef.current = data.detail.diagramRevision\n        baselineRef.current = targetSlice\n",
+          )
+
+          # Diagram controller passes current revision and surfaces save failures.
+          path = 'client/src/pages/penyusun/sop/hooks/use-penyusun-diagram-config.ts'
+          replace(
+              path,
+              "    jenis: activeJenis,\n    slice: activeSlice,\n    save: updateDiagramMutation.mutateAsync,\n",
+              "    jenis: activeJenis,\n    slice: activeSlice,\n    expectedRevision: workbench?.detail.diagramRevision ?? 0,\n    save: updateDiagramMutation.mutateAsync,\n",
+          )
+          replace(
+              path,
+              "    flushDiagramAutosave: diagramAutosave.flush,\n    diagramAutosaveStatus: diagramAutosave.status,\n",
+              "    flushDiagramAutosave: diagramAutosave.flush,\n    diagramAutosaveStatus: diagramAutosave.status,\n    diagramAutosaveError: diagramAutosave.lastError,\n",
+          )
+
+          # Page-level toast makes conflicts visible without replacing local diagram state.
+          path = 'client/src/pages/penyusun/sop/detail/components/DetailSopPenyusunMain.tsx'
+          replace(
+              path,
+              "import { useCallback, useEffect, useMemo, useState } from 'react'\n",
+              "import { useCallback, useEffect, useMemo, useRef, useState } from 'react'\n",
+          )
+          replace(
+              path,
+              "import { usePenyusunDiagramConfig } from '../../hooks/use-penyusun-diagram-config'\n",
+              "import { usePenyusunDiagramConfig } from '../../hooks/use-penyusun-diagram-config'\nimport { useToast } from '@/shared/hooks/use-toast'\n",
+          )
+          replace(
+              path,
+              "  const { data: workbench, isLoading: isWorkbenchLoading } = usePenyusunWorkbench(sopDetailId)\n",
+              "  const { data: workbench, isLoading: isWorkbenchLoading } = usePenyusunWorkbench(sopDetailId)\n  const { showToast } = useToast()\n",
+          )
+          replace(
+              path,
+              "  const isDiagramReady = isWorkbenchDataReady && diagramConfig.isDiagramHydrated\n  const diagramMountEnabled = allowDiagramRender && isDiagramReady\n",
+              "  const isDiagramReady = isWorkbenchDataReady && diagramConfig.isDiagramHydrated\n  const diagramMountEnabled = allowDiagramRender && isDiagramReady\n  const lastDiagramErrorRef = useRef<Error | null>(null)\n\n  useEffect(() => {\n    const error = diagramConfig.diagramAutosaveError\n    if (error && error !== lastDiagramErrorRef.current) {\n      lastDiagramErrorRef.current = error\n      showToast(`Gagal autosave diagram SOP: ${error.message}`, 'error')\n    }\n    if (error === null) {\n      lastDiagramErrorRef.current = null\n    }\n  }, [diagramConfig.diagramAutosaveError, showToast])\n",
+          )
+          PY
+
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add client/src
+          git commit -m "feat(sop): thread optimistic revisions through autosave"
+          git push origin HEAD:${GITHUB_REF_NAME}
