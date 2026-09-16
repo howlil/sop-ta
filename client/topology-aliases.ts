@@ -7,7 +7,6 @@ const src = (path = '') => fileURLToPath(new URL(`./src/${path}`, import.meta.ur
  * Physical ownership already follows app/features/shared topology.
  */
 export const clientTopologyAliases = [
-  { find: '@/api/auth', replacement: src('features/auth/api.ts') },
   { find: '@/api/evaluasi', replacement: src('features/evaluation/index.ts') },
   { find: '@/api/evaluator-anggota', replacement: src('features/organization/api/evaluator-anggota.ts') },
   { find: '@/api/kepala-opd', replacement: src('features/organization/api/kepala-opd.ts') },
@@ -30,7 +29,6 @@ export const clientTopologyAliases = [
   { find: '@/components/organisasi', replacement: src('features/organization/ui') },
   { find: '@/components/pengajuan', replacement: src('features/submission/ui') },
   { find: '@/components/person', replacement: src('shared/person') },
-  { find: '@/components/security', replacement: src('features/auth/ui') },
   { find: '@/components/sop', replacement: src('features/sop/ui') },
   { find: '@/components/status', replacement: src('shared/status/ui') },
   { find: '@/components/tte', replacement: src('features/tte/ui') },

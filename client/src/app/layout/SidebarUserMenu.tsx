@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import { CircleUserRound, LogOut } from 'lucide-react'
-import { useAuth } from '@/api/auth'
+import { useAuth } from '@/features/auth/api'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useAppRole } from '@/hooks/useAppRole'
+import { useAppRole } from '@/features/auth/hooks/use-app-role'
 import { cn } from '@/utils/cn'
 import { ROUTES } from '@/utils/constants'
 import { getMeRoute } from '@/utils/role-routing'
