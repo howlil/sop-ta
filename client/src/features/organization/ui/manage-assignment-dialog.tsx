@@ -4,10 +4,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { DialogFooterActions } from '@/components/ui/dialog-footer-actions'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { OpdSelectField, type OpdOption } from '@/components/forms/opd-select-field'
+} from '@/shared/ui/dialog'
+import { DialogFooterActions } from '@/shared/ui/dialog-footer-actions'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+import { OpdSelectField, type OpdOption } from '@/shared/forms/ui/opd-select-field'
 
 export type AssignmentDialogTab = 'edit' | 'pindah'
 
