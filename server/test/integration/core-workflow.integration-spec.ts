@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import { VersioningType, type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import cookieParser from 'cookie-parser';
@@ -285,7 +286,12 @@ describeIntegration('Core workflow integration test', () => {
 
     await penyusunAgent
       .patch(`${API}/sop/diagram/${state.detailSopId}`)
-      .send({ expectedRevision: 0, jenis: 'FLOWCHART', layoutSeed: 1, pathOverrides: { edges: {}, labels: {} } })
+      .send({
+        expectedRevision: 0,
+        jenis: 'FLOWCHART',
+        layoutSeed: 1,
+        pathOverrides: { edges: {}, labels: {} },
+      })
       .expect(200);
 
     const detail = await prisma.detailSOP.findUniqueOrThrow({

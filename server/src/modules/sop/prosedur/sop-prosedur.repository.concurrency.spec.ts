@@ -20,7 +20,9 @@ describe('SopProsedurRepository optimistic concurrency', () => {
       },
     };
     const prisma = {
-      $transaction: jest.fn(async (callback: (client: typeof tx) => Promise<unknown>) => callback(tx)),
+      $transaction: jest.fn(async (callback: (client: typeof tx) => Promise<unknown>) =>
+        callback(tx),
+      ),
     };
     const repository = new SopProsedurRepository(prisma as never);
 
