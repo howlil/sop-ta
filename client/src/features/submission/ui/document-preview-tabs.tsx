@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { cn } from '@/utils/cn'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+import { cn } from '@/shared/lib/cn'
 
 export interface DocumentPreviewTab<TValue extends string = string> {
   value: TValue
