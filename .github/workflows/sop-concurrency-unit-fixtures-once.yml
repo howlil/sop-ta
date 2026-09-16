@@ -1,0 +1,179 @@
+name: One-shot SOP optimistic-lock unit fixture patch
+
+on:
+  push:
+    branches:
+      - feat/sop-optimistic-concurrency
+    paths:
+      - .github/workflows/sop-concurrency-unit-fixtures-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Update unit fixtures for required revisions
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def call_ranges(text: str, needle: str):
+              ranges = []
+              pos = 0
+              while True:
+                  start = text.find(needle, pos)
+                  if start < 0:
+                      break
+                  open_paren = text.find('(', start + len(needle))
+                  if open_paren < 0:
+                      raise SystemExit(f'no opening paren after {needle}')
+                  p = 1
+                  b = 0
+                  s = 0
+                  quote = None
+                  escaped = False
+                  commas = []
+                  i = open_paren + 1
+                  while i < len(text):
+                      ch = text[i]
+                      if quote is not None:
+                          if escaped:
+                              escaped = False
+                          elif ch == '\\':
+                              escaped = True
+                          elif ch == quote:
+                              quote = None
+                          i += 1
+                          continue
+                      if ch in "'\"`":
+                          quote = ch
+                      elif ch == '(':
+                          p += 1
+                      elif ch == ')':
+                          p -= 1
+                          if p == 0:
+                              ranges.append((open_paren, i, commas))
+                              pos = i + 1
+                              break
+                      elif ch == '{':
+                          b += 1
+                      elif ch == '}':
+                          b -= 1
+                      elif ch == '[':
+                          s += 1
+                      elif ch == ']':
+                          s -= 1
+                      elif ch == ',' and p == 1 and b == 0 and s == 0:
+                          commas.append(i)
+                      i += 1
+                  else:
+                      raise SystemExit(f'unclosed call for {needle}')
+              return ranges
+
+          def add_expected_revision_to_arg(path_s: str, needle: str, arg_index: int):
+              path = Path(path_s)
+              text = path.read_text()
+              edits = []
+              ranges = call_ranges(text, needle)
+              for open_paren, close_paren, commas in ranges:
+                  starts = [open_paren + 1] + [c + 1 for c in commas]
+                  ends = commas + [close_paren]
+                  if arg_index >= len(starts):
+                      raise SystemExit(f'{path}: call has no arg {arg_index}: {needle}')
+                  a, z = starts[arg_index], ends[arg_index]
+                  raw = text[a:z]
+                  stripped = raw.strip()
+                  if 'expectedRevision' in stripped:
+                      continue
+                  leading = len(raw) - len(raw.lstrip())
+                  arg_start = a + leading
+                  if not text.startswith('{', arg_start):
+                      raise SystemExit(f'{path}: arg {arg_index} is not object literal near {arg_start}')
+                  close_obj = z - (len(raw) - len(raw.rstrip())) - 1
+                  if text[arg_start:close_obj + 1].strip() == '{}':
+                      edits.append((arg_start, close_obj + 1, '{ expectedRevision: 0 }'))
+                      continue
+                  after_open = arg_start + 1
+                  first = after_open
+                  while first < z and text[first].isspace():
+                      first += 1
+                  line_start = text.rfind('\n', after_open, first) + 1
+                  indent = text[line_start:first]
+                  edits.append((after_open, after_open, f'\n{indent}expectedRevision: 0,'))
+              for a, z, repl in reversed(edits):
+                  text = text[:a] + repl + text[z:]
+              path.write_text(text)
+              print(f'{path}: patched {len(edits)} calls')
+              if not edits:
+                  raise SystemExit(f'{path}: no calls required patching')
+
+          add_expected_revision_to_arg(
+              'server/src/modules/sop/prosedur/sop-prosedur.service.spec.ts',
+              'service.updateProsedur',
+              2,
+          )
+          add_expected_revision_to_arg(
+              'server/src/modules/sop/diagram/sop-diagram.service.spec.ts',
+              'service.updateDiagram',
+              2,
+          )
+          add_expected_revision_to_arg(
+              'server/src/modules/sop/prosedur/sop-prosedur.repository.spec.ts',
+              'repo.updateProsedurTransaction',
+              0,
+          )
+
+          # Repository mock must model a successful CAS claim.
+          path = Path('server/src/modules/sop/prosedur/sop-prosedur.repository.spec.ts')
+          text = path.read_text()
+          old = "      if (table === 'langkahSOP' && op === 'findMany') {\n"
+          new = "      if (table === 'detailSOP' && op === 'updateMany') {\n        return { count: 1 };\n      }\n      if (table === 'langkahSOP' && op === 'findMany') {\n"
+          if text.count(old) != 1:
+              raise SystemExit('repository record insertion target missing')
+          text = text.replace(old, new, 1)
+          old = "    detailSOP: { update: record('detailSOP', 'update') },"
+          new = "    detailSOP: { updateMany: record('detailSOP', 'updateMany') },"
+          if text.count(old) != 1:
+              raise SystemExit('repository detailSOP mock target missing')
+          text = text.replace(old, new, 1)
+          old = "    expect(calls.some((c) => c.table === 'detailSOP' && c.op === 'update')).toBe(true);"
+          new = "    expect(calls.some((c) => c.table === 'detailSOP' && c.op === 'updateMany')).toBe(true);"
+          if text.count(old) != 1:
+              raise SystemExit('repository detail update assertion missing')
+          text = text.replace(old, new, 1)
+          old = "    const idxFindMany = opsOrder.indexOf('langkahSOP.findMany');\n    const idxUpdateMany = opsOrder.indexOf('langkahSOP.updateMany');\n    const idxLangkahDelete = opsOrder.indexOf('langkahSOP.deleteMany');\n    const idxFirstCreate = opsOrder.indexOf('langkahSOP.create');\n    const idxBranchUpdate = opsOrder.indexOf('langkahSOP.update');\n    const idxDetailUpdate = opsOrder.indexOf('detailSOP.update');\n    const idxLogCreate = opsOrder.lastIndexOf('logEditSOP.create');\n\n    expect(idxFindMany).toBeGreaterThanOrEqual(0);\n"
+          new = "    const idxClaim = opsOrder.indexOf('detailSOP.updateMany');\n    const idxFindMany = opsOrder.indexOf('langkahSOP.findMany');\n    const idxUpdateMany = opsOrder.indexOf('langkahSOP.updateMany');\n    const idxLangkahDelete = opsOrder.indexOf('langkahSOP.deleteMany');\n    const idxFirstCreate = opsOrder.indexOf('langkahSOP.create');\n    const idxBranchUpdate = opsOrder.indexOf('langkahSOP.update');\n    const idxLogCreate = opsOrder.lastIndexOf('logEditSOP.create');\n\n    expect(idxClaim).toBeGreaterThanOrEqual(0);\n    expect(idxFindMany).toBeGreaterThan(idxClaim);\n"
+          if text.count(old) != 1:
+              raise SystemExit('repository operation-order block missing')
+          text = text.replace(old, new, 1)
+          old = "    expect(idxBranchUpdate).toBeGreaterThan(idxFirstCreate);\n    expect(idxDetailUpdate).toBeGreaterThan(idxBranchUpdate);\n    expect(idxLogCreate).toBeGreaterThan(idxDetailUpdate);"
+          new = "    expect(idxBranchUpdate).toBeGreaterThan(idxFirstCreate);\n    expect(idxLogCreate).toBeGreaterThan(idxBranchUpdate);"
+          if text.count(old) != 1:
+              raise SystemExit('repository old ordering assertions missing')
+          text = text.replace(old, new, 1)
+          path.write_text(text)
+          PY
+
+          cd server
+          pnpm install --frozen-lockfile
+          pnpm exec prettier --write \
+            src/modules/sop/prosedur/sop-prosedur.service.spec.ts \
+            src/modules/sop/prosedur/sop-prosedur.repository.spec.ts \
+            src/modules/sop/diagram/sop-diagram.service.spec.ts
+          pnpm exec jest --runInBand \
+            src/modules/sop/prosedur/sop-prosedur.service.spec.ts \
+            src/modules/sop/prosedur/sop-prosedur.repository.spec.ts \
+            src/modules/sop/diagram/sop-diagram.service.spec.ts
+          cd ..
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add server
+          git commit -m "test(sop): update optimistic-lock unit fixtures"
+          git push origin HEAD:${GITHUB_REF_NAME}
