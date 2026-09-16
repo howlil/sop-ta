@@ -10,14 +10,14 @@ import {
   View,
 } from "@react-pdf/renderer";
 import appLogoUrl from "@/assets/logo.svg";
-import { SOP_INSTITUTION_LOGO_URL } from "@/lib/sop/sop-institution-logo";
-import { getFullTimeUnit } from "@/components/sop/sop-diagram/core/sopDiagramTypes";
-import type { DiagramPageSnapshot } from "@/lib/print/sop-diagram-export.util";
-import type { SOPPreviewTemplateProps } from "@/components/sop/sop-preview-template";
+import { SOP_INSTITUTION_LOGO_URL } from "@/features/sop/model/sop-institution-logo";
+import { getFullTimeUnit } from "@/features/sop/diagram/core/sopDiagramTypes";
+import type { DiagramPageSnapshot } from "@/features/sop/print/sop-diagram-export.util";
+import type { SOPPreviewTemplateProps } from "@/features/sop/ui/sop-preview-template";
 import type { ProsedurRow } from "@/types/ui/sop";
 import type { PenyusunWorkbenchDiagramKonfigurasi } from "@/types/dto/sop.dto";
 import type { TTESignaturePayload } from "@/types/dto/tte.dto";
-import { formatIsoToDdMmYyyyWib } from "@/utils/format-date";
+import { formatIsoToDdMmYyyyWib } from "@/shared/lib/format-date";
 
 export type SopPdfPrintMode =
   | "full"
