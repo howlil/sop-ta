@@ -1,12 +1,12 @@
 import { useCallback } from 'react'
 import type { NavigateOptions } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
-import { queryKeys } from '@/config/query-keys'
-import { useMutationWithToast } from '@/hooks/useMutationWithToast'
-import { sopApi } from '@/api/sop-client'
-import { ROUTES } from '@/utils/constants'
-import { SOP_EVALUASI_WORKFLOW_QUERY_KEYS } from '@/lib/api/cache-invalidation'
-import { getKirimUlangRoleBlockingReason } from '@/lib/sop/sop-permissions'
+import { queryKeys } from '@/app/config/query-keys'
+import { useMutationWithToast } from '@/shared/hooks/use-mutation-with-toast'
+import { sopApi } from '@/features/sop/api/client'
+import { ROUTES } from '@/shared/lib/constants'
+import { SOP_EVALUASI_WORKFLOW_QUERY_KEYS } from '@/shared/api/cache-invalidation'
+import { getKirimUlangRoleBlockingReason } from '@/features/sop/model/sop-permissions'
 import type { UpdateStatusDto } from '@/types/dto/sop.dto'
 
 export interface UseDetailSopPenyusunActionsParams {

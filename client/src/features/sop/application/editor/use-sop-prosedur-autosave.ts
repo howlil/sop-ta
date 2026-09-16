@@ -10,7 +10,7 @@ import type {
   UpdateSopProsedurDto,
 } from '@/types/dto/sop.dto'
 import type { ProsedurRow, SopEditorImplementer } from '@/types/ui/sop'
-import { resolveProsedurPelaksanaId } from '@/lib/sop/resolve-prosedur-implementer'
+import { resolveProsedurPelaksanaId } from '@/features/sop/model/resolve-prosedur-implementer'
 
 const DEFAULT_DEBOUNCE_MS = 800
 const SAVED_INDICATOR_MS = 1500
