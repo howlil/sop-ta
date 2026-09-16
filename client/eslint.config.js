@@ -14,6 +14,19 @@ const legacyCoreAliases = [
   '@/stores/*',
 ]
 
+const featureRestrictedImports = [
+  'error',
+  {
+    patterns: [
+      {
+        group: [...legacyCoreAliases, '@/pages/*', '@/routes/*'],
+        message:
+          'Feature modules must use canonical app/features/shared ownership imports and must not depend on pages or routes.',
+      },
+    ],
+  },
+]
+
 export default [
   {
     ignores: [
@@ -81,18 +94,7 @@ export default [
   {
     files: ['src/features/**/*.{ts,tsx}'],
     rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
-              group: [...legacyCoreAliases, '@/pages/*', '@/routes/*'],
-              message:
-                'Feature modules must use canonical app/features/shared ownership imports and must not depend on pages or routes.',
-            },
-          ],
-        },
-      ],
+      'no-restricted-imports': featureRestrictedImports,
     },
   },
   {
@@ -116,6 +118,15 @@ export default [
     files: ['src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}'],
     rules: {
       'no-restricted-imports': 'off',
+    },
+  },
+  {
+    files: [
+      'src/features/**/*.test.{ts,tsx}',
+      'src/features/**/*.spec.{ts,tsx}',
+    ],
+    rules: {
+      'no-restricted-imports': featureRestrictedImports,
     },
   },
 ]
