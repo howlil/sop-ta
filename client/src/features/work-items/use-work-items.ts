@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { queryKeys } from '@/config/query-keys'
+import { queryKeys } from '@/app/config/query-keys'
 import { workItemsApi } from './api'
 
 export function useWorkItems() {
