@@ -4,21 +4,21 @@ import { AlertTriangle, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SopStatusBadge } from "@/components/status/sop-status-badge";
 import { DetailPageLayout } from "@/components/layout/DetailPageLayout";
-import { CabutSopDialog } from "@/components/sop/CabutSopDialog";
+import { CabutSopDialog } from "@/features/sop/ui/CabutSopDialog";
 import {
   SOPPreviewTemplate,
   type SOPPreviewTemplateProps,
-} from "@/components/sop/sop-preview-template";
-import { useCabutSop, usePenyusunWorkbench, useSop } from "@/api/sop";
+} from "@/features/sop/ui/sop-preview-template";
+import { useCabutSop, usePenyusunWorkbench, useSop } from "@/features/sop";
 import type { StatusSOP } from "@/types/dto/sop.dto";
 import { DEFAULT_SOP_STATUS } from "@/types/dto/sop.dto";
-import { mapPenyusunWorkbenchToPreviewProps } from "@/lib/sop/detailSop.mappers";
-import { useSopPreviewDiagramState } from "@/hooks/use-sop-preview-diagram-state";
+import { mapPenyusunWorkbenchToPreviewProps } from "@/features/sop/model/detailSop.mappers";
+import { useSopPreviewDiagramState } from "@/features/sop/hooks/use-sop-preview-diagram-state";
 import {
   canShowCabutSopAction,
   getCabutSopBlockingReason,
   resolveKepalaOpdWorkbenchId,
-} from "@/lib/sop/cabut-sop.util";
+} from "@/features/sop/model/cabut-sop.util";
 import { ROUTES } from "@/utils/constants";
 
 export interface DetailSOPProps {
