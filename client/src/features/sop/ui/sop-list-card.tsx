@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button'
-import type { TahapPenilaianSop } from '@/lib/evaluasi/evaluasi-domain'
-import { cn } from '@/utils/cn'
+import { Button } from '@/shared/ui/button'
+import type { TahapPenilaianSop } from '@/features/evaluation/model/evaluasi-domain'
+import { cn } from '@/shared/lib/cn'
 
 export interface SOPListItem {
   id: string
