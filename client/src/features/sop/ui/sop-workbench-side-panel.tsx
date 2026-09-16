@@ -5,8 +5,8 @@ import {
   CollapsibleSidePanelContent,
   CollapsibleSidePanelHeader,
   SimplePanelHeader,
-} from '@/components/ui/collapsible-side-panel'
-import { cn } from '@/utils/cn'
+} from '@/shared/ui/collapsible-side-panel'
+import { cn } from '@/shared/lib/cn'
 import { SOPListCard, type SOPListItem } from './sop-list-card'
 
 export interface SopWorkbenchSidePanelProps {
