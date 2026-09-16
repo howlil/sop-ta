@@ -1,11 +1,11 @@
-import { Input } from '@/components/ui/input'
+import { Input } from '@/shared/ui/input'
 import type { TTESignaturePayload } from '@/types/dto/tte.dto'
-import { TTESignatureBlock } from '@/components/tte/tte-signature-block'
-import { SOP_INSTITUTION_LOGO_URL } from '@/lib/sop/sop-institution-logo'
+import { TTESignatureBlock } from '@/features/tte/ui/tte-signature-block'
+import { SOP_INSTITUTION_LOGO_URL } from '@/features/sop/model/sop-institution-logo'
 import {
   formatIsoToDdMmYyyyWib,
   isoToDateInputValueWib,
-} from '@/utils/format-date'
+} from '@/shared/lib/format-date'
 
 export interface SOPHeaderInfoProps {
   name: string
@@ -102,7 +102,6 @@ export function SOPHeaderInfo({
               <col style={{ width: '27%' }} />
             </colgroup>
             <tbody>
-              {/* Baris 1: Kolom kiri (rowspan 7) = logo + instansi */}
               <tr>
                 <th
                   rowSpan={7}
@@ -238,8 +237,6 @@ export function SOPHeaderInfo({
                 <td className="border-2 border-r-0 py-0.5 px-2 border-black text-center">:</td>
                 <td className="font-semibold border-2 border-l-0 py-0.5 px-2 border-black min-w-0 break-words">{name || ' - '}</td>
               </tr>
-
-              {/* DASAR HUKUM | KUALIFIKASI PELAKSANAAN */}
               <tr>
                 <td className="font-semibold border-2 py-0.5 px-2 border-black overflow-hidden">DASAR HUKUM</td>
                 <td colSpan={3} className="font-semibold border-2 py-0.5 px-2 border-black overflow-hidden">
@@ -270,8 +267,6 @@ export function SOPHeaderInfo({
                   )}
                 </td>
               </tr>
-
-              {/* KETERKAITAN | PERALATAN */}
               <tr>
                 <td className="font-semibold border-2 py-0.5 px-2 border-black overflow-hidden">
                   KETERKAITAN DENGAN SOP LAIN
@@ -304,8 +299,6 @@ export function SOPHeaderInfo({
                   )}
                 </td>
               </tr>
-
-              {/* PERINGATAN | PENCATATAN DAN PENDATAAN */}
               <tr>
                 <td className="font-semibold border-2 py-0.5 px-2 border-black overflow-hidden">PERINGATAN</td>
                 <td colSpan={3} className="font-semibold border-2 py-0.5 px-2 border-black overflow-hidden">
