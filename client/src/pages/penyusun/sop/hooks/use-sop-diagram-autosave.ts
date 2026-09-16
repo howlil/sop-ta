@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { UpdateSopDiagramDto } from '@/types/dto/sop.dto'
-import type { DiagramConfigSlice, JenisDiagramClient } from '@/lib/sop/diagram-config.mapper'
-import { diagramSliceToPatchPayload, diagramSlicesEqual } from '@/lib/sop/diagram-config.mapper'
+import type { DiagramConfigSlice, JenisDiagramClient } from '@/features/sop/model/diagram-config.mapper'
+import { diagramSliceToPatchPayload, diagramSlicesEqual } from '@/features/sop/model/diagram-config.mapper'
 
 const DEFAULT_DEBOUNCE_MS = 800
 const SAVED_INDICATOR_MS = 1500
