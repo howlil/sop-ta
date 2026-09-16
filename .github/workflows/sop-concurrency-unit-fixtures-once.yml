@@ -117,6 +117,7 @@ jobs:
 
           cd server
           pnpm install --frozen-lockfile
+          pnpm exec prisma generate
           pnpm exec prettier --write \
             src/modules/sop/prosedur/sop-prosedur.service.spec.ts \
             src/modules/sop/prosedur/sop-prosedur.repository.spec.ts \
