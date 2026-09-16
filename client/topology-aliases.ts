@@ -8,11 +8,7 @@ const src = (path = '') => fileURLToPath(new URL(`./src/${path}`, import.meta.ur
  */
 export const clientTopologyAliases = [
   { find: '@/api/evaluasi', replacement: src('features/evaluation/index.ts') },
-  { find: '@/api/evaluator-anggota', replacement: src('features/organization/api/evaluator-anggota.ts') },
-  { find: '@/api/kepala-opd', replacement: src('features/organization/api/kepala-opd.ts') },
   { find: '@/api/notifications', replacement: src('features/notifications/api.ts') },
-  { find: '@/api/opd', replacement: src('features/organization/api/opd.ts') },
-  { find: '@/api/penyusun', replacement: src('features/organization/api/penyusun.ts') },
   { find: '@/api/peraturan', replacement: src('features/regulations/api.ts') },
   { find: '@/api/sop-client', replacement: src('features/sop/api/client.ts') },
   { find: '@/api/sop-mutations', replacement: src('features/sop/api/mutations.ts') },
@@ -26,7 +22,6 @@ export const clientTopologyAliases = [
   { find: '@/components/evaluasi', replacement: src('features/evaluation/ui') },
   { find: '@/components/forms', replacement: src('shared/forms/ui') },
   { find: '@/components/layout', replacement: src('app/layout') },
-  { find: '@/components/organisasi', replacement: src('features/organization/ui') },
   { find: '@/components/pengajuan', replacement: src('features/submission/ui') },
   { find: '@/components/person', replacement: src('shared/person') },
   { find: '@/components/sop', replacement: src('features/sop/ui') },
