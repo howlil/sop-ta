@@ -19,10 +19,10 @@ import {
   findEvaluasiWorkspaceNilaiSop,
   resolveEvaluasiWorkspacePengajuanAktif,
 } from '../../model/evaluasi-workspace.adapter'
-import { ApiError } from '@/lib/api/api-client'
-import { mapPenyusunWorkbenchToPreviewProps } from '@/lib/sop/detailSop.mappers'
-import { useSopPreviewDiagramState } from '@/hooks/use-sop-preview-diagram-state'
-import { useDocumentTitle } from '@/hooks/use-document-title'
+import { ApiError } from '@/shared/api/api-client'
+import { mapPenyusunWorkbenchToPreviewProps } from '@/features/sop/model/detailSop.mappers'
+import { useSopPreviewDiagramState } from '@/features/sop/hooks/use-sop-preview-diagram-state'
+import { useDocumentTitle } from '@/shared/hooks/use-document-title'
 import type {
   PengajuanEvaluasiSubmitError,
   StatusHasilEvaluasi,
