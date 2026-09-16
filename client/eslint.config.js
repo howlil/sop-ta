@@ -6,6 +6,7 @@ import reactRefreshPlugin from 'eslint-plugin-react-refresh'
 
 const legacyCoreAliases = [
   '@/api/*',
+  '@/components/*',
   '@/hooks/*',
   '@/lib/*',
   '@/utils/*',
@@ -85,32 +86,9 @@ export default [
         {
           patterns: [
             {
-              group: ['@/pages/*', '@/routes/*'],
-              message:
-                'Feature modules are inner ownership and must not depend on pages or routes.',
-            },
-          ],
-        },
-      ],
-    },
-  },
-  {
-    files: [
-      'src/features/**/api.{ts,tsx}',
-      'src/features/**/api/**/*.{ts,tsx}',
-      'src/features/**/application/**/*.{ts,tsx}',
-      'src/features/**/hooks/**/*.{ts,tsx}',
-      'src/features/**/model/**/*.{ts,tsx}',
-    ],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
               group: [...legacyCoreAliases, '@/pages/*', '@/routes/*'],
               message:
-                'Feature core modules must use canonical app/features/shared ownership imports.',
+                'Feature modules must use canonical app/features/shared ownership imports and must not depend on pages or routes.',
             },
           ],
         },
