@@ -1,22 +1,15 @@
 import { ConflictException } from '@nestjs/common';
-import { StatusSOP } from '../../generated/prisma';
+import {
+  getSopWorkflowActions,
+  TERMINAL_SOP_STATUSES,
+} from '../workflow/sop-workflow.graph';
+import { PeranPengguna, StatusSOP } from '../../generated/prisma';
 
-const EDITABLE_STATUSES: ReadonlySet<StatusSOP> = new Set([
-  StatusSOP.DRAFT,
-  StatusSOP.SEDANG_DISUSUN,
-  StatusSOP.REVISI_DARI_EVALUATOR,
-]);
-
-/** Status terminal — versi tidak boleh diedit isi dokumen. */
-export const TERMINAL_DETAIL_STATUSES: ReadonlySet<StatusSOP> = new Set([
-  StatusSOP.DITOLAK_EVALUATOR,
-  StatusSOP.BERLAKU,
-  StatusSOP.DIGANTIKAN,
-  StatusSOP.DICABUT,
-]);
+/** Status terminal berasal dari node terminal pada canonical workflow graph. */
+export const TERMINAL_DETAIL_STATUSES: ReadonlySet<StatusSOP> = TERMINAL_SOP_STATUSES;
 
 export function isDetailSopEditable(status: StatusSOP): boolean {
-  return EDITABLE_STATUSES.has(status);
+  return getSopWorkflowActions(PeranPengguna.PENYUSUN, status).includes('EDIT');
 }
 
 export function assertDetailSopEditable(status: StatusSOP): void {
