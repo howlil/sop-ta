@@ -128,4 +128,19 @@ export default [
       ],
     },
   },
+  {
+    files: ['src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': legacyAliasRestriction,
+    },
+  },
+  {
+    files: [
+      'src/features/**/*.test.{ts,tsx}',
+      'src/features/**/*.spec.{ts,tsx}',
+    ],
+    rules: {
+      'no-restricted-imports': featureRestrictedImports,
+    },
+  },
 ]
