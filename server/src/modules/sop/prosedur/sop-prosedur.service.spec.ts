@@ -74,7 +74,7 @@ describe('Pengujian SopProsedurService', () => {
     it('seharusnya melempar NotFoundException ketika id tidak dapat ditemukan', async () => {
       repoMock.findDetailIdByDetailOrSopId.mockResolvedValueOnce(null);
       await expect(
-        service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'unknown', {}),
+        service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'unknown', { expectedRevision: 0 }),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
 
@@ -84,7 +84,7 @@ describe('Pengujian SopProsedurService', () => {
         sopOpdId: 'opd-1',
       });
       await expect(
-        service.updateProsedur(makeUser(PeranPengguna.EVALUATOR), 'det-1', {}),
+        service.updateProsedur(makeUser(PeranPengguna.EVALUATOR), 'det-1', { expectedRevision: 0 }),
       ).rejects.toBeInstanceOf(ForbiddenException);
     });
 
@@ -97,7 +97,7 @@ describe('Pengujian SopProsedurService', () => {
         new ForbiddenException('Akses ditolak untuk DetailSOP ini'),
       );
       await expect(
-        service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {}),
+        service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', { expectedRevision: 0 }),
       ).rejects.toBeInstanceOf(ForbiddenException);
     });
 
@@ -107,7 +107,7 @@ describe('Pengujian SopProsedurService', () => {
         sopOpdId: 'opd-1',
       });
       repoMock.findOpdIdByPenggunaId.mockResolvedValueOnce('opd-1');
-      const out = await service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {});
+      const out = await service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', { expectedRevision: 0 });
       expect(repoMock.updateProsedurTransaction).not.toHaveBeenCalled();
       expect(out).toBe(fakeWorkbench);
     });
@@ -121,6 +121,7 @@ describe('Pengujian SopProsedurService', () => {
       repoMock.findDetailStatus.mockResolvedValueOnce(StatusSOP.BERLAKU);
       await expect(
         service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+          expectedRevision: 0,
           pelaksana: [{ pelaksanaId: 'p-1' }],
         }),
       ).rejects.toBeInstanceOf(ConflictException);
@@ -135,6 +136,7 @@ describe('Pengujian SopProsedurService', () => {
       repoMock.findOpdIdByPenggunaId.mockResolvedValueOnce('opd-1');
       await expect(
         service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+          expectedRevision: 0,
           pelaksana: [{ pelaksanaId: 'p-1' }, { pelaksanaId: 'p-1' }],
         }),
       ).rejects.toBeInstanceOf(BadRequestException);
@@ -149,6 +151,7 @@ describe('Pengujian SopProsedurService', () => {
       repoMock.findPelaksanaIdsByOpd.mockResolvedValueOnce(new Set<string>());
       await expect(
         service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+          expectedRevision: 0,
           pelaksana: [{ pelaksanaId: 'p-1' }],
         }),
       ).rejects.toBeInstanceOf(BadRequestException);
@@ -168,6 +171,7 @@ describe('Pengujian SopProsedurService', () => {
       };
       await expect(
         service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+          expectedRevision: 0,
           langkah: [
             { tempId: 't-1', ...baseLangkah },
             { tempId: 't-1', ...baseLangkah },
@@ -185,6 +189,7 @@ describe('Pengujian SopProsedurService', () => {
       repoMock.findExistingSwimlanePelaksanaIds.mockResolvedValueOnce(['p-1']);
       await expect(
         service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+          expectedRevision: 0,
           langkah: [
             {
               tempId: 't-1',
@@ -207,6 +212,7 @@ describe('Pengujian SopProsedurService', () => {
       repoMock.findPelaksanaIdsByOpd.mockResolvedValueOnce(new Set(['p-1']));
       await expect(
         service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+          expectedRevision: 0,
           pelaksana: [{ pelaksanaId: 'p-1' }],
           langkah: [
             {
@@ -229,6 +235,7 @@ describe('Pengujian SopProsedurService', () => {
       repoMock.findPelaksanaIdsByOpd.mockResolvedValueOnce(new Set(['p-1']));
       const user = makeUser(PeranPengguna.PENYUSUN);
       await service.updateProsedur(user, 'det-1', {
+        expectedRevision: 0,
         pelaksana: [{ pelaksanaId: 'p-1' }],
       });
       expect(repoMock.updateProsedurTransaction).toHaveBeenCalledTimes(1);
@@ -248,6 +255,7 @@ describe('Pengujian SopProsedurService', () => {
       repoMock.findOpdIdByPenggunaId.mockResolvedValueOnce('opd-1');
       repoMock.findExistingSwimlanePelaksanaIds.mockResolvedValueOnce(['p-9']);
       await service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+        expectedRevision: 0,
         langkah: [
           {
             tempId: 't-1',
@@ -271,6 +279,7 @@ describe('Pengujian SopProsedurService', () => {
       repoMock.findOpdIdByPenggunaId.mockResolvedValueOnce('opd-1');
       repoMock.findPelaksanaIdsByOpd.mockResolvedValueOnce(new Set(['p-1']));
       await service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+        expectedRevision: 0,
         pelaksana: [{ pelaksanaId: 'p-1' }],
         langkah: [
           {
@@ -304,7 +313,7 @@ describe('Pengujian SopProsedurService', () => {
       repoMock.findOpdIdByPenggunaId.mockResolvedValueOnce('opd-1');
       repoMock.findDetailStatus.mockResolvedValueOnce(null);
       await expect(
-        service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {}),
+        service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', { expectedRevision: 0 }),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
 
@@ -318,6 +327,7 @@ describe('Pengujian SopProsedurService', () => {
 
       await expect(
         service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+          expectedRevision: 0,
           langkah: [
             {
               tempId: 't-1',
@@ -338,6 +348,7 @@ describe('Pengujian SopProsedurService', () => {
       repoMock.findOpdIdByPenggunaId.mockResolvedValueOnce('opd-1');
       repoMock.findExistingSwimlanePelaksanaIds.mockResolvedValueOnce(['p-1']);
       await service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+        expectedRevision: 0,
         langkah: [
           {
             tempId: 't-1',
@@ -370,6 +381,7 @@ describe('Pengujian SopProsedurService', () => {
 
       await expect(
         service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+          expectedRevision: 0,
           pelaksana: [{ pelaksanaId: 'p-1' }],
         }),
       ).rejects.toBeInstanceOf(ConflictException);
@@ -391,6 +403,7 @@ describe('Pengujian SopProsedurService', () => {
 
       await expect(
         service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+          expectedRevision: 0,
           pelaksana: [{ pelaksanaId: 'p-1' }],
         }),
       ).rejects.toBeInstanceOf(BadRequestException);
@@ -410,6 +423,7 @@ describe('Pengujian SopProsedurService', () => {
 
       await expect(
         service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+          expectedRevision: 0,
           pelaksana: [{ pelaksanaId: 'p-1' }],
         }),
       ).rejects.toThrow(BadRequestException);
