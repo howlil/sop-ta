@@ -6,12 +6,10 @@ import type { BeritaAcaraTemplateProps } from '@/features/submission/ui/berita-a
 import type { SopPreviewWorkbenchProps } from '@/features/submission/ui/sop-document-preview-pane'
 import { queryKeys } from '@/app/config/query-keys'
 import { useToast } from '@/shared/hooks/use-toast'
-import { downloadBeritaAcaraPdf } from '@/shared/print/download-berita-acara-pdf'
 import { ApiError } from '@/shared/api/api-client'
-import {
-  printSopArsipFromPreviewProps,
-  type PengajuanPrintTarget,
-} from '@/shared/print/pengajuan-print'
+import { downloadBeritaAcaraPdf } from '@/features/submission/print/download-berita-acara-pdf'
+import type { PengajuanPrintTarget } from '@/features/submission/print/pengajuan-print'
+import { printSopArsipFromPreviewProps } from '@/features/sop/print/sop-print'
 import {
   mapBeritaAcaraTemplateProps,
   type MapBeritaAcaraPengajuanInput,
