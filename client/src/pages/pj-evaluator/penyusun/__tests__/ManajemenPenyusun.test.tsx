@@ -6,13 +6,13 @@ vi.mock('@/hooks/use-debounced-value', () => ({
   useDebouncedValue: (value: string) => value,
 }))
 
-vi.mock('@/api/opd', () => ({
+vi.mock('@/features/organization/api/opd', () => ({
   useOpd: () => ({
     list: [{ id: 'opd-1', nama: 'Dinas Kesehatan Provinsi' }],
   }),
 }))
 
-vi.mock('@/api/penyusun', () => ({
+vi.mock('@/features/organization/api/penyusun', () => ({
   usePenyusun: () => ({
     grup: [
       {
