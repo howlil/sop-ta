@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from '@react-pdf/renderer'
-import type { BeritaAcaraTemplateProps } from '@/components/pengajuan/berita-acara-template'
+import type { BeritaAcaraTemplateProps } from '@/features/submission/ui/berita-acara-template'
 import {
   BERITA_ACARA_KOP,
   BERITA_ACARA_LABEL_BIRO,
@@ -14,15 +14,15 @@ import {
   BERITA_ACARA_PARAGRAF,
   BERITA_ACARA_PENUTUP,
   BERITA_ACARA_POIN_EVALUASI,
-} from '@/lib/pengajuan/berita-acara-static-content'
+} from '@/features/submission/model/berita-acara-static-content'
 import {
   BERITA_ACARA_A4_SIZE,
   BERITA_ACARA_MARGIN_BOTTOM_PT,
   BERITA_ACARA_MARGIN_SIDE_PT,
   BERITA_ACARA_MARGIN_TOP_PT,
-} from '@/lib/pengajuan/berita-acara-page-metrics'
-import { SOP_INSTITUTION_LOGO_URL } from '@/lib/sop/sop-institution-logo'
-import { formatTempatTanggal } from '@/utils/format-date'
+} from '@/features/submission/model/berita-acara-page-metrics'
+import { SOP_INSTITUTION_LOGO_URL } from '@/features/sop/model/sop-institution-logo'
+import { formatTempatTanggal } from '@/shared/lib/format-date'
 
 export interface BeritaAcaraPdfDocumentProps extends BeritaAcaraTemplateProps {
   qrDataUrlPjEvaluator?: string
