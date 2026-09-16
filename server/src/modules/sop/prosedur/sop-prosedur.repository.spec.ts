@@ -10,12 +10,12 @@ interface CallLog {
 }
 
 function makeTx(existingLangkahIds: string[]): {
-  tx: any;
+  tx: object;
   calls: CallLog[];
 } {
   const calls: CallLog[] = [];
   const record = (table: string, op: string) =>
-    jest.fn(async (args: unknown) => {
+    jest.fn((args: unknown) => {
       calls.push({ table, op, args });
       if (table === 'detailSOP' && op === 'updateMany') {
         return { count: 1 };

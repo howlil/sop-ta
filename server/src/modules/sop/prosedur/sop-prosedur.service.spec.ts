@@ -74,7 +74,9 @@ describe('Pengujian SopProsedurService', () => {
     it('seharusnya melempar NotFoundException ketika id tidak dapat ditemukan', async () => {
       repoMock.findDetailIdByDetailOrSopId.mockResolvedValueOnce(null);
       await expect(
-        service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'unknown', { expectedRevision: 0 }),
+        service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'unknown', {
+          expectedRevision: 0,
+        }),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
 
@@ -107,7 +109,9 @@ describe('Pengujian SopProsedurService', () => {
         sopOpdId: 'opd-1',
       });
       repoMock.findOpdIdByPenggunaId.mockResolvedValueOnce('opd-1');
-      const out = await service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', { expectedRevision: 0 });
+      const out = await service.updateProsedur(makeUser(PeranPengguna.PENYUSUN), 'det-1', {
+        expectedRevision: 0,
+      });
       expect(repoMock.updateProsedurTransaction).not.toHaveBeenCalled();
       expect(out).toBe(fakeWorkbench);
     });
