@@ -4,6 +4,16 @@ import reactPlugin from 'eslint-plugin-react'
 import reactHooksPlugin from 'eslint-plugin-react-hooks'
 import reactRefreshPlugin from 'eslint-plugin-react-refresh'
 
+const legacyTopologyAliases = [
+  '@/api/*',
+  '@/components/*',
+  '@/hooks/*',
+  '@/lib/*',
+  '@/utils/*',
+  '@/config/*',
+  '@/stores/*',
+]
+
 export default [
   {
     ignores: [
@@ -76,36 +86,9 @@ export default [
         {
           patterns: [
             {
-              group: ['@/pages/*', '@/routes/*'],
+              group: [...legacyTopologyAliases, '@/pages/*', '@/routes/*'],
               message:
-                'Feature modules are inner application/domain ownership and must not depend on pages or routes. Move orchestration into the feature and expose it through the feature public API.',
-            },
-          ],
-        },
-      ],
-    },
-  },
-  {
-    files: ['src/features/**/application/**/*.{ts,tsx}'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
-              group: [
-                '@/api/*',
-                '@/components/*',
-                '@/hooks/*',
-                '@/lib/*',
-                '@/utils/*',
-                '@/config/*',
-                '@/stores/*',
-                '@/pages/*',
-                '@/routes/*',
-              ],
-              message:
-                'Application modules must use canonical app/features/shared ownership imports. Legacy topology aliases are compatibility-only for unmigrated perimeter code.',
+                'Feature modules must use canonical app/features/shared ownership imports and must not depend on pages or routes.',
             },
           ],
         },
