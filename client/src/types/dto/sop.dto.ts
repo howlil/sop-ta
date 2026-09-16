@@ -93,6 +93,8 @@ export interface SopDetail {
   status: StatusSOP;
   statusLabel?: string;
   versi: number;
+  prosedurRevision: number;
+  diagramRevision: number;
   revisiDariDetailSopId?: string | null;
   revisiDariVersi?: number | null;
   nomorSOP: string;
@@ -190,6 +192,7 @@ export interface PenyusunWorkbenchDiagramKonfigurasi {
 
 export interface UpdateSopDiagramDto {
   jenis: JenisDiagram;
+  expectedRevision: number;
   layoutSeed?: number;
   pathOverrides?: DiagramPathOverridesDto | null;
 }
@@ -334,6 +337,7 @@ export interface LangkahPatchItem {
  * Hanya field yang di-set yang dieksekusi; debounce autosave-friendly.
  */
 export interface UpdateSopProsedurDto {
+  expectedRevision: number;
   pelaksana?: PelaksanaPatchItem[];
   langkah?: LangkahPatchItem[];
 }

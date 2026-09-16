@@ -36,6 +36,12 @@ export class PenyusunWorkbenchDetailDto {
   @ApiProperty()
   readonly versi!: number;
 
+  @ApiProperty({ minimum: 0, description: 'Revision optimistic-lock prosedur replace-all.' })
+  readonly prosedurRevision!: number;
+
+  @ApiProperty({ minimum: 0, description: 'Revision optimistic-lock konfigurasi diagram.' })
+  readonly diagramRevision!: number;
+
   @ApiPropertyOptional({
     format: 'uuid',
     nullable: true,

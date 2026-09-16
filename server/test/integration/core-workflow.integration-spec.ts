@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import { VersioningType, type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import cookieParser from 'cookie-parser';
@@ -265,6 +266,7 @@ describeIntegration('Core workflow integration test', () => {
     await penyusunAgent
       .patch(`${API}/sop/langkah/${state.detailSopId}`)
       .send({
+        expectedRevision: 0,
         pelaksana: [{ pelaksanaId: state.pelaksanaId }],
         langkah: [
           {
@@ -284,7 +286,12 @@ describeIntegration('Core workflow integration test', () => {
 
     await penyusunAgent
       .patch(`${API}/sop/diagram/${state.detailSopId}`)
-      .send({ jenis: 'FLOWCHART', layoutSeed: 1, pathOverrides: { edges: {}, labels: {} } })
+      .send({
+        expectedRevision: 0,
+        jenis: 'FLOWCHART',
+        layoutSeed: 1,
+        pathOverrides: { edges: {}, labels: {} },
+      })
       .expect(200);
 
     const detail = await prisma.detailSOP.findUniqueOrThrow({
@@ -303,6 +310,55 @@ describeIntegration('Core workflow integration test', () => {
     expect(detail.konfigurasiDiagram).toHaveLength(1);
   });
 
+  it('menolak stale replace-all prosedur secara atomik', async () => {
+    const before = await prisma.detailSOP.findUniqueOrThrow({
+      where: { detailSopId: state.detailSopId },
+      select: { prosedurRevision: true },
+    });
+    expect(before.prosedurRevision).toBe(1);
+
+    const payload = (marker: string) => ({
+      expectedRevision: before.prosedurRevision,
+      pelaksana: [{ pelaksanaId: state.pelaksanaId }],
+      langkah: [
+        {
+          tempId: `parallel-${marker}`,
+          jenis: JenisLangkahProsedur.AWAL_AKHIR,
+          kegiatan: `Parallel winner ${marker}`,
+          kelengkapan: 'Dokumen',
+          keluaran: 'Hasil',
+          waktu: 1,
+          satuanWaktu: SatuanWaktu.d,
+          keterangan: `Writer ${marker}`,
+          pelaksanaId: state.pelaksanaId,
+        },
+      ],
+    });
+
+    const [responseA, responseB] = await Promise.all([
+      penyusunAgent.patch(`${API}/sop/langkah/${state.detailSopId}`).send(payload('A')),
+      pjPenyusunAgent.patch(`${API}/sop/langkah/${state.detailSopId}`).send(payload('B')),
+    ]);
+
+    expect([responseA.status, responseB.status].sort((a, b) => a - b)).toEqual([200, 409]);
+    const conflict = responseA.status === 409 ? responseA : responseB;
+    const winnerMarker = responseA.status === 200 ? 'A' : 'B';
+    expect(conflict.body.code).toBe('SOP_EDIT_CONFLICT');
+    expect(conflict.body.section).toBe('PROSEDUR');
+
+    const after = await prisma.detailSOP.findUniqueOrThrow({
+      where: { detailSopId: state.detailSopId },
+      select: {
+        prosedurRevision: true,
+        langkahSOP: { select: { kegiatan: true }, orderBy: { urutan: 'asc' } },
+      },
+    });
+    expect(after.prosedurRevision).toBe(before.prosedurRevision + 1);
+    expect(after.langkahSOP.map((row) => row.kegiatan)).toEqual([
+      `Parallel winner ${winnerMarker}`,
+    ]);
+  });
+
   it('menolak constraint header dan prosedur yang melanggar aturan bisnis', async () => {
     const duplicateNomor = await penyusunAgent.post(`${API}/sop`).send({
       judul: 'SOP Integration Nomor Duplikat',
@@ -314,6 +370,7 @@ describeIntegration('Core workflow integration test', () => {
     const invalidBranch = await penyusunAgent
       .patch(`${API}/sop/langkah/${state.detailSopId}`)
       .send({
+        expectedRevision: 2,
         pelaksana: [{ pelaksanaId: state.pelaksanaId }],
         langkah: [
           {

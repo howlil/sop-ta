@@ -10,13 +10,16 @@ interface CallLog {
 }
 
 function makeTx(existingLangkahIds: string[]): {
-  tx: any;
+  tx: object;
   calls: CallLog[];
 } {
   const calls: CallLog[] = [];
   const record = (table: string, op: string) =>
-    jest.fn(async (args: unknown) => {
+    jest.fn((args: unknown) => {
       calls.push({ table, op, args });
+      if (table === 'detailSOP' && op === 'updateMany') {
+        return { count: 1 };
+      }
       if (table === 'langkahSOP' && op === 'findMany') {
         return existingLangkahIds.map((id) => ({ langkahSopId: id }));
       }
@@ -42,7 +45,7 @@ function makeTx(existingLangkahIds: string[]): {
       create: record('langkahSOP', 'create'),
       update: record('langkahSOP', 'update'),
     },
-    detailSOP: { update: record('detailSOP', 'update') },
+    detailSOP: { updateMany: record('detailSOP', 'updateMany') },
     logEditSOP: {
       findFirst: record('logEditSOP', 'findFirst'),
       create: record('logEditSOP', 'create'),
@@ -77,11 +80,12 @@ describe('Pengujian SopProsedurRepository.updateProsedurTransaction', () => {
       userId: 'u-1',
       input: { pelaksana: [{ pelaksanaId: 'p-1' }, { pelaksanaId: 'p-2' }] },
       changedFields: ['pelaksana'],
+      expectedRevision: 0,
     });
     const swimlaneOps = calls.filter((c) => c.table === 'detailSOPPelaksana');
     expect(swimlaneOps.map((c) => c.op)).toEqual(['deleteMany', 'createMany']);
     expect(calls.some((c) => c.table === 'langkahSOP' && c.op === 'deleteMany')).toBe(false);
-    expect(calls.some((c) => c.table === 'detailSOP' && c.op === 'update')).toBe(true);
+    expect(calls.some((c) => c.table === 'detailSOP' && c.op === 'updateMany')).toBe(true);
     expect(calls.some((c) => c.table === 'logEditSOP')).toBe(true);
   });
 
@@ -111,27 +115,28 @@ describe('Pengujian SopProsedurRepository.updateProsedurTransaction', () => {
         defaultPelaksanaId: 'p-1',
       },
       changedFields: ['langkah'],
+      expectedRevision: 0,
     });
 
     const opsOrder = calls
       .filter((c) => ['langkahSOP', 'detailSOP', 'logEditSOP'].includes(c.table))
       .map((c) => `${c.table}.${c.op}`);
 
+    const idxClaim = opsOrder.indexOf('detailSOP.updateMany');
     const idxFindMany = opsOrder.indexOf('langkahSOP.findMany');
     const idxUpdateMany = opsOrder.indexOf('langkahSOP.updateMany');
     const idxLangkahDelete = opsOrder.indexOf('langkahSOP.deleteMany');
     const idxFirstCreate = opsOrder.indexOf('langkahSOP.create');
     const idxBranchUpdate = opsOrder.indexOf('langkahSOP.update');
-    const idxDetailUpdate = opsOrder.indexOf('detailSOP.update');
     const idxLogCreate = opsOrder.lastIndexOf('logEditSOP.create');
 
-    expect(idxFindMany).toBeGreaterThanOrEqual(0);
+    expect(idxClaim).toBeGreaterThanOrEqual(0);
+    expect(idxFindMany).toBeGreaterThan(idxClaim);
     expect(idxUpdateMany).toBeGreaterThan(idxFindMany);
     expect(idxLangkahDelete).toBeGreaterThan(idxUpdateMany);
     expect(idxFirstCreate).toBeGreaterThan(idxLangkahDelete);
     expect(idxBranchUpdate).toBeGreaterThan(idxFirstCreate);
-    expect(idxDetailUpdate).toBeGreaterThan(idxBranchUpdate);
-    expect(idxLogCreate).toBeGreaterThan(idxDetailUpdate);
+    expect(idxLogCreate).toBeGreaterThan(idxBranchUpdate);
 
     /* Branch update hanya untuk langkah yang punya cabang. */
     const branchUpdates = calls.filter((c) => c.table === 'langkahSOP' && c.op === 'update');
@@ -155,6 +160,7 @@ describe('Pengujian SopProsedurRepository.updateProsedurTransaction', () => {
         defaultPelaksanaId: 'p-1',
       },
       changedFields: ['langkah'],
+      expectedRevision: 0,
     });
     expect(calls.some((c) => c.table === 'langkahSOP' && c.op === 'create')).toBe(true);
   });
@@ -166,6 +172,7 @@ describe('Pengujian SopProsedurRepository.updateProsedurTransaction', () => {
       userId: 'u-1',
       input: { pelaksana: [] },
       changedFields: ['pelaksana'],
+      expectedRevision: 0,
     });
     const logCreate = calls.find((c) => c.table === 'logEditSOP' && c.op === 'create');
     expect(logCreate).toBeDefined();

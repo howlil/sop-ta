@@ -144,6 +144,8 @@ model DetailSOP {
   terakhirDieditOlehId           String?                          @db.Char(36)
   /// Versi sumber snapshot saat membuat revisi baru (BERLAKU, DIGANTIKAN, atau DICABUT).
   revisiDariDetailSopId          String?                          @db.Char(36)
+  prosedurRevision               Int                              @default(0)
+  diagramRevision                Int                              @default(0)
   createdAt                      DateTime                         @default(now())
   updatedAt                      DateTime                         @updatedAt
   revisiDari                     DetailSOP?                       @relation("RevisiDariVersiBerlaku", fields: [revisiDariDetailSopId], references: [detailSopId], onDelete: Restrict)

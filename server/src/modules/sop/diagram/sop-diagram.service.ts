@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -9,6 +10,7 @@ import type { JwtAccessPayload } from '../../../common';
 import { PeranPengguna, StatusSOP } from '../../../generated/prisma';
 import { UserOpdAccessService } from '../../core/opd/user-opd-access.service';
 import { SopCatalogService } from '../catalog/sop-catalog.service';
+import { SopEditConflictError, sopEditConflictResponse } from '../shared/sop-edit-conflict.error';
 import type { PenyusunWorkbenchDataDto } from '../catalog/dto/penyusun-workbench-data.dto';
 import type { UpdateSopDiagramDto } from './dto/diagram-path-overrides.dto';
 import { hasInvalidDiagramEdgeKeys, isValidDiagramPathOverrides } from './diagram-edge-key.util';
@@ -48,12 +50,20 @@ export class SopDiagramService {
     if (!hasChange) {
       return this.sopCatalogService.getPenyusunWorkbench(user, resolved.detailSopId, logsLimit);
     }
-    await this.sopDiagramRepository.upsertConfig({
-      detailSopId: resolved.detailSopId,
-      jenis: dto.jenis,
-      layoutSeed: dto.layoutSeed,
-      pathOverrides: dto.pathOverrides,
-    });
+    try {
+      await this.sopDiagramRepository.upsertConfig({
+        detailSopId: resolved.detailSopId,
+        jenis: dto.jenis,
+        layoutSeed: dto.layoutSeed,
+        pathOverrides: dto.pathOverrides,
+        expectedRevision: dto.expectedRevision,
+      });
+    } catch (error) {
+      if (error instanceof SopEditConflictError) {
+        throw new ConflictException(sopEditConflictResponse(error.section));
+      }
+      throw error;
+    }
     return this.sopCatalogService.getPenyusunWorkbench(user, resolved.detailSopId, logsLimit);
   }
 

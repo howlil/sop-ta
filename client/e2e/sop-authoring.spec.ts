@@ -131,6 +131,7 @@ test.describe('E2E penyusunan SOP dasar', () => {
         namaPelaksana: `Pelaksana ${draft.number}`,
       })
       await apiPatch(penyusun, `/sop/langkah/${draft.detailSopId}`, {
+        expectedRevision: 0,
         pelaksana: [{ pelaksanaId: pelaksana.id }],
         langkah: [
           {

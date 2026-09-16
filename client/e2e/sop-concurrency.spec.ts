@@ -7,6 +7,8 @@ import {
   apiPost,
   createAuthenticatedApiContext,
   expectBackendAvailable,
+  toApiUrl,
+  unwrapApiData,
 } from './support/api'
 import { createDraftSopFixture } from './support/e2e-flow'
 
@@ -15,6 +17,8 @@ interface Workbench {
     id: string
     judul?: string
     namaLembaga?: string
+    prosedurRevision: number
+    diagramRevision: number
     lampiran?: {
       peringatan: Array<{ teks: string }>
       kualifikasiPelaksanaan: Array<{ teks: string }>
@@ -80,36 +84,53 @@ test.describe('Concurrency editing SOP realtime/autosave', () => {
     }
   })
 
-  test('CONC-02: autosave prosedur paralel bersifat atomik dan tidak menghasilkan data parsial', async () => {
+  test('CONC-02: autosave prosedur stale ditolak 409 dan tidak dapat menimpa winner', async () => {
     const penyusun = await createAuthenticatedApiContext(users.penyusun)
     const pjPenyusun = await createAuthenticatedApiContext(users.pjPenyusun)
     try {
       const draft = await createDraftSopFixture(penyusun, 'CONC-STEP')
+      const initialWorkbench = await apiGet<Workbench>(
+        penyusun,
+        `/sop/penyusun-workbench/${draft.detailSopId}`,
+      )
       const pelaksana = await apiPost<Pelaksana>(penyusun, '/pelaksana', {
         namaPelaksana: `Pelaksana concurrency ${Date.now()}`,
       })
-      const payloadA = buildLangkahPayload(pelaksana.id, 'A')
-      const payloadB = buildLangkahPayload(pelaksana.id, 'B')
+      const expectedRevision = initialWorkbench.detail.prosedurRevision
+      const payloadA = { ...buildLangkahPayload(pelaksana.id, 'A'), expectedRevision }
+      const payloadB = { ...buildLangkahPayload(pelaksana.id, 'B'), expectedRevision }
+      const endpoint = toApiUrl(`/sop/langkah/${draft.detailSopId}`)
 
       const [responseA, responseB] = await Promise.all([
-        apiPatch<Workbench>(penyusun, `/sop/langkah/${draft.detailSopId}`, payloadA),
-        apiPatch<Workbench>(pjPenyusun, `/sop/langkah/${draft.detailSopId}`, payloadB),
+        penyusun.patch(endpoint, { data: payloadA }),
+        pjPenyusun.patch(endpoint, { data: payloadB }),
       ])
 
-      expect(responseA.detail.id).toBe(draft.detailSopId)
-      expect(responseB.detail.id).toBe(draft.detailSopId)
+      expect([responseA.status(), responseB.status()].sort((a, b) => a - b)).toEqual([200, 409])
+
+      const winnerResponse = responseA.ok() ? responseA : responseB
+      const conflictResponse = responseA.status() === 409 ? responseA : responseB
+      const winner = unwrapApiData<Workbench>(await winnerResponse.json())
+      const conflict = (await conflictResponse.json()) as {
+        statusCode?: number
+        code?: string
+        section?: string
+      }
+
+      expect(conflict.statusCode).toBe(409)
+      expect(conflict.code).toBe('SOP_EDIT_CONFLICT')
+      expect(conflict.section).toBe('PROSEDUR')
+      expect(winner.detail.prosedurRevision).toBe(expectedRevision + 1)
 
       const finalWorkbench = await apiGet<Workbench>(
         penyusun,
         `/sop/penyusun-workbench/${draft.detailSopId}`,
       )
-      const finalActivities = finalWorkbench.langkah.map((step) => step.kegiatan)
-      const expectedA = payloadA.langkah.map((step) => step.kegiatan)
-      const expectedB = payloadB.langkah.map((step) => step.kegiatan)
-
+      expect(finalWorkbench.detail.prosedurRevision).toBe(expectedRevision + 1)
+      expect(finalWorkbench.langkah.map((step) => step.kegiatan)).toEqual(
+        winner.langkah.map((step) => step.kegiatan),
+      )
       expect(finalWorkbench.langkah).toHaveLength(2)
-      expect([expectedA, expectedB]).toContainEqual(finalActivities)
-      expect(finalActivities).not.toEqual(expect.arrayContaining([...expectedA, ...expectedB]))
       expect(finalWorkbench.logEdit.some((log) => log.bagian === 'LANGKAH')).toBe(true)
     } finally {
       await disposeAll(penyusun, pjPenyusun)

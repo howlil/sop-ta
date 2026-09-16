@@ -8,6 +8,9 @@ const EMAIL_B = __ENV.USER_B_EMAIL || 'pjpenyusun.dinkes@gmail.com'
 const PASSWORD_A = __ENV.USER_A_PASSWORD || __ENV.SEED_PASSWORD || '@Password123:)'
 const PASSWORD_B = __ENV.USER_B_PASSWORD || __ENV.SEED_PASSWORD || '@Password123:)'
 
+// Optimistic-lock conflicts are a controlled concurrency outcome, not an HTTP transport failure.
+http.setResponseCallback(http.expectedStatuses({ min: 200, max: 399 }, 409))
+
 export const options = {
   scenarios: {
     autosave_concurrency: {
@@ -20,13 +23,14 @@ export const options = {
   thresholds: {
     http_req_failed: ['rate<0.01'],
     http_req_duration: ['p(95)<2000', 'p(99)<3000'],
-    autosave_success_rate: ['rate>0.99'],
-    conflict_or_validation_errors: ['count==0'],
+    autosave_handled_rate: ['rate>0.99'],
+    unexpected_autosave_errors: ['count==0'],
   },
 }
 
-export const autosaveSuccessRate = new Rate('autosave_success_rate')
-export const conflictOrValidationErrors = new Counter('conflict_or_validation_errors')
+export const autosaveHandledRate = new Rate('autosave_handled_rate')
+export const optimisticConflicts = new Counter('optimistic_conflicts')
+export const unexpectedAutosaveErrors = new Counter('unexpected_autosave_errors')
 let failedAutosaveSamples = 0
 
 export function setup() {
@@ -71,13 +75,29 @@ export default function (data) {
       },
       actor.cookie,
     )
-    recordAutosave(response, 'header autosave ok')
+    recordAutosave(response, 'header autosave ok', false)
   })
 
   group('parallel-like autosave prosedur replace-all', () => {
+    const workbenchResponse = get(
+      `/sop/penyusun-workbench/${data.detailSopId}?logsLimit=0`,
+      actor.cookie,
+    )
+    const workbench = parseJson(workbenchResponse)
+    const expectedRevision = workbench?.data?.detail?.prosedurRevision
+    if (!Number.isInteger(expectedRevision)) {
+      recordUnexpected(
+        `workbench revision unavailable: status=${workbenchResponse.status}, body=${truncate(
+          workbenchResponse.body,
+        )}`,
+      )
+      return
+    }
+
     const response = patch(
       `/sop/langkah/${data.detailSopId}?logsLimit=25`,
       {
+        expectedRevision,
         pelaksana: [{ pelaksanaId: data.pelaksanaId }],
         langkah: [
           {
@@ -106,7 +126,7 @@ export default function (data) {
       },
       actor.cookie,
     )
-    recordAutosave(response, 'prosedur autosave ok')
+    recordAutosave(response, 'prosedur autosave handled', true)
   })
 
   sleep(Number(__ENV.THINK_TIME_SECONDS || 0.3))
@@ -166,19 +186,39 @@ function patch(path, body, cookie) {
   return http.patch(`${BASE_URL}${path}`, JSON.stringify(body), authParams(cookie))
 }
 
-function recordAutosave(response, label) {
-  const ok = check(response, {
-    [label]: (res) => res.status === 200,
+function recordAutosave(response, label, allowOptimisticConflict) {
+  const body = parseJson(response)
+  const isConflict =
+    response.status === 409 &&
+    body?.code === 'SOP_EDIT_CONFLICT' &&
+    body?.section === 'PROSEDUR'
+  const handled = response.status === 200 || (allowOptimisticConflict && isConflict)
+
+  check(response, {
+    [label]: () => handled,
   })
-  autosaveSuccessRate.add(ok)
-  if ([400, 409, 422, 500].includes(response.status)) {
-    conflictOrValidationErrors.add(1)
+  autosaveHandledRate.add(handled)
+
+  if (isConflict) {
+    optimisticConflicts.add(1)
   }
-  if (!ok && failedAutosaveSamples < 5) {
+  if (!handled) {
+    unexpectedAutosaveErrors.add(1)
+    if (failedAutosaveSamples < 5) {
+      failedAutosaveSamples += 1
+      console.error(
+        `${label} failed: status=${response.status}, body=${truncate(response.body)}`,
+      )
+    }
+  }
+}
+
+function recordUnexpected(message) {
+  autosaveHandledRate.add(false)
+  unexpectedAutosaveErrors.add(1)
+  if (failedAutosaveSamples < 5) {
     failedAutosaveSamples += 1
-    console.error(
-      `${label} failed: status=${response.status}, body=${truncate(response.body)}`,
-    )
+    console.error(message)
   }
 }
 

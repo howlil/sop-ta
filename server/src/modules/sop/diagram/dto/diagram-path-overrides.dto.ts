@@ -76,6 +76,11 @@ export class UpdateSopDiagramDto {
   @IsEnum(JenisDiagram)
   readonly jenis!: JenisDiagram;
 
+  @ApiProperty({ minimum: 0, description: 'Revision diagram yang terakhir dibaca klien.' })
+  @IsInt()
+  @Min(0)
+  readonly expectedRevision!: number;
+
   @ApiPropertyOptional({ minimum: 0 })
   @IsOptional()
   @IsInt()

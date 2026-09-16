@@ -9,6 +9,7 @@ import { assertDetailSopEditable } from '../../../common/status/sop-editable.uti
 import type { JwtAccessPayload } from '../../../common';
 import { JenisLangkahProsedur, PeranPengguna, Prisma } from '../../../generated/prisma';
 import { UserOpdAccessService } from '../../core/opd/user-opd-access.service';
+import { SopEditConflictError, sopEditConflictResponse } from '../shared/sop-edit-conflict.error';
 import { SopCatalogService } from '../catalog/sop-catalog.service';
 import type { PenyusunWorkbenchDataDto } from '../catalog/dto/penyusun-workbench-data.dto';
 import type { LangkahPatchItem } from './dto/langkah-patch-item.dto';
@@ -68,8 +69,12 @@ export class SopProsedurService {
         userId: user.sub,
         input: repoInput,
         changedFields,
+        expectedRevision: dto.expectedRevision,
       });
     } catch (err) {
+      if (err instanceof SopEditConflictError) {
+        throw new ConflictException(sopEditConflictResponse(err.section));
+      }
       if (err instanceof Prisma.PrismaClientKnownRequestError) {
         if (err.code === 'P2002') {
           throw new ConflictException('Konflik unik pada langkah/jalur pelaksana');
@@ -93,6 +98,7 @@ export class SopProsedurService {
     userId: string;
     input: UpdateSopProsedurRepoInput;
     changedFields: string[];
+    expectedRevision: number;
   }): Promise<void> {
     let lastError: unknown;
     for (let attempt = 1; attempt <= MAX_UPDATE_PROSEDUR_TRANSACTION_ATTEMPTS; attempt += 1) {

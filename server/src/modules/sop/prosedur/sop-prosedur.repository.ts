@@ -4,6 +4,7 @@ import type { Prisma } from '../../../generated/prisma';
 import { BagianSOP, JenisLangkahProsedur, SatuanWaktu } from '../../../generated/prisma';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { appendOrCreateLogSession } from '../collaboration/log-edit-session.helper';
+import { SopEditConflictError } from '../shared/sop-edit-conflict.error';
 
 export interface RepoLangkahPatchItem {
   tempId: string;
@@ -123,10 +124,23 @@ export class SopProsedurRepository {
     userId: string;
     input: UpdateSopProsedurRepoInput;
     changedFields: string[];
+    expectedRevision: number;
   }): Promise<void> {
-    const { detailSopId, userId, input, changedFields } = params;
+    const { detailSopId, userId, input, changedFields, expectedRevision } = params;
     await this.prisma.$transaction(async (tx) => {
-      // A. Ganti pelaksana (jalur pelaksana) bila dikirim
+      // A. Atomic compare-and-swap. Jika snapshot klien stale, tidak ada domain row yang disentuh.
+      const claimed = await tx.detailSOP.updateMany({
+        where: { detailSopId, prosedurRevision: expectedRevision },
+        data: {
+          prosedurRevision: { increment: 1 },
+          terakhirDieditOlehId: userId,
+        },
+      });
+      if (claimed.count !== 1) {
+        throw new SopEditConflictError('PROSEDUR');
+      }
+
+      // B. Ganti pelaksana (jalur pelaksana) bila dikirim
       if (input.pelaksana !== undefined) {
         await tx.detailSOPPelaksana.deleteMany({ where: { detailSopId } });
         const items = input.pelaksana;
@@ -143,16 +157,10 @@ export class SopProsedurRepository {
         }
       }
 
-      // B. Replace langkah bila dikirim
+      // C. Replace langkah bila dikirim
       if (input.langkah !== undefined) {
         await this.replaceLangkahInTx(tx, detailSopId, input);
       }
-
-      // C. Tandai DetailSOP sebagai baru diedit oleh user
-      await tx.detailSOP.update({
-        where: { detailSopId },
-        data: { terakhirDieditOlehId: userId },
-      });
 
       // D. Append log sesi (merge 10 menit)
       await appendOrCreateLogSession({

@@ -120,6 +120,7 @@ export async function createReadySopFixture(
     },
   })
   await apiPatch<Workbench>(context, `/sop/langkah/${detailSopId}`, {
+    expectedRevision: 0,
     pelaksana: [{ pelaksanaId: pelaksana.id }],
     langkah: [
       {
