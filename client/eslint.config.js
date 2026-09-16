@@ -86,6 +86,33 @@ export default [
     },
   },
   {
+    files: ['src/features/**/application/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '@/api/*',
+                '@/components/*',
+                '@/hooks/*',
+                '@/lib/*',
+                '@/utils/*',
+                '@/config/*',
+                '@/stores/*',
+                '@/pages/*',
+                '@/routes/*',
+              ],
+              message:
+                'Application modules must use canonical app/features/shared ownership imports. Legacy topology aliases are compatibility-only for unmigrated perimeter code.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['src/shared/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [
