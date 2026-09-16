@@ -1,11 +1,11 @@
 import { Download, Loader2, MoreVertical, Printer } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@/shared/ui/dropdown-menu'
 import {
   CETAK_ARSIP_DISABLED_TITLE,
   CETAK_BA_DISABLED_TITLE,
