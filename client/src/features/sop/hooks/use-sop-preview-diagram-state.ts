@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import {
   buildDiagramStateForPreviewTab,
   type DiagramPreviewStateInput,
-} from '@/lib/sop/diagram-config.mapper'
+} from '../model/diagram-config.mapper'
 
 export function useSopPreviewDiagramState(
   input: Omit<DiagramPreviewStateInput, 'activeTab'> | null,
