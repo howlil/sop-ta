@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isOrthogonalPath } from '@/components/sop/sop-diagram/core/route/shared/orthogonal-path-normalization.util'
+import { isOrthogonalPath } from '@/features/sop/diagram/core/route/shared/orthogonal-path-normalization.util'
 import {
   alignEndpointSegmentPreservingEndpoint,
   insertWaypointAtSegmentMidpoint,
