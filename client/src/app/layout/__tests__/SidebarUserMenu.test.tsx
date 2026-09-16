@@ -8,7 +8,7 @@ vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => navigate,
 }))
 
-vi.mock('@/hooks/useAppRole', () => ({
+vi.mock('@/features/auth/hooks/use-app-role', () => ({
   useAppRole: () => ({
     role: 'PJ_PENYUSUN',
     getRoleLabel: () => 'PJ Penyusun',
@@ -17,7 +17,7 @@ vi.mock('@/hooks/useAppRole', () => ({
   }),
 }))
 
-vi.mock('@/api/auth', () => ({
+vi.mock('@/features/auth/api', () => ({
   useAuth: () => ({ logout }),
 }))
 
