@@ -49,18 +49,29 @@ describe('Pengujian SopDiagramService', () => {
   it('seharusnya melempar NotFoundException ketika detail tidak ditemukan', async () => {
     const { service } = createService({ resolved: null });
     await expect(
-      service.updateDiagram(user, 'missing', { jenis: JenisDiagram.FLOWCHART, layoutSeed: 1 }),
+      service.updateDiagram(user, 'missing', {
+        expectedRevision: 0,
+        jenis: JenisDiagram.FLOWCHART,
+        layoutSeed: 1,
+      }),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('seharusnya upsert konfigurasi dan mengembalikan workbench', async () => {
     const { service, sopDiagramRepository, sopCatalogService } = createService();
     const actual = await service.updateDiagram(user, 'det-1', {
+      expectedRevision: 0,
       jenis: JenisDiagram.FLOWCHART,
       layoutSeed: 2,
       pathOverrides: { edges: {} },
     });
-    expect(sopDiagramRepository.upsertConfig).toHaveBeenCalled();
+    expect(sopDiagramRepository.upsertConfig).toHaveBeenCalledWith({
+      detailSopId: 'det-1',
+      expectedRevision: 0,
+      jenis: JenisDiagram.FLOWCHART,
+      layoutSeed: 2,
+      pathOverrides: { edges: {} },
+    });
     expect(sopCatalogService.getPenyusunWorkbench).toHaveBeenCalled();
     expect(actual.detail.id).toBe('det-1');
   });
@@ -69,6 +80,7 @@ describe('Pengujian SopDiagramService', () => {
     const { service } = createService();
     await expect(
       service.updateDiagram(user, 'det-1', {
+        expectedRevision: 0,
         jenis: JenisDiagram.BPMN,
         pathOverrides: { edges: { bad: { sSide: 'invalid' } as never } },
       }),
@@ -82,21 +94,30 @@ describe('Pengujian SopDiagramService', () => {
       const { service } = createService();
       const badUser = { sub: 'user-1', peran: PeranPengguna.EVALUATOR, email: 'a@b.c' } as never;
       await expect(
-        service.updateDiagram(badUser, 'det-1', { jenis: JenisDiagram.FLOWCHART }),
+        service.updateDiagram(badUser, 'det-1', {
+          expectedRevision: 0,
+          jenis: JenisDiagram.FLOWCHART,
+        }),
       ).rejects.toBeInstanceOf(ForbiddenException);
     });
 
     it('seharusnya melempar NotFoundException jika status detail tidak ditemukan (Edge Case)', async () => {
       const { service } = createService({ status: null });
       await expect(
-        service.updateDiagram(user, 'det-1', { jenis: JenisDiagram.FLOWCHART }),
+        service.updateDiagram(user, 'det-1', {
+          expectedRevision: 0,
+          jenis: JenisDiagram.FLOWCHART,
+        }),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('seharusnya melempar ConflictException jika status detail tidak dapat diedit (False Case)', async () => {
       const { service } = createService({ status: 'DITANDATANGANI_KEPALA_OPD' });
       await expect(
-        service.updateDiagram(user, 'det-1', { jenis: JenisDiagram.FLOWCHART }),
+        service.updateDiagram(user, 'det-1', {
+          expectedRevision: 0,
+          jenis: JenisDiagram.FLOWCHART,
+        }),
       ).rejects.toBeInstanceOf(ConflictException);
     });
   });
@@ -106,6 +127,7 @@ describe('Pengujian SopDiagramService', () => {
       const { service } = createService();
       await expect(
         service.updateDiagram(user, 'det-1', {
+          expectedRevision: 0,
           jenis: JenisDiagram.FLOWCHART,
           pathOverrides: [] as never,
         }),
@@ -114,7 +136,6 @@ describe('Pengujian SopDiagramService', () => {
 
     it('seharusnya melempar BadRequestException jika kunci edge pathOverrides tidak valid (Worst Case)', async () => {
       const { service } = createService();
-      // Kunci yang salah misal "nodeA|nodeB" tanpa cabang (UTAMA, dll)
       const badOverrides = {
         edges: {
           'nodeA|nodeB': {
@@ -128,6 +149,7 @@ describe('Pengujian SopDiagramService', () => {
       };
       await expect(
         service.updateDiagram(user, 'det-1', {
+          expectedRevision: 0,
           jenis: JenisDiagram.FLOWCHART,
           pathOverrides: badOverrides as never,
         }),
@@ -136,7 +158,10 @@ describe('Pengujian SopDiagramService', () => {
 
     it('seharusnya tidak memanggil upsertConfig dan langsung return workbench jika tidak ada perubahan relevan (Edge Case)', async () => {
       const { service, sopDiagramRepository, sopCatalogService } = createService();
-      const actual = await service.updateDiagram(user, 'det-1', { jenis: JenisDiagram.FLOWCHART }); // tanpa layoutSeed atau pathOverrides
+      const actual = await service.updateDiagram(user, 'det-1', {
+        expectedRevision: 0,
+        jenis: JenisDiagram.FLOWCHART,
+      });
       expect(sopDiagramRepository.upsertConfig).not.toHaveBeenCalled();
       expect(sopCatalogService.getPenyusunWorkbench).toHaveBeenCalled();
       expect(actual.detail.id).toBe('det-1');
