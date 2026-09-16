@@ -31,3 +31,8 @@ export {
   type UseEvaluasiDraftReturn,
 } from './hooks/use-evaluasi-draft'
 export { useEvaluasiSubmit } from './hooks/use-evaluasi-submit'
+export {
+  useEvaluasiWorkspaceController,
+  type EvaluasiWorkspaceControllerInput,
+  type EvaluasiWorkspaceFormTab,
+} from './application/workspace'
