@@ -2,7 +2,7 @@ import { PersonIdentityFields } from '@/components/forms/person-identity-fields'
 import {
   ManageAssignmentDialog,
   type AssignmentDialogTab,
-} from '@/components/organisasi/manage-assignment-dialog'
+} from '@/features/organization/ui/manage-assignment-dialog'
 import type { KepalaFormState, PindahFormState } from '@/types/ui/organisasi'
 import type { KepalaOpdDto } from '@/types/dto/kepala-opd.dto'
 import type { OPDOption as OPD } from './types'

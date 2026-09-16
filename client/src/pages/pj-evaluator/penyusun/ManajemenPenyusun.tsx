@@ -20,8 +20,8 @@ import {
   PersonStatusCell,
   PersonTextCell,
 } from "@/components/person/person-table-cells";
-import { useOpd } from "@/api/opd";
-import { usePenyusun } from "@/api/penyusun";
+import { useOpd } from "@/features/organization/api/opd";
+import { usePenyusun } from "@/features/organization/api/penyusun";
 import { PenyusunFormDialog } from "./components/PenyusunFormDialog";
 import { RiwayatOpdPenyusunDialog } from "./components/RiwayatOpdPenyusunDialog";
 import type { PenyusunFormData } from "./components/PenyusunFormDialog";

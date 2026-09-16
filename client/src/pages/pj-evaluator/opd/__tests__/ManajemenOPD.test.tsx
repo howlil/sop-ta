@@ -4,10 +4,10 @@ import { ManajemenOPD } from '../ManajemenOPD'
 
 vi.mock('@/hooks/useToast', () => ({ useToast: () => ({ showToast: vi.fn() }) }))
 vi.mock('@/hooks/use-debounced-value', () => ({ useDebouncedValue: (value: string) => value }))
-vi.mock('@/api/opd', () => ({
+vi.mock('@/features/organization/api/opd', () => ({
   useOpd: () => ({ list: [{ id: 'opd-1', nama: 'Dinas Kesehatan Provinsi' }], create: vi.fn(), update: vi.fn(), delete: vi.fn() }),
 }))
-vi.mock('@/api/kepala-opd', () => ({
+vi.mock('@/features/organization/api/kepala-opd', () => ({
   useKepalaOpdList: () => ({ data: [], isLoading: false }),
   useCreateKepalaOpd: () => ({ mutateAsync: vi.fn() }),
   useUpdateKepalaOpd: () => ({ mutateAsync: vi.fn() }),

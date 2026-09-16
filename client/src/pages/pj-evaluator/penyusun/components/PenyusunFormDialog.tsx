@@ -5,7 +5,7 @@ import { Select } from '@/components/ui/select'
 import {
   ManageAssignmentDialog,
   type AssignmentDialogTab,
-} from '@/components/organisasi/manage-assignment-dialog'
+} from '@/features/organization/ui/manage-assignment-dialog'
 import { OpdSelectField } from '@/components/forms/opd-select-field'
 import { PersonIdentityFields } from '@/components/forms/person-identity-fields'
 import type { StatusTim } from '@/types/dto/tim.dto'

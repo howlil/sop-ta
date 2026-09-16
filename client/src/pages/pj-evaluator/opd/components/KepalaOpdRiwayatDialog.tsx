@@ -1,5 +1,5 @@
-import { RiwayatOpdDialog } from '@/components/organisasi/riwayat-opd-dialog'
-import { useKepalaOpdRiwayat } from '@/api/kepala-opd'
+import { RiwayatOpdDialog } from '@/features/organization/ui/riwayat-opd-dialog'
+import { useKepalaOpdRiwayat } from '@/features/organization/api/kepala-opd'
 import { formatDateIdLong } from '@/utils/format-date'
 
 export interface KepalaOpdRiwayatDialogProps {

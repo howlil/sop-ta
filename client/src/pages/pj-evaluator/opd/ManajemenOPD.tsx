@@ -7,13 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ListPageLayout } from '@/components/layout/ListPageLayout'
 import { useToast } from '@/hooks/useToast'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
-import { useOpd } from '@/api/opd'
+import { useOpd } from '@/features/organization/api/opd'
 import {
   useKepalaOpdList,
   useCreateKepalaOpd,
   useUpdateKepalaOpd,
   useDeleteKepalaOpd,
-} from '@/api/kepala-opd'
+} from '@/features/organization/api/kepala-opd'
 import type { OPDUI as OPD } from '@/types/ui/organisasi'
 import type { KepalaOpdDto } from '@/types/dto/kepala-opd.dto'
 import { OPDTab, type OPDTabHandle } from './components/OPDTab'
