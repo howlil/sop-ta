@@ -6,7 +6,7 @@ import {
   BERITA_ACARA_MARGIN_BOTTOM_PT,
   BERITA_ACARA_MARGIN_SIDE_PT,
   BERITA_ACARA_MARGIN_TOP_PT,
-} from '@/lib/pengajuan/berita-acara-page-metrics'
+} from '@/features/submission/model/berita-acara-page-metrics'
 
 describe('berita-acara-page-metrics', () => {
   it('memakai dimensi A4 portrait standar dalam pt', () => {
