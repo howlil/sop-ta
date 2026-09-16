@@ -1,16 +1,14 @@
 import { ConflictException, ForbiddenException } from '@nestjs/common';
+import {
+  getSopTransition,
+  getSopWorkflowActions,
+  getSopWorkflowStage,
+  type SopWorkflowAction,
+} from '../../../common/workflow/sop-workflow.graph';
 import { displayStatusSop } from '../../../common/status/status-display';
-import { isDetailSopEditable } from '../../../common/status/sop-editable.util';
 import { PeranPengguna, StatusSOP } from '../../../generated/prisma';
 
-export type SopWorkflowAction =
-  | 'EDIT'
-  | 'SUBMIT_FOR_REVIEW'
-  | 'SUBMIT_EVALUATION'
-  | 'RESUBMIT_EVALUATION'
-  | 'SIGN'
-  | 'REVOKE'
-  | 'VIEW_HISTORY';
+export type { SopWorkflowAction } from '../../../common/workflow/sop-workflow.graph';
 
 export type SopWorkflowStage =
   | 'AUTHORING'
@@ -42,68 +40,9 @@ export type SopWorkflowActionInput = {
   action: SopWorkflowAction;
 };
 
-type TransitionRule = Readonly<{
-  target: StatusSOP;
-  roles: readonly PeranPengguna[];
-}>;
-
-const AUTHORING_ROLES = new Set<PeranPengguna>([PeranPengguna.PENYUSUN, PeranPengguna.PJ_PENYUSUN]);
-
-const TRANSITIONS: Readonly<Partial<Record<StatusSOP, readonly TransitionRule[]>>> = {
-  [StatusSOP.DRAFT]: [
-    {
-      target: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI,
-      roles: [PeranPengguna.PENYUSUN, PeranPengguna.PJ_PENYUSUN],
-    },
-  ],
-  [StatusSOP.SEDANG_DISUSUN]: [
-    {
-      target: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI,
-      roles: [PeranPengguna.PENYUSUN, PeranPengguna.PJ_PENYUSUN],
-    },
-  ],
-  [StatusSOP.REVISI_DARI_EVALUATOR]: [
-    {
-      target: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI,
-      roles: [PeranPengguna.PENYUSUN, PeranPengguna.PJ_PENYUSUN],
-    },
-  ],
-  [StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI]: [
-    {
-      target: StatusSOP.DIAJUKAN_EVALUASI,
-      roles: [PeranPengguna.PJ_PENYUSUN],
-    },
-  ],
-  [StatusSOP.BERLAKU]: [
-    {
-      target: StatusSOP.DICABUT,
-      roles: [PeranPengguna.KEPALA_OPD],
-    },
-  ],
-};
-
-const STAGE_BY_STATUS: Readonly<Record<StatusSOP, SopWorkflowStage>> = {
-  [StatusSOP.DRAFT]: 'AUTHORING',
-  [StatusSOP.SEDANG_DISUSUN]: 'AUTHORING',
-  [StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI]: 'AUTHORING',
-  [StatusSOP.DIAJUKAN_EVALUASI]: 'PROCESS_REVIEW',
-  [StatusSOP.SEDANG_DIEVALUASI]: 'PROCESS_REVIEW',
-  [StatusSOP.REVISI_DARI_EVALUATOR]: 'AUTHORING',
-  [StatusSOP.DITOLAK_EVALUATOR]: 'AUTHORING',
-  [StatusSOP.MENUNGGU_TTD_PJ_EVALUATOR]: 'FINAL_APPROVAL',
-  [StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI]: 'FINAL_APPROVAL',
-  [StatusSOP.BERLAKU]: 'EFFECTIVE',
-  [StatusSOP.DIGANTIKAN]: 'SUPERSEDED',
-  [StatusSOP.DICABUT]: 'REVOKED',
-};
-
-function transitionFor(current: StatusSOP, target: StatusSOP): TransitionRule | undefined {
-  return TRANSITIONS[current]?.find((rule) => rule.target === target);
-}
-
 export function getSopWorkflowState(status: StatusSOP): SopWorkflowState {
   return {
-    stage: STAGE_BY_STATUS[status],
+    stage: getSopWorkflowStage(status) as SopWorkflowStage,
     stateLabel: displayStatusSop(status).label,
   };
 }
@@ -112,38 +51,14 @@ export function getSopWorkflowProjection(
   role: PeranPengguna,
   status: StatusSOP,
 ): SopWorkflowProjection {
-  const actions: SopWorkflowAction[] = ['VIEW_HISTORY'];
-
-  if (AUTHORING_ROLES.has(role) && isDetailSopEditable(status)) {
-    actions.push('EDIT');
-  }
-  if (transitionFor(status, StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI)?.roles.includes(role) === true) {
-    actions.push('SUBMIT_FOR_REVIEW');
-  }
-  if (transitionFor(status, StatusSOP.DIAJUKAN_EVALUASI)?.roles.includes(role) === true) {
-    actions.push('SUBMIT_EVALUATION');
-  }
-  if (status === StatusSOP.REVISI_DARI_EVALUATOR && role === PeranPengguna.PJ_PENYUSUN) {
-    actions.push('RESUBMIT_EVALUATION');
-  }
-  if (
-    status === StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI &&
-    role === PeranPengguna.KEPALA_OPD
-  ) {
-    actions.push('SIGN');
-  }
-  if (transitionFor(status, StatusSOP.DICABUT)?.roles.includes(role) === true) {
-    actions.push('REVOKE');
-  }
-
   return {
     ...getSopWorkflowState(status),
-    allowedActions: actions,
+    allowedActions: getSopWorkflowActions(role, status),
   };
 }
 
 export function assertSopWorkflowActionAllowed(input: SopWorkflowActionInput): void {
-  if (getSopWorkflowProjection(input.role, input.status).allowedActions.includes(input.action)) {
+  if (getSopWorkflowActions(input.role, input.status).includes(input.action)) {
     return;
   }
   if (input.action === 'RESUBMIT_EVALUATION') {
@@ -177,13 +92,13 @@ export function assertAllowedSopStatusTransition(input: SopStatusTransitionInput
     );
   }
 
-  const rule = transitionFor(current, target);
-  if (rule === undefined) {
+  const edge = getSopTransition(current, target);
+  if (edge === undefined) {
     throw new ConflictException(
       `Tidak dapat mengubah status dari ${String(current)} ke ${String(target)} melalui endpoint ini`,
     );
   }
-  if (!rule.roles.includes(role)) {
+  if (!edge.roles.includes(role)) {
     if (target === StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI) {
       throw new ForbiddenException(
         'Hanya penyusun yang dapat menandai SOP menunggu pengajuan evaluasi',
