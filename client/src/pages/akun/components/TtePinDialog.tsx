@@ -1,4 +1,4 @@
-import { PinDialog } from '@/components/security/pin-dialog'
+import { PinDialog } from '@/features/auth/ui/pin-dialog'
 import type { RegisterTteDto, TteProfil, UpdateTtePinDto } from '@/types/dto/tte.dto'
 import { showErrorMessages } from '@/hooks/useToast'
 
