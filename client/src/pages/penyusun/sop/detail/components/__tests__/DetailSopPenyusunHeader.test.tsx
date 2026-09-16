@@ -18,7 +18,7 @@ vi.mock('@/hooks/useToast', () => ({
   useToast: () => ({ showToast: vi.fn() }),
 }))
 
-vi.mock('@/lib/print/pengajuan-print', () => ({
+vi.mock('@/features/sop/print/sop-print', () => ({
   printSopArsipFromPreviewProps: vi.fn(),
 }))
 
