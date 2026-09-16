@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AlertCircle } from 'lucide-react'
-import { DocumentPreviewEmptyState } from '@/components/pengajuan/document-preview-empty-state'
+import { DocumentPreviewEmptyState } from '@/features/submission/ui/document-preview-empty-state'
 import {
   SOPPreviewTemplate,
   type SOPPreviewTemplateProps,
@@ -8,9 +8,9 @@ import {
 import { useSopPreviewDiagramState } from '@/features/sop/hooks/use-sop-preview-diagram-state'
 import type { PenyusunWorkbenchDiagramKonfigurasi } from '@/types/dto/sop.dto'
 import type { TTESignaturePayload } from '@/types/dto/tte.dto'
-import { Button } from '@/components/ui/button'
-import { LoadingState } from '@/components/ui/loading-state'
-import { cn } from '@/utils/cn'
+import { Button } from '@/shared/ui/button'
+import { LoadingState } from '@/shared/ui/loading-state'
+import { cn } from '@/shared/lib/cn'
 
 export interface SopPreviewWorkbenchProps {
   name?: string
