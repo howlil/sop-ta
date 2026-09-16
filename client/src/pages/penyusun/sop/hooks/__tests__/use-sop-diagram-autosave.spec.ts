@@ -18,6 +18,10 @@ const sliceA: DiagramConfigSlice = {
   },
 }
 
+const savedWorkbench = {
+  detail: { diagramRevision: 1 },
+}
+
 describe('useSopDiagramAutosave', () => {
   beforeEach(() => {
     vi.useFakeTimers()
@@ -28,13 +32,14 @@ describe('useSopDiagramAutosave', () => {
   })
 
   it('should_not_schedule_save_when_slice_equals_baseline_after_reset', async () => {
-    const save = vi.fn().mockResolvedValue({})
+    const save = vi.fn().mockResolvedValue(savedWorkbench)
     const { result, rerender } = renderHook(
       ({ slice, enabled }: { slice: DiagramConfigSlice; enabled: boolean }) =>
         useSopDiagramAutosave({
           detailSopId: 'detail-1',
           jenis: 'FLOWCHART',
           slice,
+          expectedRevision: 0,
           save,
           enabled,
           debounceMs: 800,
@@ -55,8 +60,8 @@ describe('useSopDiagramAutosave', () => {
     expect(save).not.toHaveBeenCalled()
   })
 
-  it('should_schedule_save_when_slice_differs_from_baseline', async () => {
-    const save = vi.fn().mockResolvedValue({})
+  it('should_send_expected_revision_when_slice_differs_from_baseline', async () => {
+    const save = vi.fn().mockResolvedValue(savedWorkbench)
     const baseline: DiagramConfigSlice = { layoutSeed: 0, pathOverrides: null }
     const { result, rerender } = renderHook(
       ({ slice }: { slice: DiagramConfigSlice }) =>
@@ -64,6 +69,7 @@ describe('useSopDiagramAutosave', () => {
           detailSopId: 'detail-1',
           jenis: 'FLOWCHART',
           slice,
+          expectedRevision: 0,
           save,
           enabled: true,
           debounceMs: 800,
@@ -82,5 +88,11 @@ describe('useSopDiagramAutosave', () => {
     })
 
     expect(save).toHaveBeenCalledTimes(1)
+    expect(save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        jenis: 'FLOWCHART',
+        expectedRevision: 0,
+      }),
+    )
   })
 })
