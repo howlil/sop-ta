@@ -1,4 +1,4 @@
-import { PinDialog } from '@/components/security/pin-dialog'
+import { PinDialog } from '@/features/auth/ui/pin-dialog'
 
 export interface PinVerificationDialogProps {
   open: boolean
