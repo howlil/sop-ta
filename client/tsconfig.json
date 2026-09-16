@@ -22,7 +22,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "paths": {
-      "@/api/auth": ["./src/features/auth/api.ts"],
       "@/api/evaluasi": ["./src/features/evaluation/index.ts"],
       "@/api/evaluator-anggota": ["./src/features/organization/api/evaluator-anggota.ts"],
       "@/api/kepala-opd": ["./src/features/organization/api/kepala-opd.ts"],
@@ -44,7 +43,6 @@
       "@/components/organisasi/*": ["./src/features/organization/ui/*"],
       "@/components/pengajuan/*": ["./src/features/submission/ui/*"],
       "@/components/person/*": ["./src/shared/person/*"],
-      "@/components/security/*": ["./src/features/auth/ui/*"],
       "@/components/sop/sop-diagram": ["./src/features/sop/ui/sop-diagram/index.ts"],
       "@/components/sop/sop-diagram/*": ["./src/features/sop/diagram/*"],
       "@/components/sop/*": ["./src/features/sop/ui/*"],
