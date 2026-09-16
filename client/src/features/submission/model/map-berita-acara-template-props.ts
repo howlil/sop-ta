@@ -1,4 +1,4 @@
-import type { BeritaAcaraTemplateProps } from '@/components/pengajuan/berita-acara-template'
+import type { BeritaAcaraTemplateProps } from '@/features/submission/ui/berita-acara-template'
 import type { BeritaAcaraEvaluasiView } from '@/types/dto/evaluasi.dto'
 
 export interface MapBeritaAcaraPengajuanInput {
