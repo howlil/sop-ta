@@ -10,7 +10,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Badge } from '@/components/ui/badge'
 import { ListPageLayout } from '@/components/layout/ListPageLayout'
 import { EmptyState } from '@/components/ui/empty-state'
-import { useEvaluatorAnggota } from '@/api/evaluator-anggota'
+import { useEvaluatorAnggota } from '@/features/organization/api/evaluator-anggota'
 import type { EvaluatorAnggota, StatusTim } from '@/types/dto/tim.dto'
 import { RowActions } from '@/components/data/row-actions'
 import {
