@@ -202,11 +202,11 @@ async function buildMinimalReadySop(
   await penyusunAgent
     .patch(`${API}/sop/diagram/${detailSopId}`)
     .send({
-        expectedRevision: 0,
-        jenis: 'FLOWCHART',
-        layoutSeed: 1,
-        pathOverrides: { edges: {}, labels: {} },
-      })
+      expectedRevision: 0,
+      jenis: 'FLOWCHART',
+      layoutSeed: 1,
+      pathOverrides: { edges: {}, labels: {} },
+    })
     .expect(200);
 
   await penyusunAgent
