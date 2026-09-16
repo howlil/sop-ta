@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ListTree, PenLine, RotateCcw } from 'lucide-react'
 import { SOPPreviewTemplate } from '@/features/sop/ui/sop-preview-template'
 import { DetailSOPProsedurEditor } from './DetailSopProsedurEditor'
@@ -9,6 +9,7 @@ import { cn } from '@/shared/lib/cn'
 import { useSopEditor } from '../SopEditorContext'
 import { usePenyusunWorkbench } from '@/features/sop'
 import { usePenyusunDiagramConfig } from '../../hooks/use-penyusun-diagram-config'
+import { useToast } from '@/shared/hooks/use-toast'
 
 export interface DetailSOPPenyusunMainProps {
   activeTab: 'flowchart' | 'bpmn'
@@ -63,6 +64,7 @@ export function DetailSOPPenyusunMain({
     isReadOnly,
   } = useSopEditor()
   const { data: workbench, isLoading: isWorkbenchLoading } = usePenyusunWorkbench(sopDetailId)
+  const { showToast } = useToast()
   const [allowDiagramRender, setAllowDiagramRender] = useState(false)
   const isWorkbenchDataReady = Boolean(workbench?.detail.id) && !isWorkbenchLoading
 
@@ -85,6 +87,18 @@ export function DetailSOPPenyusunMain({
   })
   const isDiagramReady = isWorkbenchDataReady && diagramConfig.isDiagramHydrated
   const diagramMountEnabled = allowDiagramRender && isDiagramReady
+  const lastDiagramErrorRef = useRef<Error | null>(null)
+
+  useEffect(() => {
+    const error = diagramConfig.diagramAutosaveError
+    if (error && error !== lastDiagramErrorRef.current) {
+      lastDiagramErrorRef.current = error
+      showToast(`Gagal autosave diagram SOP: ${error.message}`, 'error')
+    }
+    if (error === null) {
+      lastDiagramErrorRef.current = null
+    }
+  }, [diagramConfig.diagramAutosaveError, showToast])
 
   const handleActiveTabChange = useCallback(
     (tab: 'flowchart' | 'bpmn') => {

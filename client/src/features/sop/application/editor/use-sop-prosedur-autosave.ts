@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useRef } from 'react'
 import {
   useSingleWriterAutosave,
   type SingleWriterAutosaveStatus,
@@ -6,6 +7,7 @@ import type {
   JenisLangkahProsedur,
   LangkahPatchItem,
   PelaksanaPatchItem,
+  PenyusunWorkbenchData,
   SatuanWaktu,
   UpdateSopProsedurDto,
 } from '@/types/dto/sop.dto'
@@ -38,6 +40,8 @@ export interface SopProsedurSnapshot {
   pelaksana: PelaksanaPatchItem[]
   langkah: LangkahPatchItem[]
 }
+
+export type SopProsedurPatch = Omit<UpdateSopProsedurDto, 'expectedRevision'>
 
 export function buildSopProsedurSnapshot(
   implementers: SopEditorImplementer[],
@@ -123,8 +127,8 @@ function langkahListEqual(a: LangkahPatchItem[], b: LangkahPatchItem[]): boolean
 export function diffSopProsedurSnapshots(
   current: SopProsedurSnapshot,
   baseline: SopProsedurSnapshot,
-): UpdateSopProsedurDto {
-  const dto: UpdateSopProsedurDto = {}
+): SopProsedurPatch {
+  const dto: SopProsedurPatch = {}
   if (!pelaksanaListEqual(current.pelaksana, baseline.pelaksana)) {
     dto.pelaksana = current.pelaksana
   }
@@ -137,7 +141,7 @@ export function diffSopProsedurSnapshots(
 function buildPatch(
   current: SopProsedurSnapshot,
   baseline: SopProsedurSnapshot,
-): UpdateSopProsedurDto | null {
+): SopProsedurPatch | null {
   const diff = diffSopProsedurSnapshots(current, baseline)
   return diff.pelaksana !== undefined || diff.langkah !== undefined ? diff : null
 }
@@ -147,7 +151,8 @@ export type SopProsedurAutosaveStatus = SingleWriterAutosaveStatus
 export interface UseSopProsedurAutosaveOptions {
   detailSopId: string | undefined
   snapshot: SopProsedurSnapshot
-  save: (payload: UpdateSopProsedurDto) => Promise<unknown>
+  expectedRevision: number
+  save: (payload: UpdateSopProsedurDto) => Promise<PenyusunWorkbenchData>
   enabled?: boolean
   debounceMs?: number
 }
@@ -169,15 +174,30 @@ export function useSopProsedurAutosave(
   const {
     detailSopId,
     snapshot,
+    expectedRevision,
     save,
     enabled = true,
     debounceMs = DEFAULT_DEBOUNCE_MS,
   } = options
 
+  const revisionRef = useRef(expectedRevision)
+  useEffect(() => {
+    revisionRef.current = expectedRevision
+  }, [detailSopId, expectedRevision])
+
+  const saveWithRevision = useCallback(
+    async (patch: SopProsedurPatch): Promise<PenyusunWorkbenchData> => {
+      const data = await save({ ...patch, expectedRevision: revisionRef.current })
+      revisionRef.current = data.detail.prosedurRevision
+      return data
+    },
+    [save],
+  )
+
   return useSingleWriterAutosave({
     snapshot,
     buildPatch,
-    save,
+    save: saveWithRevision,
     enabled: enabled && Boolean(detailSopId),
     debounceMs,
     savedIndicatorMs: SAVED_INDICATOR_MS,

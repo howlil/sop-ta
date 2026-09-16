@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { UpdateSopDiagramDto } from '@/types/dto/sop.dto'
+import type { PenyusunWorkbenchData, UpdateSopDiagramDto } from '@/types/dto/sop.dto'
 import type { DiagramConfigSlice, JenisDiagramClient } from '@/features/sop/model/diagram-config.mapper'
 import { diagramSliceToPatchPayload, diagramSlicesEqual } from '@/features/sop/model/diagram-config.mapper'
 
@@ -12,7 +12,8 @@ export interface UseSopDiagramAutosaveOptions {
   detailSopId: string | undefined
   jenis: JenisDiagramClient
   slice: DiagramConfigSlice
-  save: (payload: UpdateSopDiagramDto) => Promise<unknown>
+  expectedRevision: number
+  save: (payload: UpdateSopDiagramDto) => Promise<PenyusunWorkbenchData>
   enabled?: boolean
   debounceMs?: number
 }
@@ -31,6 +32,7 @@ export function useSopDiagramAutosave(
     detailSopId,
     jenis,
     slice,
+    expectedRevision,
     save,
     enabled = true,
     debounceMs = DEFAULT_DEBOUNCE_MS,
@@ -42,6 +44,10 @@ export function useSopDiagramAutosave(
   const inFlightRef = useRef<Promise<void> | null>(null)
   const saveRef = useRef(save)
   saveRef.current = save
+  const revisionRef = useRef(expectedRevision)
+  useEffect(() => {
+    revisionRef.current = expectedRevision
+  }, [detailSopId, expectedRevision])
 
   const [status, setStatus] = useState<SopDiagramAutosaveStatus>('idle')
   const [lastError, setLastError] = useState<Error | null>(null)
@@ -74,10 +80,14 @@ export function useSopDiagramAutosave(
     const targetSlice = latestSliceRef.current
     clearSavedTimer()
     setStatus('saving')
-    const payload = diagramSliceToPatchPayload(jenisRef.current, targetSlice)
+    const payload: UpdateSopDiagramDto = {
+      ...diagramSliceToPatchPayload(jenisRef.current, targetSlice),
+      expectedRevision: revisionRef.current,
+    }
     const promise = saveRef
       .current(payload)
-      .then(() => {
+      .then((data) => {
+        revisionRef.current = data.detail.diagramRevision
         baselineRef.current = targetSlice
         setLastError(null)
         setStatus('saved')

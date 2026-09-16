@@ -122,6 +122,7 @@ export function useDetailSopPenyusunData(
   const prosedurAutosave = useSopProsedurAutosave({
     detailSopId: sopDetailId,
     snapshot: prosedurSnapshot,
+    expectedRevision: workbench?.detail.prosedurRevision ?? 0,
     save: updateSopProsedurMutation.mutateAsync,
     enabled: Boolean(sopDetailId) && Boolean(sopDetail) && canEditDetail,
   })

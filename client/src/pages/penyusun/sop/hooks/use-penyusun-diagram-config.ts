@@ -198,6 +198,7 @@ export function usePenyusunDiagramConfig({
     detailSopId,
     jenis: activeJenis,
     slice: activeSlice,
+    expectedRevision: workbench?.detail.diagramRevision ?? 0,
     save: updateDiagramMutation.mutateAsync,
     enabled: enabled && Boolean(detailSopId) && isDiagramHydrated,
   })
@@ -365,5 +366,6 @@ export function usePenyusunDiagramConfig({
     handleResetAllPaths,
     flushDiagramAutosave: diagramAutosave.flush,
     diagramAutosaveStatus: diagramAutosave.status,
+    diagramAutosaveError: diagramAutosave.lastError,
   }
 }
