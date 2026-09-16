@@ -1,21 +1,21 @@
 import { useCallback, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { evaluasiApi } from '@/features/evaluation'
-import { tteApi } from '@/api/tte'
-import type { BeritaAcaraTemplateProps } from '@/components/pengajuan/berita-acara-template'
-import type { SopPreviewWorkbenchProps } from '@/components/pengajuan/sop-document-preview-pane'
-import { queryKeys } from '@/config/query-keys'
-import { useToast } from '@/hooks/use-toast'
-import { downloadBeritaAcaraPdf } from '@/lib/print/download-berita-acara-pdf'
-import { ApiError } from '@/lib/api/api-client'
+import { tteApi } from '@/features/tte/api'
+import type { BeritaAcaraTemplateProps } from '@/features/submission/ui/berita-acara-template'
+import type { SopPreviewWorkbenchProps } from '@/features/submission/ui/sop-document-preview-pane'
+import { queryKeys } from '@/app/config/query-keys'
+import { useToast } from '@/shared/hooks/use-toast'
+import { downloadBeritaAcaraPdf } from '@/shared/print/download-berita-acara-pdf'
+import { ApiError } from '@/shared/api/api-client'
 import {
   printSopArsipFromPreviewProps,
   type PengajuanPrintTarget,
-} from '@/lib/print/pengajuan-print'
+} from '@/shared/print/pengajuan-print'
 import {
   mapBeritaAcaraTemplateProps,
   type MapBeritaAcaraPengajuanInput,
-} from '@/lib/pengajuan/map-berita-acara-template-props'
+} from '@/features/submission/model/map-berita-acara-template-props'
 import type { TTESignaturePayload } from '@/types/dto/tte.dto'
 
 const WORKBENCH_LOGS_LIMIT = 100
