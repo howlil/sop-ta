@@ -13,6 +13,19 @@ permissions:
 jobs:
   patch:
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      JWT_SECRET: ci-jwt-secret-that-is-at-least-32-characters-long
+      JWT_REFRESH_SECRET: ci-refresh-secret-that-is-at-least-32-characters-long
+      TTE_ENCRYPTION_SECRET: ci-tte-secret-that-is-different-and-at-least-32-characters
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_PORT: 3306
+      DATABASE_USER: ci
+      DATABASE_PASSWORD: ci
+      DATABASE_NAME: ci
+      DATABASE_URL: mysql://ci:ci@127.0.0.1:3306/ci
+      PUBLIC_APP_ORIGIN: http://localhost:5173
+      PDF_SIGNING_ENABLED: "false"
     steps:
       - uses: actions/checkout@v4
         with:
