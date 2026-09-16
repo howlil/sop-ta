@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { sopApi } from "@/features/sop/api/client";
-import { queryKeys } from "@/config/query-keys";
-import { useMutationWithToast } from "@/hooks/useMutationWithToast";
-import { invalidateSopEvaluasiWorkflow } from "@/lib/api/cache-invalidation";
-import { useAuthStore } from "@/stores/authStore";
+import { queryKeys } from "@/app/config/query-keys";
+import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
+import { invalidateSopEvaluasiWorkflow } from "@/shared/api/cache-invalidation";
+import { useAuthStore } from "@/app/stores/authStore";
 import type {
   CreatePelaksanaMutationDto,
   Pelaksana,
@@ -14,7 +14,7 @@ import type {
   UpdateSopHeaderDto,
   UpdateSopProsedurDto,
 } from "@/types/dto/sop.dto";
-import { STALE_TIME } from "@/utils/constants";
+import { STALE_TIME } from "@/shared/lib/constants";
 
 async function syncSopWorkbenchAfterStatusChange(
   queryClient: ReturnType<typeof useQueryClient>,
