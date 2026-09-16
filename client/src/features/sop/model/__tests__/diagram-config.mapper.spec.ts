@@ -8,7 +8,7 @@ import {
   buildConnectionEdgeMetas,
   diagramSlicesEqual,
   resetDiagramSlicePaths,
-} from '@/lib/sop/diagram-config.mapper'
+} from '@/features/sop/model/diagram-config.mapper'
 
 describe('diagram-config.mapper', () => {
   it('should_build_and_parse_edge_key', () => {

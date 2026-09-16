@@ -2,9 +2,9 @@
  * Select filter status SOP — satu komponen dengan STATUS_SOP_ALL (sesuai StatusBadge & types/sop).
  * Dipakai di Filter SOP (Manajemen SOP, Daftar SOP, SOP Saya).
  */
-import { Select } from '@/components/ui/select'
-import { SOP_STATUS_FILTER_OPTIONS } from '@/utils/constants'
-import { cn } from '@/utils/cn'
+import { Select } from '@/shared/ui/select'
+import { SOP_STATUS_FILTER_OPTIONS } from '@/shared/lib/constants'
+import { cn } from '@/shared/lib/cn'
 
 export interface SOPStatusFilterSelectProps {
   id?: string

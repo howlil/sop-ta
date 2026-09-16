@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import { PengajuanStatusBadge } from '@/components/status/pengajuan-status-badge'
-import { cn } from '@/utils/cn'
+import { PengajuanStatusBadge } from '@/shared/status/ui/pengajuan-status-badge'
+import { cn } from '@/shared/lib/cn'
 
 export interface DetailSummaryMetadataItem {
   label: string

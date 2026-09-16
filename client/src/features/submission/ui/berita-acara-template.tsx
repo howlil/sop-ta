@@ -1,4 +1,4 @@
-import { TTESignatureBlock } from "@/components/tte/tte-signature-block";
+import { TTESignatureBlock } from "@/features/tte/ui/tte-signature-block";
 import {
   BERITA_ACARA_KOP,
   BERITA_ACARA_LABEL_BIRO,
@@ -6,10 +6,10 @@ import {
   BERITA_ACARA_PARAGRAF,
   BERITA_ACARA_PENUTUP,
   BERITA_ACARA_POIN_EVALUASI,
-} from "@/lib/pengajuan/berita-acara-static-content";
-import { formatTempatTanggal } from "@/utils/format-date";
+} from "@/features/submission/model/berita-acara-static-content";
+import { formatTempatTanggal } from "@/shared/lib/format-date";
 import type { TTESignaturePayload } from "@/types/dto/tte.dto";
-import { SOP_INSTITUTION_LOGO_URL } from "@/lib/sop/sop-institution-logo";
+import { SOP_INSTITUTION_LOGO_URL } from "@/features/sop/model/sop-institution-logo";
 
 export interface BeritaAcaraTemplateProps {
   /** Nama OPD (e.g. "Dinas Koperasi dan UKM") */

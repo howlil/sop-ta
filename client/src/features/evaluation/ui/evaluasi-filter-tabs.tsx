@@ -1,4 +1,4 @@
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 
 export type EvaluasiFilterTab = 'pengajuan' | 'riwayat'
 

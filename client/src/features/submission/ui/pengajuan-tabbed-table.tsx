@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react'
 import { FileSignature } from 'lucide-react'
-import { DataSurface } from '@/components/data/data-surface'
-import { Table } from '@/components/ui/data-table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { EmptyState } from '@/components/ui/empty-state'
-import { Skeleton } from '@/components/ui/skeleton'
+import { DataSurface } from '@/shared/data/data-surface'
+import { Table } from '@/shared/ui/data-table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+import { EmptyState } from '@/shared/ui/empty-state'
+import { Skeleton } from '@/shared/ui/skeleton'
 
 function TableLoadingRows({
   rows = 5,

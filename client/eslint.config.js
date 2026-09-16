@@ -6,11 +6,25 @@ import reactRefreshPlugin from 'eslint-plugin-react-refresh'
 
 const legacyCoreAliases = [
   '@/api/*',
+  '@/components/*',
   '@/hooks/*',
   '@/lib/*',
   '@/utils/*',
   '@/config/*',
   '@/stores/*',
+]
+
+const featureRestrictedImports = [
+  'error',
+  {
+    patterns: [
+      {
+        group: [...legacyCoreAliases, '@/pages/*', '@/routes/*'],
+        message:
+          'Feature modules must use canonical app/features/shared ownership imports and must not depend on pages or routes.',
+      },
+    ],
+  },
 ]
 
 export default [
@@ -80,41 +94,7 @@ export default [
   {
     files: ['src/features/**/*.{ts,tsx}'],
     rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
-              group: ['@/pages/*', '@/routes/*'],
-              message:
-                'Feature modules are inner ownership and must not depend on pages or routes.',
-            },
-          ],
-        },
-      ],
-    },
-  },
-  {
-    files: [
-      'src/features/**/api.{ts,tsx}',
-      'src/features/**/api/**/*.{ts,tsx}',
-      'src/features/**/application/**/*.{ts,tsx}',
-      'src/features/**/hooks/**/*.{ts,tsx}',
-      'src/features/**/model/**/*.{ts,tsx}',
-    ],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
-              group: [...legacyCoreAliases, '@/pages/*', '@/routes/*'],
-              message:
-                'Feature core modules must use canonical app/features/shared ownership imports.',
-            },
-          ],
-        },
-      ],
+      'no-restricted-imports': featureRestrictedImports,
     },
   },
   {
@@ -138,6 +118,15 @@ export default [
     files: ['src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}'],
     rules: {
       'no-restricted-imports': 'off',
+    },
+  },
+  {
+    files: [
+      'src/features/**/*.test.{ts,tsx}',
+      'src/features/**/*.spec.{ts,tsx}',
+    ],
+    rules: {
+      'no-restricted-imports': featureRestrictedImports,
     },
   },
 ]

@@ -1,4 +1,4 @@
-import type { Side } from '@/components/sop/sop-diagram/core/route/shared/connector-side.types'
+import type { Side } from '@/features/sop/diagram/core/route/shared/connector-side.types'
 import {
   normalizeOrthogonalPath,
   routeOnCorridor,
@@ -6,13 +6,13 @@ import {
   type CorridorGraph,
   type Point,
   type Rect,
-} from '@/components/sop/sop-diagram/core/route/shared/orthogonalRouter'
-import { pathCrossesShapeBodies } from '@/components/sop/sop-diagram/core/route/shared/shape-body-path.util'
+} from '@/features/sop/diagram/core/route/shared/orthogonalRouter'
+import { pathCrossesShapeBodies } from '@/features/sop/diagram/core/route/shared/shape-body-path.util'
 import {
   bpmnPathHitsObstacle,
   routeBpmn,
   type BpmnRouteOptions,
-} from '@/components/sop/sop-diagram/core/route/bpmn/bpmnRouter'
+} from '@/features/sop/diagram/core/route/bpmn/bpmnRouter'
 import { simplifyOrthogonalPath, type PathObstacleCheck } from './orthogonal-path-edit.util'
 
 export type PathGuardDiagramKind = 'flowchart' | 'bpmn'
@@ -21,7 +21,7 @@ export type PathShapeCollisionPolicy = 'block' | 'warn'
 const DEFAULT_CLEARANCE = 3
 const FLOWCHART_SHAPE_MARGIN = 16
 
-export { pathCrossesShapeBodies } from '@/components/sop/sop-diagram/core/route/shared/shape-body-path.util'
+export { pathCrossesShapeBodies } from '@/features/sop/diagram/core/route/shared/shape-body-path.util'
 
 export interface PathShapeGuardCheckInput {
   kind: PathGuardDiagramKind

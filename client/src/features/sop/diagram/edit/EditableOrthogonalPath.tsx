@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
-import type { Side } from '@/components/sop/sop-diagram/core/route/shared/connector-side.types'
-import type { ArrowPathPoint } from '@/components/sop/sop-diagram/core/sopDiagramTypes'
+import type { Side } from '@/features/sop/diagram/core/route/shared/connector-side.types'
+import type { ArrowPathPoint } from '@/features/sop/diagram/core/sopDiagramTypes'
 import {
   alignEndpointSegmentPreservingEndpoint,
   clientToSvgPoint,
@@ -349,8 +349,7 @@ function EditableOrthogonalPathInner({
       if (!endpoint) return moved
       const shapeRect = getAllowedShapeForEndpoint(targets, pointKind)
       if (shapeRect) {
-        const oppositeIndex =
-          endpointIndex === 0 ? moved.length - 1 : 0
+        const oppositeIndex = endpointIndex === 0 ? moved.length - 1 : 0
         const oppositePoint = moved[oppositeIndex]
         const visualAnchors =
           anchors.length > 0

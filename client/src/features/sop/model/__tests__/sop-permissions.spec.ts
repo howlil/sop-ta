@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ROLES } from '@/utils/constants'
+import { ROLES } from '@/shared/lib/constants'
 import {
   canHapusSopDraftAwal,
   canPjPenyusunRunCoordinatorActions,

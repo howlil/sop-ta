@@ -1,12 +1,12 @@
-import type { Point } from '@/components/sop/sop-diagram/core/route/shared/orthogonalRouter'
-import { normalizeOrthogonalPath } from '@/components/sop/sop-diagram/core/route/shared/orthogonal-path-normalization.util'
+import type { Point } from '@/features/sop/diagram/core/route/shared/orthogonalRouter'
+import { normalizeOrthogonalPath } from '@/features/sop/diagram/core/route/shared/orthogonal-path-normalization.util'
 
 export {
   simplifyOrthogonalPath,
-} from '@/components/sop/sop-diagram/core/route/shared/orthogonal-path-normalization.util'
+} from '@/features/sop/diagram/core/route/shared/orthogonal-path-normalization.util'
 export type {
   PathObstacleCheck,
-} from '@/components/sop/sop-diagram/core/route/shared/orthogonal-path-normalization.util'
+} from '@/features/sop/diagram/core/route/shared/orthogonal-path-normalization.util'
 
 const GRID_SNAP = 4
 
@@ -72,17 +72,12 @@ function applyWaypointDragDelta(
     const horizPrev = Math.abs(prev.y - next[index]!.y) < 1
     const horizNext = Math.abs(nextPt.y - next[index]!.y) < 1
     if (vertPrev && vertNext) {
-      // Both neighbors are on a vertical line — only allow vertical movement
       nx = prev.x
       ny = snapToGrid(ny)
     } else if (horizPrev && horizNext) {
-      // Both neighbors are on a horizontal line — only allow horizontal movement
       nx = snapToGrid(nx)
       ny = next[index]!.y
     } else if ((horizPrev && vertNext) || (vertPrev && horizNext)) {
-      // Corner waypoint: one horizontal segment, one vertical segment.
-      // Allow movement along the dominant drag direction and adjust the
-      // appropriate neighbor axis to keep the path orthogonal.
       if (Math.abs(dx) >= Math.abs(dy)) {
         nx = snapToGrid(nx)
         ny = next[index]!.y
@@ -95,11 +90,9 @@ function applyWaypointDragDelta(
         if (horizNext && nextPt) nextPt.y = ny
       }
     } else if (horizPrev || horizNext) {
-      // One horizontal neighbor, other is diagonal/degenerate — allow horizontal movement
       nx = snapToGrid(nx)
       ny = next[index]!.y
     } else {
-      // One or both vertical neighbors — allow vertical movement
       nx = next[index]!.x
       ny = snapToGrid(ny)
     }

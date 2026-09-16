@@ -2,7 +2,7 @@ import {
   getBuatVersiDariRiwayatBlockingReason,
   getNextSopVersion,
   isTerminalVersionStatus,
-} from '@/lib/sop/sop-version-domain'
+} from '@/features/sop/model/sop-version-domain'
 
 describe('sop version domain', () => {
   it('menghitung versi baru dari nomor tertinggi, bukan dari versi sumber', () => {

@@ -4,8 +4,8 @@ import type {
   LabelConfig,
   LabelPositions,
   SOPStep,
-} from '@/components/sop/sop-diagram/core/sopDiagramTypes'
-import { isYaLabel, isTidakLabel, rowsToSteps } from '@/components/sop/sop-diagram/core/sopDiagramTypes'
+} from '@/features/sop/diagram/core/sopDiagramTypes'
+import { isYaLabel, isTidakLabel, rowsToSteps } from '@/features/sop/diagram/core/sopDiagramTypes'
 import type { ProsedurRow } from '@/types/ui/sop'
 
 export type CabangDiagram = 'UTAMA' | 'YA' | 'TIDAK'

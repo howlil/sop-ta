@@ -1,4 +1,4 @@
-import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 
 export interface CabutSopDialogProps {
   open: boolean

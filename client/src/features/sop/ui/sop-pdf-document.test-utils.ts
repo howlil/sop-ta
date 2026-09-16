@@ -1,4 +1,4 @@
-import type { SopPdfDocumentProps } from '@/components/sop/sop-pdf-document'
+import type { SopPdfDocumentProps } from '@/features/sop/ui/sop-pdf-document'
 
 /** Util tes untuk logika layout PDF SOP (dieksport dari komponen dokumen). */
 export function resolvePrintSections(props: SopPdfDocumentProps): {

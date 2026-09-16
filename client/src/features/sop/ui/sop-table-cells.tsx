@@ -1,5 +1,5 @@
-import { SopStatusBadge } from '@/components/status/sop-status-badge'
-import { formatDateIdLong } from '@/utils/format-date'
+import { SopStatusBadge } from '@/shared/status/ui/sop-status-badge'
+import { formatDateIdLong } from '@/shared/lib/format-date'
 
 export function SopPrimaryCell({ title }: { title: string }) {
   return <p className="font-medium text-foreground">{title}</p>

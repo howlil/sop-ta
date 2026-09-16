@@ -8,10 +8,10 @@ import {
 import { SOPDiagramFlowchart } from "./sop-diagram";
 import { SOPDiagramBpmn } from "./sop-diagram";
 import { rowsToSteps, toDiagramProsedurRows } from "./sop-diagram";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import type { TTESignaturePayload } from "@/types/dto/tte.dto";
 import type { ProsedurRow } from "@/types/ui/sop";
-import { getInitialSopDetailImplementers } from "@/lib/sop/detailSop.initial-state";
+import { getInitialSopDetailImplementers } from "@/features/sop/model/detailSop.initial-state";
 import { SOP_DOCUMENT_CONTENT_WRAPPER_CLASS } from "./sop-diagram";
 
 const DEFAULT_METADATA: SOPHeaderInfoProps = {
@@ -37,8 +37,8 @@ const DEFAULT_IMPLEMENTERS = getInitialSopDetailImplementers().map((p) => ({
   name: p.nama,
 }));
 
-import type { ArrowConfig, LabelConfig } from "@/components/sop/sop-diagram/core/sopDiagramTypes";
-import type { PathUpdatedPayload } from "@/components/sop/sop-diagram/shapes/FlowchartArrowConnector";
+import type { ArrowConfig, LabelConfig } from "@/features/sop/diagram/core/sopDiagramTypes";
+import type { PathUpdatedPayload } from "@/features/sop/diagram/shapes/FlowchartArrowConnector";
 
 interface SopPreviewOptions {
   hideDiagramTabs?: boolean;

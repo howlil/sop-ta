@@ -1,8 +1,8 @@
 import {
   BeritaAcaraTemplate,
   type BeritaAcaraTemplateProps,
-} from '@/components/pengajuan/berita-acara-template'
-import { LoadingState } from '@/components/ui/loading-state'
+} from '@/features/submission/ui/berita-acara-template'
+import { LoadingState } from '@/shared/ui/loading-state'
 
 export interface BeritaAcaraPreviewPaneProps {
   isLoading: boolean

@@ -1,18 +1,18 @@
 import { useMemo } from 'react'
 import type { ReactNode } from 'react'
 import { Building2 } from 'lucide-react'
-import { Table } from '@/components/ui/data-table'
-import { EmptyState } from '@/components/ui/empty-state'
+import { Table } from '@/shared/ui/data-table'
+import { EmptyState } from '@/shared/ui/empty-state'
 import {
   ExpandableGroupedTable,
   GroupedTableState,
-} from '@/components/data/expandable-grouped-table'
-import { PengajuanStatusBadge } from '@/components/status/pengajuan-status-badge'
+} from '@/shared/data/expandable-grouped-table'
+import { PengajuanStatusBadge } from '@/shared/status/ui/pengajuan-status-badge'
 import type {
   PaginationMetaDto,
   PengajuanEvaluasiRingkasRow,
 } from '@/types/dto/evaluasi.dto'
-import { formatDateId } from '@/utils/format-date'
+import { formatDateId } from '@/shared/lib/format-date'
 
 type PengajuanGroupByOpd = {
   opdId: string

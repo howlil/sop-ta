@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react'
 import type { StatusPengajuanEvaluasi } from '@/types/dto/evaluasi.dto'
 import { buildEvaluasiWorkflowSteps } from '@/features/evaluation/model/evaluasi-workflow-stepper'
-import { cn } from '@/utils/cn'
+import { cn } from '@/shared/lib/cn'
 
 export interface EvaluasiWorkflowStepperProps {
   status: StatusPengajuanEvaluasi | string
