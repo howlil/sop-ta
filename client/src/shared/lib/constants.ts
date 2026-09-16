@@ -56,6 +56,7 @@ export const ROUTES = {
   },
   PENYUSUN: {
     ME: "/penyusun/me",
+    PEKERJAAN: "/penyusun",
     SOP: "/penyusun/sop",
     DETAIL_SOP: "/penyusun/sop/$id",
     PELAKSANA: "/penyusun/pelaksana",
@@ -65,6 +66,7 @@ export const ROUTES = {
   },
   KEPALA_OPD: {
     ME: "/kepala-opd/me",
+    PEKERJAAN: "/kepala-opd",
     SOP: "/kepala-opd/sop",
     DETAIL_SOP: "/kepala-opd/sop/$id",
     PENGAJUAN: "/kepala-opd/pengajuan",
@@ -72,6 +74,7 @@ export const ROUTES = {
   },
   PJ_EVALUATOR: {
     ME: "/pj-evaluator/me",
+    PEKERJAAN: "/pj-evaluator",
     GRAFIK_EVALUASI: "/pj-evaluator/grafik-evaluasi",
     OPD: "/pj-evaluator/opd",
     PENYUSUN: "/pj-evaluator/penyusun",
@@ -82,6 +85,7 @@ export const ROUTES = {
   /** Workspace peran EVALUATOR (bukan PJ dashboard). */
   EVALUATOR: {
     ME: "/evaluator/me",
+    PEKERJAAN: "/evaluator",
     EVALUASI: "/evaluator/evaluasi",
     DETAIL_EVALUASI_PENGAJUAN: "/evaluator/evaluasi/pengajuan/$id",
   },

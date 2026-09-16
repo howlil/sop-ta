@@ -6,6 +6,7 @@ export const SOP_EVALUASI_WORKFLOW_QUERY_KEYS: readonly QueryKey[] = [
   queryKeys.sop,
   queryKeys.detailSop,
   queryKeys.evaluasi,
+  queryKeys.workItems,
 ]
 
 /**

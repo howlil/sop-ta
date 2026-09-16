@@ -1,13 +1,6 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { ROUTES } from '@/utils/constants'
+import { createFileRoute } from '@tanstack/react-router'
+import { WorkItemsPage } from '@/pages/work-items/WorkItemsPage'
 
 export const Route = createFileRoute('/kepala-opd/')({
-  beforeLoad: () => {
-    throw redirect({ to: ROUTES.KEPALA_OPD.SOP })
-  },
-  component: RedirectPlaceholder,
+  component: WorkItemsPage,
 })
-
-function RedirectPlaceholder() {
-  return null
-}

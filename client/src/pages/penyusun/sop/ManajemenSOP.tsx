@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Eye,
   Edit,
@@ -51,7 +51,11 @@ const formatFilterDate = (value: string) =>
     year: "numeric",
   }).format(new Date(`${value}T00:00:00`));
 
-export function ManajemenSOP() {
+export interface ManajemenSOPProps {
+  openEvaluationOnLoad?: boolean;
+}
+
+export function ManajemenSOP({ openEvaluationOnLoad = false }: ManajemenSOPProps) {
   useDocumentTitle("Manajemen SOP — Penyusun");
   const filterStatusId = "filter-status-sop";
   const filterTanggalDariId = "filter-tanggal-dari-sop";
@@ -77,10 +81,16 @@ export function ManajemenSOP() {
   });
 
   const [isBukaPengajuanEvaluasiDialogOpen, setIsBukaPengajuanEvaluasiDialogOpen] =
-    useState(false);
+    useState(openEvaluationOnLoad);
   const [isBuatSOPDialogOpen, setIsBuatSOPDialogOpen] = useState(false);
   const [sopDraftToDelete, setSopDraftToDelete] = useState<SopDaftarRow | null>(null);
   const hapusSopDraft = useHapusSopDraftAwal();
+
+  useEffect(() => {
+    if (openEvaluationOnLoad && canPjPenyusunRunCoordinatorActions(role ?? "")) {
+      setIsBukaPengajuanEvaluasiDialogOpen(true);
+    }
+  }, [openEvaluationOnLoad, role]);
 
   const statusLabel = filters.filterStatus
     ? SOP_STATUS_FILTER_OPTIONS.find((option) => option.value === filters.filterStatus)?.label ??

@@ -26,6 +26,9 @@ export const queryKeys = {
     search?: string
   }) => ['users', 'list', params] as const,
 
+  // Actionable work queue
+  workItems: ['work-items'] as const,
+
   /** Manajemen Kepala OPD (Biro) — GET/PATCH/DELETE `/kepala-opd` */
   kepalaOpd: ['kepalaOpd'] as const,
   /** GET `/kepala-opd` — termasuk query `search` */
