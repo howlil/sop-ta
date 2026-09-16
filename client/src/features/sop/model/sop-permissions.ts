@@ -1,4 +1,4 @@
-import { ROLES } from '@/utils/constants'
+import { ROLES } from '@/shared/lib/constants'
 
 export function canPjPenyusunRunCoordinatorActions(role: string): boolean {
   return role === ROLES.PJ_PENYUSUN
