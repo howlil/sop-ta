@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JenisDiagram, Prisma } from '../../../generated/prisma';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import type { DiagramPathOverridesJson } from './diagram-edge-key.util';
+import { SopEditConflictError } from '../shared/sop-edit-conflict.error';
 import {
   filterFlattenedDiagramRowsByLangkahIds,
   flattenDiagramPathOverridesToRows,
@@ -12,6 +13,7 @@ export interface UpsertDiagramConfigInput {
   jenis: JenisDiagram;
   layoutSeed?: number;
   pathOverrides?: DiagramPathOverridesJson | null;
+  expectedRevision: number;
 }
 
 @Injectable()
@@ -70,6 +72,14 @@ export class SopDiagramRepository {
 
   async upsertConfig(input: UpsertDiagramConfigInput) {
     return this.prisma.$transaction(async (tx) => {
+      const claimed = await tx.detailSOP.updateMany({
+        where: { detailSopId: input.detailSopId, diagramRevision: input.expectedRevision },
+        data: { diagramRevision: { increment: 1 } },
+      });
+      if (claimed.count !== 1) {
+        throw new SopEditConflictError('DIAGRAM');
+      }
+
       const data: Prisma.KonfigurasiDiagramSOPUpdateInput = {};
       if (input.layoutSeed !== undefined) {
         data.layoutSeed = input.layoutSeed;

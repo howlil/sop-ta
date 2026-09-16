@@ -133,6 +133,8 @@ export function mapWorkbenchPayload(
     status: statusDisplay.value,
     statusLabel: statusDisplay.label,
     versi: row.versi,
+    prosedurRevision: row.prosedurRevision,
+    diagramRevision: row.diagramRevision,
     revisiDariDetailSopId: row.revisiDariDetailSopId,
     revisiDariVersi: row.revisiDari?.versi ?? null,
     nomorSOP: row.nomorSOP,
