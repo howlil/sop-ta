@@ -1,23 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useNavigate } from '@tanstack/react-router'
 import { DetailPageLayout } from '@/components/layout/DetailPageLayout'
-import { useAppRole } from '@/hooks/use-app-role'
+import { useAppRole } from '@/features/auth/hooks/use-app-role'
 import { useToast } from '@/hooks/use-toast'
 import { ROUTES } from '@/utils/constants'
 import { useUmpanBalikEvaluasi } from '@/features/evaluation'
 import { getKirimUlangBlockingReason } from '@/features/evaluation/model/evaluasi-domain'
-import { getKirimUlangRoleBlockingReason } from '@/lib/sop/sop-permissions'
+import { getKirimUlangRoleBlockingReason } from '@/features/sop/model/sop-permissions'
 import {
   useBuatVersiBaru,
   useDetailSopPenyusun,
   useRiwayatVersi,
-} from '@/api/sop'
+} from '@/features/sop'
 import { BuatVersiBaruDialog } from '@/pages/penyusun/sop/components/BuatVersiBaruDialog'
 import {
   getBuatVersiDariRiwayatBlockingReason,
   getNextSopVersion,
   isTerminalVersionStatus,
-} from '@/lib/sop/sop-version-domain'
+} from '@/features/sop/model/sop-version-domain'
 import type { SopRiwayatVersiRow } from '@/types/dto/sop.dto'
 import type { SopHeaderAutosaveStatus } from '@/pages/penyusun/sop/hooks/use-sop-header-autosave'
 import type { SopProsedurAutosaveStatus } from '@/pages/penyusun/sop/hooks/use-sop-prosedur-autosave'
