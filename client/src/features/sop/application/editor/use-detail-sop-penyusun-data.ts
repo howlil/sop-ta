@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { usePeraturan } from '@/api/peraturan'
-import { usePenyusunWorkbench, useSop } from '@/api/sop-queries'
+import { usePeraturan } from '@/features/regulations/api'
+import { usePenyusunWorkbench, useSop } from '@/features/sop/api/queries'
 import {
   usePelaksana,
   useSopStatus,
   useUpdateSopHeader,
   useUpdateSopProsedur,
-} from '@/api/sop-mutations'
+} from '@/features/sop/api/mutations'
 import {
   buildSopHeaderSnapshot,
   useSopHeaderAutosave,
@@ -20,8 +20,8 @@ import {
 import {
   transformLangkahToProsedurRow,
   transformSopDetailToMetadata,
-} from '@/lib/sop/detailSop.mappers'
-import { hasSopWorkflowAction } from '@/lib/sop/sop-workflow'
+} from '@/features/sop/model/detailSop.mappers'
+import { hasSopWorkflowAction } from '@/features/sop/model/sop-workflow'
 import { DEFAULT_SOP_STATUS } from '@/types/dto/sop.dto'
 import type { Peraturan } from '@/types/dto/peraturan.dto'
 import type { PenyusunWorkbenchLogEdit, StatusSOP } from '@/types/dto/sop.dto'
