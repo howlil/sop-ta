@@ -25,11 +25,7 @@
       "@/api/evaluasi": ["./src/features/evaluation/index.ts"],
       "@/api/notifications": ["./src/features/notifications/api.ts"],
       "@/api/peraturan": ["./src/features/regulations/api.ts"],
-      "@/api/sop": ["./src/features/sop/index.ts"],
-      "@/api/sop-client": ["./src/features/sop/api/client.ts"],
-      "@/api/sop-mutations": ["./src/features/sop/api/mutations.ts"],
       "@/api/sop-public": ["./src/features/sop/api/public.ts"],
-      "@/api/sop-queries": ["./src/features/sop/api/queries.ts"],
       "@/api/tte": ["./src/features/tte/api.ts"],
 
       "@/components/data/*": ["./src/shared/data/*"],
@@ -45,15 +41,12 @@
       "@/components/tte/*": ["./src/features/tte/ui/*"],
       "@/components/ui/*": ["./src/shared/ui/*"],
 
-      "@/hooks/use-app-role": ["./src/features/auth/hooks/use-app-role.ts"],
       "@/hooks/use-debounced-value": ["./src/shared/hooks/use-debounced-value.ts"],
       "@/hooks/use-document-title": ["./src/shared/hooks/use-document-title.ts"],
       "@/hooks/use-in-app-notifications": ["./src/features/notifications/hooks/use-in-app-notifications.ts"],
       "@/hooks/use-mutation-with-toast": ["./src/shared/hooks/use-mutation-with-toast.ts"],
       "@/hooks/use-require-tte-setup": ["./src/features/tte/hooks/use-require-tte-setup.ts"],
-      "@/hooks/use-sop-preview-diagram-state": ["./src/features/sop/hooks/use-sop-preview-diagram-state.ts"],
       "@/hooks/use-toast": ["./src/shared/hooks/use-toast.ts"],
-      "@/hooks/useAppRole": ["./src/features/auth/hooks/use-app-role.ts"],
       "@/hooks/useMutationWithToast": ["./src/shared/hooks/use-mutation-with-toast.ts"],
       "@/hooks/useToast": ["./src/shared/hooks/use-toast.ts"],
 
