@@ -287,12 +287,22 @@ Default:
 main
   → one coherent task branch
   → implement + verify on same branch
-  → one PR
-  → current-head verification
-  → squash merge
+  → one PR targeting main
+  → current-head CI / required verification
+  → squash merge to main
+  → task selesai hanya setelah main berisi perubahan
 ```
 
-- Jangan membuat branch baru untuk review fix dari task yang sama.
+Rules:
+
+- Semua perubahan repository harus masuk melalui **Pull Request yang menargetkan `main`**. Jangan direct-push perubahan task ke `main`.
+- **Default terminal state setiap task branch adalah merged ke `main`**, bukan PR/branch yang dibiarkan terbuka.
+- Jika PR current-head sudah memenuhi requested outcome, required checks/CI green, dan tidak ada unresolved material risk, **merge PR ke `main` pada task yang sama tanpa menunggu konfirmasi tambahan**.
+- Gunakan **squash merge** sebagai default agar `main` tetap linear dan coherent.
+- Jika branch tertinggal dari `main`, update/rebase branch ke latest `main`, jalankan ulang verification yang relevan, lalu merge setelah green.
+- Jangan membuat branch baru untuk review fix dari task yang sama; perbaiki branch/PR yang sama sampai merge-ready.
+- Setelah merge, anggap `main` sebagai source of truth. Branch task bersifat temporary dan tidak boleh menjadi alternate long-lived state.
+- Jangan merge branch obsolete, duplicate, conflicted dengan requirement saat ini, atau melanggar hard boundary hanya karena branch tersebut ada. Tutup/rework branch seperti itu dan pertahankan `main` sebagai canonical state.
 - Jangan menghasilkan milestone/plan/spec hanya untuk ceremony.
 - Commit count, branch count, LOC, dan jumlah agent bukan productivity metric.
 - Merge hanya setelah graph/outcome yang diminta tercapai dan evidence sesuai risk tersedia.
