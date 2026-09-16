@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react'
-import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { useDebouncedValue } from '@/shared/hooks/use-debounced-value'
 import {
   BarChart3,
   Building2,
@@ -9,10 +9,10 @@ import {
   ArrowDownRight,
   ChevronDown,
 } from 'lucide-react'
-import { ListPageLayout } from '@/components/layout/ListPageLayout'
-import { LoadingState } from '@/components/ui/loading-state'
+import { ListPageLayout } from '@/app/layout/ListPageLayout'
+import { LoadingState } from '@/shared/ui/loading-state'
 import { GrafikEvaluasiTahunPicker } from '@/pages/pj-evaluator/grafik-evaluasi/grafik-evaluasi-tahun-picker'
-import { useEvaluasiGrafikTahunan } from "@/api/evaluasi";
+import { useEvaluasiGrafikTahunan } from "@/features/evaluation";
 import type { EvaluasiGrafikTahunanQueryParams } from '@/types/dto/evaluasi.dto'
 import { NILAI_OPD_SKOR_MAX } from '@/types/dto/evaluasi.dto'
 

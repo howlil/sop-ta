@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import type { LucideIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/utils/cn'
+import { Button } from '@/shared/ui/button'
+import { cn } from '@/shared/lib/cn'
 
 export interface IconActionButtonProps {
   icon: LucideIcon

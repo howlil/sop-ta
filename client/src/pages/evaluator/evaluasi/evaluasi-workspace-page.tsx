@@ -3,19 +3,19 @@
  * Data/action orchestration dimiliki page controller; komponen ini hanya render/wiring.
  */
 import { Send, List, XCircle } from 'lucide-react'
-import { SOPPreviewTemplate } from '@/components/sop/sop-preview-template'
-import { PengajuanEvaluasiStatusHeader } from '@/components/evaluasi/pengajuan-evaluasi-status-header'
-import { SOPListCard } from '@/components/sop/sop-list-card'
-import { Button } from '@/components/ui/button'
-import { DetailPageLayout } from '@/components/layout/DetailPageLayout'
+import { SOPPreviewTemplate } from '@/features/sop/ui/sop-preview-template'
+import { PengajuanEvaluasiStatusHeader } from '@/features/evaluation/ui/pengajuan-evaluasi-status-header'
+import { SOPListCard } from '@/features/sop/ui/sop-list-card'
+import { Button } from '@/shared/ui/button'
+import { DetailPageLayout } from '@/app/layout/DetailPageLayout'
 import {
   CollapsedStripButton,
   CollapsibleSidePanel,
   CollapsibleSidePanelContent,
   CollapsibleSidePanelHeader,
   SimplePanelHeader,
-} from '@/components/ui/collapsible-side-panel'
-import { formatDateId } from '@/utils/format-date'
+} from '@/shared/ui/collapsible-side-panel'
+import { formatDateId } from '@/shared/lib/format-date'
 import { DetailEvaluasiOPDSubmitDialog } from './components/DetailEvaluasiOPDSubmitDialog'
 import { TolakPengajuanEvaluasiDialog } from './components/TolakPengajuanEvaluasiDialog'
 import { DetailEvaluasiOPDFormPanel } from './components/DetailEvaluasiOPDFormPanel'

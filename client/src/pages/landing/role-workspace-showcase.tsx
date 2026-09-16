@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { cn } from '@/utils/cn'
+import { cn } from '@/shared/lib/cn'
 
 export type LandingRoleId = 'penyusun' | 'pj-penyusun' | 'evaluator' | 'pj-evaluator' | 'kepala-opd'
 

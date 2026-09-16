@@ -1,10 +1,10 @@
 import { QueryClient } from '@tanstack/react-query'
 import { describe, expect, it, vi } from 'vitest'
-import { queryKeys } from '@/config/query-keys'
+import { queryKeys } from '@/app/config/query-keys'
 import {
   invalidateSopEvaluasiWorkflow,
   SOP_EVALUASI_WORKFLOW_REFRESH_OPTIONS,
-} from '@/lib/api/cache-invalidation'
+} from '@/shared/api/cache-invalidation'
 
 describe('invalidateSopEvaluasiWorkflow', () => {
   it('invalidates all workflow cache prefixes without refetch during autosave', async () => {

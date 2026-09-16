@@ -3,9 +3,9 @@
  * Replaces the repeated pattern in DetailSOPMetadataPanel.
  */
 import { Plus } from 'lucide-react'
-import { AutoResizeTextarea } from '@/components/ui/auto-resize-textarea'
-import { Button } from '@/components/ui/button'
-import { FieldWithCornerRemoveButton } from '@/components/ui/field-with-corner-remove-button'
+import { AutoResizeTextarea } from '@/shared/ui/auto-resize-textarea'
+import { Button } from '@/shared/ui/button'
+import { FieldWithCornerRemoveButton } from '@/shared/ui/field-with-corner-remove-button'
 
 interface AddItemIconButtonProps {
   onClick: () => void

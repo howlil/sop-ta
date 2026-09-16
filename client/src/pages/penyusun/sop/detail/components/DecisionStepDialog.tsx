@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button'
-import { FormField } from '@/components/ui/form-field'
-import { Select } from '@/components/ui/select'
+import { Button } from '@/shared/ui/button'
+import { FormField } from '@/shared/ui/form-field'
+import { Select } from '@/shared/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog'
+} from '@/shared/ui/dialog'
 import type { ProsedurRow } from '@/types/ui/sop'
 
 interface DecisionStepDialogProps {

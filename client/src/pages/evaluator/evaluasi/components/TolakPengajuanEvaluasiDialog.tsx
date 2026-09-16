@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { XCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/shared/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -8,9 +8,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+} from '@/shared/ui/dialog'
+import { Label } from '@/shared/ui/label'
+import { Textarea } from '@/shared/ui/textarea'
 
 const MAKS_ALASAN = 2000
 

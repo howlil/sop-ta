@@ -3,9 +3,9 @@
  */
 import { useState } from "react";
 import { FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FormField } from "@/components/ui/form-field";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { FormField } from "@/shared/ui/form-field";
 import {
   Dialog,
   DialogContent,
@@ -13,8 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { useToast } from "@/hooks/useToast";
+} from "@/shared/ui/dialog";
+import { useToast } from "@/shared/hooks/use-toast";
 
 export interface BuatSOPDialogProps {
   open: boolean;

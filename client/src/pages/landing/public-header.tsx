@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
 import logoSvg from '@/assets/logo.svg'
-import { APP_DISPLAY_NAME } from '@/config/env'
-import { ROUTES } from '@/utils/constants'
+import { APP_DISPLAY_NAME } from '@/app/config/env'
+import { ROUTES } from '@/shared/lib/constants'
 
 interface PublicHeaderProps {
   governmentName: string

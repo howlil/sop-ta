@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react'
-import { FormDialog } from '@/components/ui/form-dialog'
+import { FormDialog } from '@/shared/ui/form-dialog'
 import {
   PersonIdentityFields,
   type PersonIdentityLabels,
   type PersonIdentityValue,
-} from '@/components/forms/person-identity-fields'
+} from '@/shared/forms/ui/person-identity-fields'
 
 export interface PersonFormDialogProps<T extends PersonIdentityValue> {
   open: boolean

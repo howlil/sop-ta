@@ -1,15 +1,15 @@
 import { Eye, FileSignature } from "lucide-react";
-import { ListPageLayout } from "@/components/layout/ListPageLayout";
-import { RowActions } from "@/components/data/row-actions";
+import { ListPageLayout } from "@/app/layout/ListPageLayout";
+import { RowActions } from "@/shared/data/row-actions";
 import {
   PengajuanBaNumberCell,
   PengajuanDateCell,
   PengajuanTabbedTable,
-} from "@/components/pengajuan/pengajuan-tabbed-table";
-import { PengajuanStatusBadge } from "@/components/status/pengajuan-status-badge";
+} from "@/features/submission/ui/pengajuan-tabbed-table";
+import { PengajuanStatusBadge } from "@/shared/status/ui/pengajuan-status-badge";
 import { useKepalaOpdPengajuan } from "@/features/evaluation";
-import { ROUTES } from "@/utils/constants";
-import { formatDateIdFull } from "@/utils/format-date";
+import { ROUTES } from "@/shared/lib/constants";
+import { formatDateIdFull } from "@/shared/lib/format-date";
 
 export function PengajuanSOPPage() {
   const {

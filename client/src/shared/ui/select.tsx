@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { cn } from '@/utils/cn'
-import { useFormFieldContext } from '@/components/ui/form-field'
+import { cn } from '@/shared/lib/cn'
+import { useFormFieldContext } from '@/shared/ui/form-field'
 
 export interface SelectOption {
   value: string

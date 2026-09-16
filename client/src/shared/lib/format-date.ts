@@ -1,5 +1,5 @@
 
-import { LOCALE_ID } from '@/utils/constants'
+import { LOCALE_ID } from '@/shared/lib/constants'
 
 type DateInput = string | Date | null | undefined
 

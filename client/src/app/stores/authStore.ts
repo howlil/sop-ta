@@ -22,15 +22,15 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { apiClient } from "@/lib/api/api-client";
+import { apiClient } from "@/shared/api/api-client";
 import type {
   LoginApiResponse,
   PublicPenggunaLoginData,
   PublicPenggunaTteStatus,
 } from "@/types/dto/auth.dto";
 import type { User } from "@/types/dto/users.dto";
-import { ROUTES } from "@/utils/constants";
-import { toNavigationRole } from "@/utils/role-key";
+import { ROUTES } from "@/shared/lib/constants";
+import { toNavigationRole } from "@/shared/lib/role-key";
 
 /**
  * Core user fields used in the auth store.

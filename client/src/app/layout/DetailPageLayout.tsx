@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { cn } from '@/utils/cn'
-import { SetPageHeader } from '@/components/layout/PageHeaderProvider'
-import type { BreadcrumbItem } from '@/components/ui/breadcrumb'
+import { cn } from '@/shared/lib/cn'
+import { SetPageHeader } from '@/app/layout/PageHeaderProvider'
+import type { BreadcrumbItem } from '@/shared/ui/breadcrumb'
 
 interface DetailWorkspaceProps {
   className?: string

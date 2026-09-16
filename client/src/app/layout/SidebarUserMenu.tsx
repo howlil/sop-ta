@@ -8,11 +8,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@/shared/ui/dropdown-menu'
 import { useAppRole } from '@/features/auth/hooks/use-app-role'
-import { cn } from '@/utils/cn'
-import { ROUTES } from '@/utils/constants'
-import { getMeRoute } from '@/utils/role-routing'
+import { cn } from '@/shared/lib/cn'
+import { ROUTES } from '@/shared/lib/constants'
+import { getMeRoute } from '@/shared/lib/role-routing'
 
 export interface SidebarUserMenuProps {
   collapsed?: boolean

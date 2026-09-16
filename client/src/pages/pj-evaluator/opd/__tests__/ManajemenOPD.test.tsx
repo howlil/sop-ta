@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { ManajemenOPD } from '../ManajemenOPD'
 
-vi.mock('@/hooks/useToast', () => ({ useToast: () => ({ showToast: vi.fn() }) }))
-vi.mock('@/hooks/use-debounced-value', () => ({ useDebouncedValue: (value: string) => value }))
+vi.mock('@/shared/hooks/use-toast', () => ({ useToast: () => ({ showToast: vi.fn() }) }))
+vi.mock('@/shared/hooks/use-debounced-value', () => ({ useDebouncedValue: (value: string) => value }))
 vi.mock('@/features/organization/api/opd', () => ({
   useOpd: () => ({ list: [{ id: 'opd-1', nama: 'Dinas Kesehatan Provinsi' }], create: vi.fn(), update: vi.fn(), delete: vi.fn() }),
 }))

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Toast } from "@/components/ui/toast";
-import { useUIStore } from "@/stores/uiStore";
+import { Toast } from "@/shared/ui/toast";
+import { useUIStore } from "@/app/stores/uiStore";
 
 const AUTO_CLOSE_MS = 5000;
 

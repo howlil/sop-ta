@@ -26,11 +26,11 @@ vi.mock('@/pages/penyusun/sop/hooks/use-prosedur-editor', () => ({
   }),
 }))
 
-vi.mock('@/hooks/useToast', () => ({
+vi.mock('@/shared/hooks/use-toast', () => ({
   useToast: () => ({ showToast: vi.fn() }),
 }))
 
-vi.mock('@/lib/sop/validateProsedurRows', () => ({
+vi.mock('@/features/sop/model/validateProsedurRows', () => ({
   validateProsedurRows: () => ({ valid: true, errors: [] }),
   formatProsedurValidationMessage: () => '',
 }))

@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from 'react'
 import { Calendar as CalendarIcon, ChevronDown } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/utils/cn'
+} from '@/shared/ui/dropdown-menu'
+import { cn } from '@/shared/lib/cn'
 
 export interface GrafikEvaluasiTahunPickerProps {
   open: boolean

@@ -1,5 +1,5 @@
-import type { BreadcrumbItem } from '@/components/ui/breadcrumb'
-import { SetPageHeader } from '@/components/layout/PageHeaderProvider'
+import type { BreadcrumbItem } from '@/shared/ui/breadcrumb'
+import { SetPageHeader } from '@/app/layout/PageHeaderProvider'
 
 export interface ListPageLayoutProps {
   /** Item breadcrumb. Opsional: null/undefined = tidak tampil breadcrumb. */

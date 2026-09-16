@@ -1,27 +1,27 @@
 import { useState, useEffect } from "react";
 import { Activity, Check, CornerUpLeft, FileText, Building2, PanelsTopLeft, Unlock } from "lucide-react";
-import { FormField } from "@/components/ui/form-field";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { FormField } from "@/shared/ui/form-field";
+import { Textarea } from "@/shared/ui/textarea";
+import { Button } from "@/shared/ui/button";
 import {
   CollapsedStripButton,
   CollapsibleSidePanel,
   CollapsibleSidePanelContent,
   CollapsibleSidePanelHeader,
   PanelTabStrip,
-} from "@/components/ui/collapsible-side-panel";
-import { InfoCard } from "@/components/ui/info-card";
+} from "@/shared/ui/collapsible-side-panel";
+import { InfoCard } from "@/shared/ui/info-card";
 import { RiwayatCardList } from "@/pages/evaluator/evaluasi/components/RiwayatCardList";
 import { EvaluasiKeputusanSebelumnyaCard } from "@/pages/evaluator/evaluasi/components/EvaluasiKeputusanSebelumnyaCard";
 import { EvaluasiSopTahapBanner } from "@/pages/evaluator/evaluasi/components/EvaluasiSopTahapBanner";
 import { RiwayatNilaiEvaluasiPanel } from "@/pages/evaluator/evaluasi/components/RiwayatNilaiEvaluasiPanel";
-import type { TahapPenilaianSop } from "@/lib/evaluasi/evaluasi-domain";
+import type { TahapPenilaianSop } from "@/features/evaluation/model/evaluasi-domain";
 import { STATUS_HASIL_EVALUASI } from "@/types/dto/evaluasi.dto";
 import { StatusHasilEvaluasiPicker } from "@/pages/evaluator/evaluasi/components/StatusHasilEvaluasiPicker";
 import { SkorRatingPicker } from "@/pages/evaluator/evaluasi/components/SkorRatingPicker";
-import type { RiwayatEvaluasiEntry } from "@/api/evaluasi";
+import type { RiwayatEvaluasiEntry } from "@/features/evaluation";
 import type { PengajuanTimelineNilaiEntry } from "@/types/dto/evaluasi.dto";
-import { formatDateId } from "@/utils/format-date";
+import { formatDateId } from "@/shared/lib/format-date";
 import type { StatusHasilEvaluasi } from "@/types/dto/evaluasi.dto";
 
 export type DetailEvaluasiActiveTab = "sop" | "aktivitas" | "opd";

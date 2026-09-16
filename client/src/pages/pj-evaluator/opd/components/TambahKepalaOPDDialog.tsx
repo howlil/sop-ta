@@ -1,5 +1,5 @@
-import { PersonFormDialog } from '@/components/forms/person-form-dialog'
-import { OpdSelectField } from '@/components/forms/opd-select-field'
+import { PersonFormDialog } from '@/shared/forms/ui/person-form-dialog'
+import { OpdSelectField } from '@/shared/forms/ui/opd-select-field'
 import type { FormTambahKepalaState } from '@/types/ui/organisasi'
 
 interface OPD {

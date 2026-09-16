@@ -1,18 +1,18 @@
 import { Link, useParams } from "@tanstack/react-router";
 import { AlertCircle, CheckCircle2, Download, Home, Loader2, Shield } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
-import { usePublicSopDokumen } from "@/api/sop-public";
-import { usePdfSigningStatus, useTtePengesahanPublic } from "@/api/tte";
+import { usePublicSopDokumen } from "@/features/sop/api/public";
+import { usePdfSigningStatus, useTtePengesahanPublic } from "@/features/tte/api";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { InfoCard } from "@/components/ui/info-card";
-import { useDocumentTitle } from "@/hooks/use-document-title";
-import { mapPenyusunWorkbenchToPreviewProps } from "@/lib/sop/detailSop.mappers";
+import { Card, CardContent, CardHeader } from "@/shared/ui/card";
+import { Button } from "@/shared/ui/button";
+import { InfoCard } from "@/shared/ui/info-card";
+import { useDocumentTitle } from "@/shared/hooks/use-document-title";
+import { mapPenyusunWorkbenchToPreviewProps } from "@/features/sop/model/detailSop.mappers";
 import { scheduleSopDocumentPrint } from "@/features/sop/print/sop-print";
-import { ROLE_LABELS, ROUTES } from "@/utils/constants";
+import { ROLE_LABELS, ROUTES } from "@/shared/lib/constants";
 import type { PeranTTE, TTESignaturePayload } from "@/types/dto/tte.dto";
-import { formatDateIdLong } from "@/utils/format-date";
+import { formatDateIdLong } from "@/shared/lib/format-date";
 
 function truncateHash(hex: string, head = 18, tail = 8): string {
   if (hex.length <= head + tail + 3) return hex;

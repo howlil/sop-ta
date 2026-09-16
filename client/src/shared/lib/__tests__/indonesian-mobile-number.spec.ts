@@ -1,7 +1,7 @@
 import {
   formatIndonesianMobileNumberForInput,
   normalizeIndonesianMobileNumber,
-} from "@/utils/indonesian-mobile-number";
+} from "@/shared/lib/indonesian-mobile-number";
 
 describe("Indonesian mobile number utilities", () => {
   it.each([

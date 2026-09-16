@@ -15,24 +15,24 @@ import {
   X,
 } from "lucide-react";
 import logoSvg from "@/assets/logo.svg";
-import { HeaderBar } from "@/components/layout/HeaderBar";
-import { PageHeaderProvider } from "@/components/layout/PageHeaderProvider";
-import { SidebarUserMenu } from "@/components/layout/SidebarUserMenu";
-import { APP_DISPLAY_NAME } from "@/config/env";
+import { HeaderBar } from "@/app/layout/HeaderBar";
+import { PageHeaderProvider } from "@/app/layout/PageHeaderProvider";
+import { SidebarUserMenu } from "@/app/layout/SidebarUserMenu";
+import { APP_DISPLAY_NAME } from "@/app/config/env";
 import {
   AppSidebar,
   type AppSidebarItem,
-} from "@/components/layout/AppSidebar";
-import { useAuthStore } from "@/stores/authStore";
-import { useUIStore } from "@/stores/uiStore";
+} from "@/app/layout/AppSidebar";
+import { useAuthStore } from "@/app/stores/authStore";
+import { useUIStore } from "@/app/stores/uiStore";
 import type { RoleKey } from "@/types/dto/access.dto";
-import { cn } from "@/utils/cn";
-import { ROUTES } from "@/utils/constants";
-import { toNavigationRole } from "@/utils/role-key";
+import { cn } from "@/shared/lib/cn";
+import { ROUTES } from "@/shared/lib/constants";
+import { toNavigationRole } from "@/shared/lib/role-key";
 
 const DESKTOP_SIDEBAR_STORAGE_KEY = "ui:desktop-sidebar-collapsed";
 
-/** Item pertama per peran harus selaras dengan @/utils/role-routing ROLE_DEFAULT_LANDING (redirect setelah login & `/`). */
+/** Item pertama per peran harus selaras dengan @/shared/lib/role-routing ROLE_DEFAULT_LANDING (redirect setelah login & `/`). */
 const SIDEBAR_ITEMS: Record<RoleKey, AppSidebarItem[]> = {
   PJ_EVALUATOR: [
     {

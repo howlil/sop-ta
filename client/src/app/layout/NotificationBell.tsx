@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import { Bell, CheckCheck, Inbox, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,10 +8,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { useInAppNotifications } from '@/hooks/use-in-app-notifications'
-import { resolveNotificationTarget } from '@/lib/notifications/notification-target'
-import { formatDateId } from '@/utils/format-date'
+} from '@/shared/ui/dropdown-menu'
+import { useInAppNotifications } from '@/features/notifications/hooks/use-in-app-notifications'
+import { resolveNotificationTarget } from '@/features/notifications/model/notification-target'
+import { formatDateId } from '@/shared/lib/format-date'
 
 export function NotificationBell() {
   const navigate = useNavigate()

@@ -1,5 +1,5 @@
 import { EvaluasiWorkspacePage } from "@/pages/evaluator/evaluasi/evaluasi-workspace-page";
-import { ROUTES } from "@/utils/constants";
+import { ROUTES } from "@/shared/lib/constants";
 import { useParams, useSearch } from "@tanstack/react-router";
 
 export function DetailEvaluasiPengajuan() {

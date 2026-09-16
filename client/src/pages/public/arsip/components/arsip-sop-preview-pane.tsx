@@ -1,10 +1,10 @@
 import { ExternalLink, Loader2, RefreshCw, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { SopStatusBadge } from '@/components/status/sop-status-badge'
-import { resolveApiBaseUrl } from '@/config/env'
-import { cn } from '@/utils/cn'
+import { Button } from '@/shared/ui/button'
+import { Card } from '@/shared/ui/card'
+import { SopStatusBadge } from '@/shared/status/ui/sop-status-badge'
+import { resolveApiBaseUrl } from '@/app/config/env'
+import { cn } from '@/shared/lib/cn'
 
 export interface ArsipSopPreviewPaneProps {
   detailSopId: string

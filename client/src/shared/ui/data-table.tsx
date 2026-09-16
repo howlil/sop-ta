@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useEffect, useMemo, useState } from 'react'
-import { Pagination } from '@/components/ui/pagination'
-import { cn } from '@/utils/cn'
+import { Pagination } from '@/shared/ui/pagination'
+import { cn } from '@/shared/lib/cn'
 
 const tableSurfaceClassName = 'relative isolate overflow-clip rounded-surface border border-border bg-surface'
 
@@ -85,6 +85,6 @@ function PaginatedTable<T>({
 }
 
 export { DataTableRoot, DataTableCard, DataTableTable, DataTableHeaderRow, DataTableBodyRow, DataTableTh, DataTableTd, DataTableActionTh, DataTableActionTd, PaginatedTable }
-export { Pagination } from '@/components/ui/pagination'
+export { Pagination } from '@/shared/ui/pagination'
 
 export const Table = { Root: DataTableRoot, Card: DataTableCard, Table: DataTableTable, HeadRow: DataTableHeaderRow, BodyRow: DataTableBodyRow, Th: DataTableTh, Td: DataTableTd, ActionTh: DataTableActionTh, ActionTd: DataTableActionTd, Pagination, Paginated: PaginatedTable }

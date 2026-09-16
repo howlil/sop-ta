@@ -1,8 +1,8 @@
 /**
  * Picker skor 1–5 (untuk evaluasi OPD).
  */
-import { FormField } from '@/components/ui/form-field'
-import { InlineHelperNote } from '@/components/ui/inline-helper-note'
+import { FormField } from '@/shared/ui/form-field'
+import { InlineHelperNote } from '@/shared/ui/inline-helper-note'
 import { useRef, type KeyboardEvent } from 'react'
 
 const SKOR_OPTIONS = [1, 2, 3, 4, 5] as const

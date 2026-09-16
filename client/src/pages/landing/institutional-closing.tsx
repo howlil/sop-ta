@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import heroBg from '@/assets/Kantor_Gubernur_Sumbar_belakang.jpg'
-import { ROUTES } from '@/utils/constants'
+import { ROUTES } from '@/shared/lib/constants'
 
 interface InstitutionalClosingProps {
   governmentName: string

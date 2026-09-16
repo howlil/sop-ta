@@ -1,7 +1,7 @@
-import { FormField } from '@/components/ui/form-field'
-import { Input } from '@/components/ui/input'
-import { Select } from '@/components/ui/select'
-import { cn } from '@/utils/cn'
+import { FormField } from '@/shared/ui/form-field'
+import { Input } from '@/shared/ui/input'
+import { Select } from '@/shared/ui/select'
+import { cn } from '@/shared/lib/cn'
 
 export interface PersonIdentityValue {
   namaLengkap?: string

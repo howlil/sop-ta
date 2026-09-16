@@ -8,11 +8,11 @@
 
 import { History, MessageSquare } from "lucide-react"
 
-import { formatDateId } from "@/utils/format-date"
+import { formatDateId } from "@/shared/lib/format-date"
 
 import type { LogNilaiEvaluasi } from "@/types/dto/evaluasi.dto"
-import { HasilEvaluasiBadge } from "@/components/status/hasil-evaluasi-badge"
-import { EmptyState } from "@/components/ui/empty-state"
+import { HasilEvaluasiBadge } from "@/shared/status/ui/hasil-evaluasi-badge"
+import { EmptyState } from "@/shared/ui/empty-state"
 
 
 

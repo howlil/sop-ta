@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { ExpandableGroupedTable } from '@/components/data/expandable-grouped-table'
+import { ExpandableGroupedTable } from '@/shared/data/expandable-grouped-table'
 
 describe('ExpandableGroupedTable', () => {
   it('dapat menyatu ke outer data surface tanpa card per group', () => {

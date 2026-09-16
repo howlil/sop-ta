@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useCallback, useLayoutEffect, useRef } from 'react'
-import { cn } from '@/utils/cn'
+import { cn } from '@/shared/lib/cn'
 
 const LINE_HEIGHT_PX = 20
 const VERTICAL_PADDING_PX = 16

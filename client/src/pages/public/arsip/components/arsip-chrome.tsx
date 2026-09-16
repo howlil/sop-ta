@@ -2,8 +2,8 @@ import type { ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Archive, ChevronRight, LogIn, Search } from 'lucide-react'
 import logoSvg from '@/assets/logo.svg'
-import { Input } from '@/components/ui/input'
-import { ROUTES } from '@/utils/constants'
+import { Input } from '@/shared/ui/input'
+import { ROUTES } from '@/shared/lib/constants'
 
 export interface ArsipSopShellProps {
   children: ReactNode

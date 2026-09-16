@@ -12,16 +12,16 @@ import {
   UserRound,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { tteApi, usePdfSigningStatus } from "@/api/tte";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { InfoCard } from "@/components/ui/info-card";
-import { InfoField } from "@/components/ui/info-field";
-import { useDocumentTitle } from "@/hooks/use-document-title";
-import { ApiError } from "@/lib/api/api-client";
+import { tteApi, usePdfSigningStatus } from "@/features/tte/api";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
+import { InfoCard } from "@/shared/ui/info-card";
+import { InfoField } from "@/shared/ui/info-field";
+import { useDocumentTitle } from "@/shared/hooks/use-document-title";
+import { ApiError } from "@/shared/api/api-client";
 import type { PdfSignatureVerificationEntry, VerifyPdfResponse } from "@/types/dto/tte.dto";
-import { ROUTES } from "@/utils/constants";
-import { formatDateIdLong } from "@/utils/format-date";
+import { ROUTES } from "@/shared/lib/constants";
+import { formatDateIdLong } from "@/shared/lib/format-date";
 
 const MAX_PDF_BYTES = 20 * 1024 * 1024;
 

@@ -5,19 +5,19 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import appCss from "../styles.css?url";
-import { ErrorBoundary } from "@/components/ui/error-boundary";
-import { GlobalToast } from "@/components/layout/GlobalToast";
-import { NotFoundPage } from "@/components/ui/not-found";
-import { RouteErrorPage } from "@/components/ui/route-error";
-import { RouteFocusManager } from "@/components/ui/route-focus-manager";
-import { APP_DISPLAY_NAME } from "@/config/env";
-import { queryClient } from "@/config/query-client";
-import { useAuthStore, ensureAuthHydrated, syncAuthFromCookie } from "@/stores/authStore";
+import { ErrorBoundary } from "@/shared/ui/error-boundary";
+import { GlobalToast } from "@/app/layout/GlobalToast";
+import { NotFoundPage } from "@/shared/ui/not-found";
+import { RouteErrorPage } from "@/shared/ui/route-error";
+import { RouteFocusManager } from "@/shared/ui/route-focus-manager";
+import { APP_DISPLAY_NAME } from "@/app/config/env";
+import { queryClient } from "@/app/config/query-client";
+import { useAuthStore, ensureAuthHydrated, syncAuthFromCookie } from "@/app/stores/authStore";
 import {
   getRoleDefaultLandingPath,
   isPathAccessibleByRole,
   redirectArgsFromAppPath,
-} from "@/utils/role-routing";
+} from "@/shared/lib/role-routing";
 
 const ROLE_ROUTE_PREFIXES = ["/pj-evaluator", "/penyusun", "/kepala-opd", "/evaluator"] as const;
 

@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { ManajemenPenyusun } from '../ManajemenPenyusun'
 
-vi.mock('@/hooks/use-debounced-value', () => ({
+vi.mock('@/shared/hooks/use-debounced-value', () => ({
   useDebouncedValue: (value: string) => value,
 }))
 
@@ -45,7 +45,7 @@ vi.mock('@/features/organization/api/penyusun', () => ({
   }),
 }))
 
-vi.mock('@/components/layout/ListPageLayout', () => ({
+vi.mock('@/app/layout/ListPageLayout', () => ({
   ListPageLayout: ({ children }: { children: React.ReactNode }) => <main>{children}</main>,
 }))
 

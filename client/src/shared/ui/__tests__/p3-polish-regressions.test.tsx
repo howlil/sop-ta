@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { PanelTabStrip } from '@/components/ui/collapsible-side-panel'
-import { Table } from '@/components/ui/data-table'
-import { Pagination } from '@/components/ui/pagination'
-import { SearchableSelectDialog } from '@/components/ui/searchable-select-dialog'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { PanelTabStrip } from '@/shared/ui/collapsible-side-panel'
+import { Table } from '@/shared/ui/data-table'
+import { Pagination } from '@/shared/ui/pagination'
+import { SearchableSelectDialog } from '@/shared/ui/searchable-select-dialog'
+import { Skeleton } from '@/shared/ui/skeleton'
+import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 
 describe('regresi polish UI P3', () => {
   it('membuat daftar tab aman untuk label yang lebih lebar', () => {

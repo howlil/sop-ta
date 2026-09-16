@@ -14,6 +14,19 @@ const legacyCoreAliases = [
   '@/stores/*',
 ]
 
+const legacyAliasRestriction = [
+  'error',
+  {
+    patterns: [
+      {
+        group: legacyCoreAliases,
+        message:
+          'Use canonical app/features/shared ownership imports instead of compatibility aliases.',
+      },
+    ],
+  },
+]
+
 const featureRestrictedImports = [
   'error',
   {
@@ -89,6 +102,7 @@ export default [
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'prefer-const': 'warn',
       'no-var': 'error',
+      'no-restricted-imports': legacyAliasRestriction,
     },
   },
   {
@@ -105,9 +119,9 @@ export default [
         {
           patterns: [
             {
-              group: ['@/features/*', '@/pages/*', '@/routes/*'],
+              group: [...legacyCoreAliases, '@/features/*', '@/pages/*', '@/routes/*'],
               message:
-                'Shared modules must stay domain-agnostic. Move domain-specific behavior into its owning feature.',
+                'Shared modules must use canonical ownership imports, stay domain-agnostic, and not depend on features/pages/routes.',
             },
           ],
         },
@@ -117,7 +131,7 @@ export default [
   {
     files: ['src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}'],
     rules: {
-      'no-restricted-imports': 'off',
+      'no-restricted-imports': legacyAliasRestriction,
     },
   },
   {

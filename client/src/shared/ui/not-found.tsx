@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 import { FileQuestion, ArrowLeft, Home } from 'lucide-react'
-import { cn } from '@/utils/cn'
-import { Button } from '@/components/ui/button'
+import { cn } from '@/shared/lib/cn'
+import { Button } from '@/shared/ui/button'
 
 /* ─── Full-page 404 ─────────────────────────────────────────────────────── */
 

@@ -1,12 +1,12 @@
 import { useEffect, useId, useState } from 'react'
 import type { ReactNode } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
-import { Table } from '@/components/ui/data-table'
-import { Badge } from '@/components/ui/badge'
-import { Pagination } from '@/components/ui/pagination'
-import { LoadingState } from '@/components/ui/loading-state'
+import { Table } from '@/shared/ui/data-table'
+import { Badge } from '@/shared/ui/badge'
+import { Pagination } from '@/shared/ui/pagination'
+import { LoadingState } from '@/shared/ui/loading-state'
 import type { PaginationMetaDto } from '@/types/contracts/pagination.contract'
-import { cn } from '@/utils/cn'
+import { cn } from '@/shared/lib/cn'
 
 export interface ExpandableGroupedTableProps<TGroup> {
   groups: TGroup[]

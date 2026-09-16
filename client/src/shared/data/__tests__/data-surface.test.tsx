@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { DataSurface } from '@/components/data/data-surface'
+import { DataSurface } from '@/shared/data/data-surface'
 
 describe('DataSurface', () => {
   it('menyatukan tabs, toolbar, actions, dan konten dalam satu surface responsif', () => {

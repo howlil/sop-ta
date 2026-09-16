@@ -21,13 +21,13 @@ import {
   FileKey2,
   ArrowLeft,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FormField } from "@/components/ui/form-field";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { FormField } from "@/shared/ui/form-field";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/ui/dialog";
 import type { TteProfil } from "@/types/dto/tte.dto";
-import { formatDateIdLong } from "@/utils/format-date";
-import { useSetupTteGenerate, useSetupTteUpload, useUpdateTTEPin, useGenerateP12, useUploadP12, useRegisterTTE } from "@/api/tte";
+import { formatDateIdLong } from "@/shared/lib/format-date";
+import { useSetupTteGenerate, useSetupTteUpload, useUpdateTTEPin, useGenerateP12, useUploadP12, useRegisterTTE } from "@/features/tte/api";
 import { TtePinDialog } from "./TtePinDialog";
 
 // ─────────────────────────────────────────────

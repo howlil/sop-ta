@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { ListPageLayout } from '@/components/layout/ListPageLayout'
+import { ListPageLayout } from '@/app/layout/ListPageLayout'
 import {
   PageHeaderProvider,
   usePageHeaderContext,
-} from '@/components/layout/PageHeaderProvider'
+} from '@/app/layout/PageHeaderProvider'
 
 function HeaderProbe() {
   const headerContent = usePageHeaderContext()?.headerContent

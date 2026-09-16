@@ -4,8 +4,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { RiwayatOpdDialog } from '@/features/organization/ui/riwayat-opd-dialog'
 import { penyusunApi } from '@/features/organization/api/penyusun'
-import { queryKeys } from '@/config/query-keys'
-import { STALE_TIME } from '@/utils/constants'
+import { queryKeys } from '@/app/config/query-keys'
+import { STALE_TIME } from '@/shared/lib/constants'
 
 function formatTanggal(iso: string): string {
   try {

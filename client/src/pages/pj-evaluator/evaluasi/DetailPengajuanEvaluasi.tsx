@@ -1,45 +1,45 @@
 import { useMemo, useState } from "react";
 import { useParams } from "@tanstack/react-router";
 import { CheckCircle, History } from "lucide-react";
-import { LoadingState } from "@/components/ui/loading-state";
-import { PengajuanCetakArsipButtons } from "@/components/pengajuan/PengajuanCetakArsipButtons";
-import { usePengajuanCetakArsip } from "@/components/pengajuan/hooks/use-pengajuan-cetak-arsip";
+import { LoadingState } from "@/shared/ui/loading-state";
+import { PengajuanCetakArsipButtons } from "@/features/submission/ui/PengajuanCetakArsipButtons";
+import { usePengajuanCetakArsip } from "@/features/submission/ui/hooks/use-pengajuan-cetak-arsip";
 import { canCetakBeritaAcaraPengajuan, canCetakSopArsipPengajuan } from "@/features/submission/print/pengajuan-print";
-import { BeritaAcaraPreviewPane } from "@/components/pengajuan/berita-acara-preview-pane";
-import { SopDocumentPreviewPane } from "@/components/pengajuan/sop-document-preview-pane";
-import { mapBeritaAcaraTemplateProps } from "@/lib/pengajuan/map-berita-acara-template-props";
-import { SopWorkbenchSidePanel } from "@/components/sop/sop-workbench-side-panel";
-import { formatDateId } from "@/utils/format-date";
-import { PinVerificationDialog } from "@/components/tte/pin-verification-dialog";
-import { TteSetupRequiredDialog } from "@/components/tte/tte-setup-required-dialog";
-import { createPinConfirmHandler } from "@/api/tte";
-import { useTandaTanganiBA } from "@/api/tte";
+import { BeritaAcaraPreviewPane } from "@/features/submission/ui/berita-acara-preview-pane";
+import { SopDocumentPreviewPane } from "@/features/submission/ui/sop-document-preview-pane";
+import { mapBeritaAcaraTemplateProps } from "@/features/submission/model/map-berita-acara-template-props";
+import { SopWorkbenchSidePanel } from "@/features/sop/ui/sop-workbench-side-panel";
+import { formatDateId } from "@/shared/lib/format-date";
+import { PinVerificationDialog } from "@/features/tte/ui/pin-verification-dialog";
+import { TteSetupRequiredDialog } from "@/features/tte/ui/tte-setup-required-dialog";
+import { createPinConfirmHandler } from "@/features/tte/api";
+import { useTandaTanganiBA } from "@/features/tte/api";
 import {
   usePengajuanBeritaAcaraView,
   usePengajuanEvaluasiDetail,
   usePengajuanSopDokumenWorkbench,
 } from "@/features/evaluation";
-import { mapPenyusunWorkbenchToPreviewProps } from "@/lib/sop/detailSop.mappers";
-import { parseTTESignaturePayload } from "@/lib/tte/parse-tte-signature-payload";
+import { mapPenyusunWorkbenchToPreviewProps } from "@/features/sop/model/detailSop.mappers";
+import { parseTTESignaturePayload } from "@/features/tte/model/parse-tte-signature-payload";
 import { RiwayatEvaluasiTimeline } from "@/pages/pj-evaluator/evaluasi/components/RiwayatEvaluasiTimeline";
-import { ROUTES } from "@/utils/constants";
-import { Button } from "@/components/ui/button";
-import { BackButton } from "@/components/ui/back-button";
-import { NotFoundWithBack } from "@/components/ui/not-found";
-import { DetailPageLayout } from "@/components/layout/DetailPageLayout";
+import { ROUTES } from "@/shared/lib/constants";
+import { Button } from "@/shared/ui/button";
+import { BackButton } from "@/shared/ui/back-button";
+import { NotFoundWithBack } from "@/shared/ui/not-found";
+import { DetailPageLayout } from "@/app/layout/DetailPageLayout";
 import {
   CollapsedStripButton,
   CollapsibleSidePanel,
   CollapsibleSidePanelContent,
   CollapsibleSidePanelHeader,
   SimplePanelHeader,
-} from "@/components/ui/collapsible-side-panel";
+} from "@/shared/ui/collapsible-side-panel";
 import { PengajuanEvaluasiStatusHeader } from "@/features/evaluation/ui/pengajuan-evaluasi-status-header";
-import { InfoField } from "@/components/ui/info-field";
-import { DocumentPreviewTabs } from "@/components/pengajuan/document-preview-tabs";
-import { useDocumentTitle } from "@/hooks/use-document-title";
-import { useRequireTteSetup } from "@/hooks/use-require-tte-setup";
-import { IA } from "@/utils/constants";
+import { InfoField } from "@/shared/ui/info-field";
+import { DocumentPreviewTabs } from "@/features/submission/ui/document-preview-tabs";
+import { useDocumentTitle } from "@/shared/hooks/use-document-title";
+import { useRequireTteSetup } from "@/features/tte/hooks/use-require-tte-setup";
+import { IA } from "@/shared/lib/constants";
 
 export function DetailPengajuanEvaluasi() {
   const { id } = useParams({

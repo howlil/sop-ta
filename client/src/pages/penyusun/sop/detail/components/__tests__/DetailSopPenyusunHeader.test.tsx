@@ -14,7 +14,7 @@ vi.mock('@/pages/penyusun/sop/detail/SopEditorContext', () => ({
   useSopEditor: () => ({ sopDetailId: 'detail-1' }),
 }))
 
-vi.mock('@/hooks/useToast', () => ({
+vi.mock('@/shared/hooks/use-toast', () => ({
   useToast: () => ({ showToast: vi.fn() }),
 }))
 

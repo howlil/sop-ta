@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react'
 import { ChevronDown, Filter } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/utils/cn'
+} from '@/shared/ui/dropdown-menu'
+import { cn } from '@/shared/lib/cn'
 
 export interface FilterDropdownButtonProps {
   open: boolean

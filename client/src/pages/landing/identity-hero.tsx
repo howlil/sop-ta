@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
-import { ROUTES } from '@/utils/constants'
+import { ROUTES } from '@/shared/lib/constants'
 import { LandingProductPreview } from './landing-product-preview'
 
 export interface HeroLifecycleStage {

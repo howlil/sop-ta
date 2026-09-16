@@ -3,12 +3,12 @@
  * Log beruntun dalam idle window digabung di klien (mirip tab Aktivitas log edit SOP).
  */
 import { Activity } from 'lucide-react'
-import { EmptyState } from '@/components/ui/empty-state'
-import { LoadingState } from '@/components/ui/loading-state'
+import { EmptyState } from '@/shared/ui/empty-state'
+import { LoadingState } from '@/shared/ui/loading-state'
 import {
   groupLogNilaiEvaluasiSessions,
   type LogNilaiEvaluasiSession,
-} from '@/lib/evaluasi/log-nilai-evaluasi-session'
+} from '@/features/evaluation/model/log-nilai-evaluasi-session'
 import type { PengajuanTimelineNilaiEntry } from '@/types/dto/evaluasi.dto'
 
 function formatTime(iso: string): string {

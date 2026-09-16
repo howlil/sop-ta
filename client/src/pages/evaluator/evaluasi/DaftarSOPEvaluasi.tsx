@@ -4,25 +4,25 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { Eye } from 'lucide-react'
-import { ActiveFilterChips } from '@/components/data/active-filter-chips'
-import { DataSurface } from '@/components/data/data-surface'
-import { ListPageLayout } from '@/components/layout/ListPageLayout'
-import { SearchInput } from '@/components/ui/search-input'
-import { RowActions } from '@/components/data/row-actions'
+import { ActiveFilterChips } from '@/shared/data/active-filter-chips'
+import { DataSurface } from '@/shared/data/data-surface'
+import { ListPageLayout } from '@/app/layout/ListPageLayout'
+import { SearchInput } from '@/shared/ui/search-input'
+import { RowActions } from '@/shared/data/row-actions'
 import {
   EvaluasiFilterTabs,
   type EvaluasiFilterTab,
 } from '@/features/evaluation/ui/evaluasi-filter-tabs'
 import { EvaluasiPengajuanGroupedList } from '@/features/evaluation/ui/evaluasi-pengajuan-grouped-list'
-import { ROUTES } from '@/utils/constants'
+import { ROUTES } from '@/shared/lib/constants'
 import {
   STATUS_PENGAJUAN_BERJALAN_EVALUATOR,
   STATUS_RIWAYAT_FINAL_EVALUASI,
   usePengajuanEvaluasiRingkas,
 } from '@/features/evaluation'
-import { useDebouncedValue } from '@/hooks/use-debounced-value'
-import { readPaginationMeta } from '@/lib/api/pagination'
-import { DEFAULT_PAGE_SIZE } from '@/utils/constants'
+import { useDebouncedValue } from '@/shared/hooks/use-debounced-value'
+import { readPaginationMeta } from '@/shared/api/pagination'
+import { DEFAULT_PAGE_SIZE } from '@/shared/lib/constants'
 
 export function DaftarSOPEvaluasi() {
   const navigate = useNavigate()

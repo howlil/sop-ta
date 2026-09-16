@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { DetailSummaryHeader } from '@/features/evaluation/ui/detail-summary-header'
-import { formatDateIdFull } from '@/utils/format-date'
+import { formatDateIdFull } from '@/shared/lib/format-date'
 
 export interface PengajuanDetailSummaryHeaderProps {
   opdName: string

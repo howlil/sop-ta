@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useUIStore } from '@/stores/uiStore'
+import { useUIStore } from '@/app/stores/uiStore'
 
 describe('uiStore toast queue', () => {
   beforeEach(() => {

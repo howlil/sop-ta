@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
   verifyPdf: vi.fn(),
 }))
 
-vi.mock('@/api/tte', () => ({
+vi.mock('@/features/tte/api', () => ({
   tteApi: {
     verifyPdf: mocks.verifyPdf,
   },

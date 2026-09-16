@@ -1,32 +1,32 @@
 import { useMemo, useState } from "react";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 import {
   Plus,
   Edit,
   Trash2,
   History,
 } from "lucide-react";
-import { DataSurface } from "@/components/data/data-surface";
-import { Button } from "@/components/ui/button";
-import { Table } from "@/components/ui/data-table";
-import { SearchInput } from "@/components/ui/search-input";
-import { LoadingState } from "@/components/ui/loading-state";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { ListPageLayout } from "@/components/layout/ListPageLayout";
-import { RowActions } from "@/components/data/row-actions";
-import { ExpandableGroupedTable } from "@/components/data/expandable-grouped-table";
+import { DataSurface } from "@/shared/data/data-surface";
+import { Button } from "@/shared/ui/button";
+import { Table } from "@/shared/ui/data-table";
+import { SearchInput } from "@/shared/ui/search-input";
+import { LoadingState } from "@/shared/ui/loading-state";
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
+import { ListPageLayout } from "@/app/layout/ListPageLayout";
+import { RowActions } from "@/shared/data/row-actions";
+import { ExpandableGroupedTable } from "@/shared/data/expandable-grouped-table";
 import {
   PersonNameCell,
   PersonStatusCell,
   PersonTextCell,
-} from "@/components/person/person-table-cells";
+} from "@/shared/person/person-table-cells";
 import { useOpd } from "@/features/organization/api/opd";
 import { usePenyusun } from "@/features/organization/api/penyusun";
 import { PenyusunFormDialog } from "./components/PenyusunFormDialog";
 import { RiwayatOpdPenyusunDialog } from "./components/RiwayatOpdPenyusunDialog";
 import type { PenyusunFormData } from "./components/PenyusunFormDialog";
-import { Badge } from "@/components/ui/badge";
-import { ROUTES } from "@/utils/constants";
+import { Badge } from "@/shared/ui/badge";
+import { ROUTES } from "@/shared/lib/constants";
 import type { PenyusunPublikItem, TimPenyusunOpdGrup } from "@/types/dto/tim.dto";
 
 type PenyusunBaris = PenyusunPublikItem & { opdId: string };

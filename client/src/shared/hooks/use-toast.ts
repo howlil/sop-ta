@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import { useUIStore } from "@/stores/uiStore";
-import type { ToastType } from "@/stores/uiStore";
-import { getUserFriendlyMessage } from "@/utils/error-codes";
+import { useUIStore } from "@/app/stores/uiStore";
+import type { ToastType } from "@/app/stores/uiStore";
+import { getUserFriendlyMessage } from "@/shared/lib/error-codes";
 
 export function useToast() {
   // Use selectors to prevent unnecessary re-renders

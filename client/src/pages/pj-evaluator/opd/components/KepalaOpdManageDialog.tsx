@@ -1,4 +1,4 @@
-import { PersonIdentityFields } from '@/components/forms/person-identity-fields'
+import { PersonIdentityFields } from '@/shared/forms/ui/person-identity-fields'
 import {
   ManageAssignmentDialog,
   type AssignmentDialogTab,

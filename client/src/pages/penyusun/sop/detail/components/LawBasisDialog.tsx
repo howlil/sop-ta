@@ -1,5 +1,5 @@
 /** Dialog pilih dasar hukum (peraturan) untuk metadata SOP. */
-import { SearchableSelectDialog } from '@/components/ui/searchable-select-dialog'
+import { SearchableSelectDialog } from '@/shared/ui/searchable-select-dialog'
 import type { Peraturan } from '@/types/dto/peraturan.dto'
 import { useSopEditor } from '../SopEditorContext'
 

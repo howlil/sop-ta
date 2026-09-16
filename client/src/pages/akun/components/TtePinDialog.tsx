@@ -1,6 +1,6 @@
 import { PinDialog } from '@/features/auth/ui/pin-dialog'
 import type { RegisterTteDto, TteProfil, UpdateTtePinDto } from '@/types/dto/tte.dto'
-import { showErrorMessages } from '@/hooks/useToast'
+import { showErrorMessages } from '@/shared/hooks/use-toast'
 
 export type TtePinDialogMode = 'create' | 'update'
 
