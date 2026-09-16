@@ -69,20 +69,33 @@ export default [
     },
   },
   {
-    files: [
-      'src/components/**/*.{ts,tsx}',
-      'src/lib/**/*.{ts,tsx}',
-      'src/hooks/**/*.{ts,tsx}',
-    ],
+    files: ['src/features/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [
         'error',
         {
           patterns: [
             {
-              group: ['@/pages/*'],
+              group: ['@/pages/*', '@/routes/*'],
               message:
-                'Shared components and lib modules must not import from pages. Move reusable code into components/* or lib/*.',
+                'Feature modules are inner application/domain ownership and must not depend on pages or routes. Move orchestration into the feature and expose it through the feature public API.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/shared/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/features/*', '@/pages/*', '@/routes/*'],
+              message:
+                'Shared modules must stay domain-agnostic. Move domain-specific behavior into its owning feature.',
             },
           ],
         },
