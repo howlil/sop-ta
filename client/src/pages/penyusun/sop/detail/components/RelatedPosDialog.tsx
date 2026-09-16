@@ -2,7 +2,7 @@
  * Dialog pilih keterkaitan SOP untuk metadata header.
  * Sumber data: daftar SOP penyusun (judul + detailSopId terbaru).
  */
-import { SearchableSelectDialog } from '@/components/ui/searchable-select-dialog'
+import { SearchableSelectDialog } from '@/shared/ui/searchable-select-dialog'
 import { useSopEditor } from '../SopEditorContext'
 
 export interface RelatedSopOption {

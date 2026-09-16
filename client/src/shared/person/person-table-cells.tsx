@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { AccountStatusBadge } from '@/components/status/account-status-badge'
-import { cn } from '@/utils/cn'
+import { AccountStatusBadge } from '@/shared/status/ui/account-status-badge'
+import { cn } from '@/shared/lib/cn'
 
 export interface PersonNameCellProps {
   name?: string | null

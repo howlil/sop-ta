@@ -10,22 +10,22 @@ import {
   RefreshCcw,
   Save,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { Button } from '@/shared/ui/button'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { SopStatusBadge } from '@/components/status/sop-status-badge'
-import { cn } from '@/utils/cn'
+} from '@/shared/ui/dropdown-menu'
+import { SopStatusBadge } from '@/shared/status/ui/sop-status-badge'
+import { cn } from '@/shared/lib/cn'
 import type { SOPDetailMetadata } from '@/types/ui/sop'
 import type { StatusSOP } from '@/types/dto/sop.dto'
 import type { SopHeaderAutosaveStatus } from '@/pages/penyusun/sop/hooks/use-sop-header-autosave'
 import { usePenyusunWorkbench } from '@/features/sop'
 import { useSopEditor } from '../SopEditorContext'
-import { useToast } from '@/hooks/useToast'
+import { useToast } from '@/shared/hooks/use-toast'
 import { printSopArsipFromPreviewProps } from '@/features/sop/print/sop-print'
 import { mapPenyusunWorkbenchToPreviewProps } from '@/features/sop/model/detailSop.mappers'
 

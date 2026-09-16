@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { ROUTES } from '@/utils/constants'
-import { getRoleDefaultLandingPath } from '@/utils/role-routing'
+import { ROUTES } from '@/shared/lib/constants'
+import { getRoleDefaultLandingPath } from '@/shared/lib/role-routing'
 
 describe('getRoleDefaultLandingPath', () => {
   it.each([

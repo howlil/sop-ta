@@ -1,7 +1,7 @@
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
-import { Button } from '@/components/ui/button'
-import { ROUTES } from '@/utils/constants'
+import { Button } from '@/shared/ui/button'
+import { ROUTES } from '@/shared/lib/constants'
 
 interface RouteErrorPageProps {
   error: unknown

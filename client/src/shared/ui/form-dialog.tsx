@@ -5,9 +5,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { DialogFooterActions } from '@/components/ui/dialog-footer-actions'
-import { cn } from '@/utils/cn'
+} from '@/shared/ui/dialog'
+import { DialogFooterActions } from '@/shared/ui/dialog-footer-actions'
+import { cn } from '@/shared/lib/cn'
 
 export interface FormDialogProps {
   open: boolean

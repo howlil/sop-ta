@@ -1,7 +1,7 @@
 import { ArrowLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { useDocumentTitle } from '@/hooks/use-document-title'
-import { cn } from '@/utils/cn'
+import { Button } from '@/shared/ui/button'
+import { useDocumentTitle } from '@/shared/hooks/use-document-title'
+import { cn } from '@/shared/lib/cn'
 import {
   ArsipBreadcrumb,
   ArsipHeroSearch,

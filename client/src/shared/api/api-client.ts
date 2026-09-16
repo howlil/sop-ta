@@ -1,4 +1,4 @@
-import { resolveApiBaseUrl } from '@/config/env'
+import { resolveApiBaseUrl } from '@/app/config/env'
 
 export function buildQueryString<T extends object>(params?: T): string {
   if (!params) return ''
@@ -162,7 +162,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}, retryCoun
         return request<T>(endpoint, options, retryCount + 1)
       }
     }
-    const { handleUnauthorizedSession } = await import('@/stores/authStore')
+    const { handleUnauthorizedSession } = await import('@/app/stores/authStore')
     handleUnauthorizedSession()
     throw new ApiError(401, 'Sesi berakhir. Silakan login kembali.')
   }

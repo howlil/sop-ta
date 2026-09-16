@@ -7,9 +7,9 @@ vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => vi.fn(),
 }))
 
-import { DetailPageLayout } from '@/components/layout/DetailPageLayout'
-import { HeaderBar } from '@/components/layout/HeaderBar'
-import { PageHeaderProvider } from '@/components/layout/PageHeaderProvider'
+import { DetailPageLayout } from '@/app/layout/DetailPageLayout'
+import { HeaderBar } from '@/app/layout/HeaderBar'
+import { PageHeaderProvider } from '@/app/layout/PageHeaderProvider'
 
 describe('DetailPageLayout', () => {
   it('menggunakan breadcrumb sebagai navigasi balik tanpa standalone back row', async () => {

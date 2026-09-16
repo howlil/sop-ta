@@ -1,21 +1,21 @@
 import { forwardRef, useImperativeHandle, useState } from 'react'
 import { Edit, History, MoreVertical, Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Table } from '@/components/ui/data-table'
-import { EmptyState } from '@/components/ui/empty-state'
-import { LoadingTableRow } from '@/components/ui/loading-state'
+import { Button } from '@/shared/ui/button'
+import { Table } from '@/shared/ui/data-table'
+import { EmptyState } from '@/shared/ui/empty-state'
+import { LoadingTableRow } from '@/shared/ui/loading-state'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from '@/components/ui/dropdown-menu'
+} from '@/shared/ui/dropdown-menu'
 import {
   PersonMonoCell,
   PersonNameCell,
   PersonStatusCell,
   PersonTextCell,
-} from '@/components/person/person-table-cells'
+} from '@/shared/person/person-table-cells'
 import { KepalaOpdManageDialog } from './KepalaOpdManageDialog'
 import { TambahKepalaOPDDialog } from './TambahKepalaOPDDialog'
 import { KepalaOpdRiwayatDialog } from './KepalaOpdRiwayatDialog'

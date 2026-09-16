@@ -1,5 +1,5 @@
 import type { QueryClient, QueryKey } from '@tanstack/react-query'
-import { queryKeys } from '@/config/query-keys'
+import { queryKeys } from '@/app/config/query-keys'
 
 /** Cache yang saling bergantung saat alur SOP atau evaluasi berubah. */
 export const SOP_EVALUASI_WORKFLOW_QUERY_KEYS: readonly QueryKey[] = [

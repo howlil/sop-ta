@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { DetailSOP } from '@/pages/kepala-opd/sop/DetailSOP'
-import { ROUTES } from '@/utils/constants'
+import { ROUTES } from '@/shared/lib/constants'
 
 export const Route = createFileRoute('/kepala-opd/sop/$id')({
   component: KepalaOPDDetailSOPPage,

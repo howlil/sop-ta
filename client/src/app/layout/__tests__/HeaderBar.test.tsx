@@ -1,11 +1,11 @@
 import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
-import { HeaderBar } from '@/components/layout/HeaderBar'
+import { HeaderBar } from '@/app/layout/HeaderBar'
 import {
   PageHeaderProvider,
   SetPageHeader,
-} from '@/components/layout/PageHeaderProvider'
+} from '@/app/layout/PageHeaderProvider'
 
 describe('HeaderBar', () => {
   it('menampilkan breadcrumb sebagai identitas visual dan menjaga judul hanya untuk pembaca layar', async () => {

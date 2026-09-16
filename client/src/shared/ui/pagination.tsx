@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/utils/cn";
-import { DEFAULT_PAGE_SIZE } from "@/utils/constants";
+import { Button } from "@/shared/ui/button";
+import { cn } from "@/shared/lib/cn";
+import { DEFAULT_PAGE_SIZE } from "@/shared/lib/constants";
 
 export interface PaginationProps {
   totalItems: number

@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
-import { IconActionButton } from '@/components/ui/icon-action-button'
-import { cn } from '@/utils/cn'
+import { IconActionButton } from '@/shared/ui/icon-action-button'
+import { cn } from '@/shared/lib/cn'
 
 export interface RowAction {
   icon: LucideIcon

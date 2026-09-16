@@ -10,11 +10,11 @@ vi.mock('@tanstack/react-router', () => ({
   useLocation: () => ({ pathname: '/penyusun/sop' }),
 }))
 
-vi.mock('@/components/layout/HeaderBar', () => ({ HeaderBar: () => <div>Header</div> }))
-vi.mock('@/components/layout/PageHeaderProvider', () => ({
+vi.mock('@/app/layout/HeaderBar', () => ({ HeaderBar: () => <div>Header</div> }))
+vi.mock('@/app/layout/PageHeaderProvider', () => ({
   PageHeaderProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
 }))
-vi.mock('@/components/layout/SidebarUserMenu', () => ({
+vi.mock('@/app/layout/SidebarUserMenu', () => ({
   SidebarUserMenu: ({ collapsed = false }: { collapsed?: boolean }) => (
     <button
       type="button"
@@ -24,14 +24,14 @@ vi.mock('@/components/layout/SidebarUserMenu', () => ({
     </button>
   ),
 }))
-vi.mock('@/stores/authStore', () => ({
+vi.mock('@/app/stores/authStore', () => ({
   useAuthStore: (selector: (state: { user: { peran: string } }) => unknown) =>
     selector({ user: { peran: 'PENYUSUN' } }),
 }))
-vi.mock('@/utils/role-key', () => ({ toNavigationRole: () => 'PENYUSUN' }))
+vi.mock('@/shared/lib/role-key', () => ({ toNavigationRole: () => 'PENYUSUN' }))
 
-import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { useUIStore } from '@/stores/uiStore'
+import { DashboardLayout } from '@/app/layout/DashboardLayout'
+import { useUIStore } from '@/app/stores/uiStore'
 
 const STORAGE_KEY = 'ui:desktop-sidebar-collapsed'
 

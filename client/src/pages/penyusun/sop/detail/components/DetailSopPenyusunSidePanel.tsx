@@ -5,7 +5,7 @@ import {
   CollapsibleSidePanelContent,
   CollapsibleSidePanelHeader,
   PanelTabStrip,
-} from '@/components/ui/collapsible-side-panel'
+} from '@/shared/ui/collapsible-side-panel'
 import { UmpanBalikEvaluasiPanel } from '@/pages/penyusun/sop/components/UmpanBalikEvaluasiPanel'
 import type { UmpanBalikEvaluasiDetail } from '@/types/dto/evaluasi.dto'
 import { RiwayatStatusPanel } from '@/pages/penyusun/sop/components/RiwayatStatusPanel'

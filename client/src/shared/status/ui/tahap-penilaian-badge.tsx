@@ -1,6 +1,6 @@
-import { cn } from '@/utils/cn'
-import type { TahapPenilaianSop } from '@/lib/evaluasi/evaluasi-domain'
-import { getTahapPenilaianCopy } from '@/lib/evaluasi/evaluasi-domain'
+import { cn } from '@/shared/lib/cn'
+import type { TahapPenilaianSop } from '@/features/evaluation/model/evaluasi-domain'
+import { getTahapPenilaianCopy } from '@/features/evaluation/model/evaluasi-domain'
 
 export interface TahapPenilaianBadgeProps {
   tahap: TahapPenilaianSop

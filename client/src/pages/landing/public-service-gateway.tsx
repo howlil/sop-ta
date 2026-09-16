@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { Archive, ArrowUpRight, ShieldCheck } from 'lucide-react'
-import { ROUTES } from '@/utils/constants'
+import { ROUTES } from '@/shared/lib/constants'
 
 const services = [
   {

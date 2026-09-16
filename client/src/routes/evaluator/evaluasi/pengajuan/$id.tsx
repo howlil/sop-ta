@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { DetailEvaluasiPengajuan } from '@/pages/evaluator/evaluasi/DetailEvaluasiPengajuan'
-import { RouteErrorPage } from '@/components/ui/route-error'
+import { RouteErrorPage } from '@/shared/ui/route-error'
 
 function parseEvaluasiPengajuanSearch(raw: Record<string, unknown>): {
   sopId?: string

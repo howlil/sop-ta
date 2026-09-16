@@ -1,14 +1,14 @@
 import { MoreHorizontal, Settings2, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Table } from '@/components/ui/data-table'
+import { Button } from '@/shared/ui/button'
+import { Table } from '@/shared/ui/data-table'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@/shared/ui/dropdown-menu'
 import { useProsedurEditor } from '@/pages/penyusun/sop/hooks/use-prosedur-editor'
-import { useToast } from '@/hooks/useToast'
+import { useToast } from '@/shared/hooks/use-toast'
 import {
   KegiatanCell,
   TypeCell,
@@ -23,7 +23,7 @@ import type { ProsedurRow } from '@/types/ui/sop'
 import {
   formatProsedurValidationMessage,
   validateProsedurRows,
-} from '@/lib/sop/validateProsedurRows'
+} from '@/features/sop/model/validateProsedurRows'
 
 export interface DetailSOPProsedurEditorProps {
   prosedurRows: ProsedurRow[]

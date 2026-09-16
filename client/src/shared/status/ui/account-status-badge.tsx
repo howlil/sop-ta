@@ -1,7 +1,7 @@
 import {
   getAccountStatusColors,
   getAccountStatusLabel,
-} from '@/lib/status/account-status.config'
+} from '@/shared/status/model/account-status.config'
 import { DomainStatusBadge } from './domain-status-badge'
 
 export interface AccountStatusBadgeProps {

@@ -1,8 +1,8 @@
-import { cn } from '@/utils/cn'
+import { cn } from '@/shared/lib/cn'
 import {
   deriveTahapPenilaianSop,
   type TahapPenilaianSop,
-} from '@/lib/evaluasi/evaluasi-domain'
+} from '@/features/evaluation/model/evaluasi-domain'
 import { HasilEvaluasiBadge } from './hasil-evaluasi-badge'
 import { SopStatusBadge } from './sop-status-badge'
 import { TahapPenilaianBadge } from './tahap-penilaian-badge'

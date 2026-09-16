@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import type { BreadcrumbItem } from '@/components/ui/breadcrumb'
+import type { BreadcrumbItem } from '@/shared/ui/breadcrumb'
 
 /**
  * Metadata halaman yang dibutuhkan global authenticated shell.

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useSopDiagramAutosave } from '../use-sop-diagram-autosave'
-import type { DiagramConfigSlice } from '@/lib/sop/diagram-config.mapper'
+import type { DiagramConfigSlice } from '@/features/sop/model/diagram-config.mapper'
 
 const sliceA: DiagramConfigSlice = {
   layoutSeed: 1,

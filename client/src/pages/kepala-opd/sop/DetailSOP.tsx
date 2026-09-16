@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { useParams } from "@tanstack/react-router";
 import { AlertTriangle, Ban } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { SopStatusBadge } from "@/components/status/sop-status-badge";
-import { DetailPageLayout } from "@/components/layout/DetailPageLayout";
+import { Button } from "@/shared/ui/button";
+import { SopStatusBadge } from "@/shared/status/ui/sop-status-badge";
+import { DetailPageLayout } from "@/app/layout/DetailPageLayout";
 import { CabutSopDialog } from "@/features/sop/ui/CabutSopDialog";
 import {
   SOPPreviewTemplate,
@@ -19,7 +19,7 @@ import {
   getCabutSopBlockingReason,
   resolveKepalaOpdWorkbenchId,
 } from "@/features/sop/model/cabut-sop.util";
-import { ROUTES } from "@/utils/constants";
+import { ROUTES } from "@/shared/lib/constants";
 
 export interface DetailSOPProps {
   /** Breadcrumb (default: Daftar SOP → Detail SOP). */

@@ -6,8 +6,8 @@
  * Edit beruntun dalam idle window (10 menit) sudah digabung di server menjadi 1 entry.
  */
 import { Activity } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { EmptyState } from '@/components/ui/empty-state'
+import { Badge } from '@/shared/ui/badge'
+import { EmptyState } from '@/shared/ui/empty-state'
 import type {
   BagianSOP,
   PenyusunWorkbenchLogEdit,

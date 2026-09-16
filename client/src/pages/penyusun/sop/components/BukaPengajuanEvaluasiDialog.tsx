@@ -4,9 +4,9 @@ import {
   useEvaluasiWorkspaceOpdSaya,
 } from "@/features/evaluation";
 import type { JenisPengajuanEvaluasi } from "@/types/dto/evaluasi.dto";
-import { FormDialog } from "@/components/ui/form-dialog";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/utils/cn";
+import { FormDialog } from "@/shared/ui/form-dialog";
+import { Label } from "@/shared/ui/label";
+import { cn } from "@/shared/lib/cn";
 
 export interface BukaPengajuanEvaluasiDialogProps {
   readonly open: boolean;

@@ -6,18 +6,18 @@ import {
   usePelaksana,
   useUpdatePelaksana,
 } from "@/features/sop";
-import { DataSurface } from "@/components/data/data-surface";
-import { RowActions } from "@/components/data/row-actions";
-import { SingleTextFieldDialog } from "@/components/forms/single-text-field-dialog";
-import { ListPageLayout } from "@/components/layout/ListPageLayout";
-import { Button } from "@/components/ui/button";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Table } from "@/components/ui/data-table";
-import { EmptyState } from "@/components/ui/empty-state";
-import { SearchInput } from "@/components/ui/search-input";
-import { useToast } from "@/hooks/useToast";
-import { hasRequiredStringFields } from "@/lib/forms/validation";
-import { useAuthStore } from "@/stores/authStore";
+import { DataSurface } from "@/shared/data/data-surface";
+import { RowActions } from "@/shared/data/row-actions";
+import { SingleTextFieldDialog } from "@/shared/forms/ui/single-text-field-dialog";
+import { ListPageLayout } from "@/app/layout/ListPageLayout";
+import { Button } from "@/shared/ui/button";
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
+import { Table } from "@/shared/ui/data-table";
+import { EmptyState } from "@/shared/ui/empty-state";
+import { SearchInput } from "@/shared/ui/search-input";
+import { useToast } from "@/shared/hooks/use-toast";
+import { hasRequiredStringFields } from "@/shared/forms/model/validation";
+import { useAuthStore } from "@/app/stores/authStore";
 import type { Pelaksana } from "@/types/dto/sop.dto";
 
 const REQUIRED_PELAKSANA_FIELDS = ["namaPelaksana"] as const;

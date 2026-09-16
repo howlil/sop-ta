@@ -1,4 +1,4 @@
-import { getHasilEvaluasiColors } from '@/lib/status/hasil-evaluasi.config'
+import { getHasilEvaluasiColors } from '@/shared/status/model/hasil-evaluasi.config'
 import { DomainStatusBadge } from './domain-status-badge'
 
 export interface HasilEvaluasiBadgeProps {

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { cn } from '@/utils/cn'
-import { Button } from '@/components/ui/button'
+import { cn } from '@/shared/lib/cn'
+import { Button } from '@/shared/ui/button'
 
 export type CollapsibleSidePanelSide = 'left' | 'right'
 

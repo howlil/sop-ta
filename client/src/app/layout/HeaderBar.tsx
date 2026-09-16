@@ -1,6 +1,6 @@
-import { Breadcrumb } from '@/components/ui/breadcrumb'
+import { Breadcrumb } from '@/shared/ui/breadcrumb'
 import { NotificationBell } from './NotificationBell'
-import { usePageHeaderContext } from '@/components/layout/PageHeaderProvider'
+import { usePageHeaderContext } from '@/app/layout/PageHeaderProvider'
 
 export function HeaderBar() {
   const headerContent = usePageHeaderContext()?.headerContent

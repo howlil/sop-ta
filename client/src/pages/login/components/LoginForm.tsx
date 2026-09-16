@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { ArrowLeft, Asterisk, Eye, EyeOff } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button } from '@/shared/ui/button'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import type { LoginRequestDto } from '@/types/dto/auth.dto'
 
 export interface LoginFormProps {

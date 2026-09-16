@@ -1,9 +1,9 @@
 import { lazy, Suspense } from 'react'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { z } from 'zod'
-import { RouteErrorPage } from '@/components/ui/route-error'
-import { getRoleDefaultLandingPath } from '@/utils/role-routing'
-import { getRole, ensureAuthHydrated, syncAuthFromCookie } from '@/stores/authStore'
+import { RouteErrorPage } from '@/shared/ui/route-error'
+import { getRoleDefaultLandingPath } from '@/shared/lib/role-routing'
+import { getRole, ensureAuthHydrated, syncAuthFromCookie } from '@/app/stores/authStore'
 
 const homeSearchSchema = z.object({
   denied: z.coerce.boolean().optional(),

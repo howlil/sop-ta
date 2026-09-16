@@ -1,4 +1,4 @@
-import { cn } from '@/utils/cn'
+import { cn } from '@/shared/lib/cn'
 import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react'
 
 type ToastType = 'success' | 'error' | 'info'

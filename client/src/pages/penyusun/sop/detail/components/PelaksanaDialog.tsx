@@ -1,7 +1,7 @@
 /**
  * Dialog pilih aktor pelaksana untuk metadata SOP.
  */
-import { SearchableSelectDialog } from '@/components/ui/searchable-select-dialog'
+import { SearchableSelectDialog } from '@/shared/ui/searchable-select-dialog'
 
 export interface PelaksanaDialogProps {
   open: boolean

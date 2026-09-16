@@ -1,6 +1,6 @@
-import { FormDialog } from '@/components/ui/form-dialog'
-import { FormField } from '@/components/ui/form-field'
-import { Input } from '@/components/ui/input'
+import { FormDialog } from '@/shared/ui/form-dialog'
+import { FormField } from '@/shared/ui/form-field'
+import { Input } from '@/shared/ui/input'
 
 export interface SingleTextFieldDialogProps {
   open: boolean

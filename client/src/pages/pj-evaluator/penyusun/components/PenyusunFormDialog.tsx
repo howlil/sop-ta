@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
-import { FormDialog } from '@/components/ui/form-dialog'
-import { FormField } from '@/components/ui/form-field'
-import { Select } from '@/components/ui/select'
+import { FormDialog } from '@/shared/ui/form-dialog'
+import { FormField } from '@/shared/ui/form-field'
+import { Select } from '@/shared/ui/select'
 import {
   ManageAssignmentDialog,
   type AssignmentDialogTab,
 } from '@/features/organization/ui/manage-assignment-dialog'
-import { OpdSelectField } from '@/components/forms/opd-select-field'
-import { PersonIdentityFields } from '@/components/forms/person-identity-fields'
+import { OpdSelectField } from '@/shared/forms/ui/opd-select-field'
+import { PersonIdentityFields } from '@/shared/forms/ui/person-identity-fields'
 import type { StatusTim } from '@/types/dto/tim.dto'
 
 interface OPD {

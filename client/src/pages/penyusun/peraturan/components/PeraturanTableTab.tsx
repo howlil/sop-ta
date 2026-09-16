@@ -1,8 +1,8 @@
 import { Edit, Trash2, FileText } from 'lucide-react'
-import { Table } from '@/components/ui/data-table'
-import { RowActions } from '@/components/data/row-actions'
+import { Table } from '@/shared/ui/data-table'
+import { RowActions } from '@/shared/data/row-actions'
 import { PeraturanFormDialog } from '@/pages/penyusun/peraturan/components/PeraturanFormDialog'
-import { EmptyState } from '@/components/ui/empty-state'
+import { EmptyState } from '@/shared/ui/empty-state'
 import type { Peraturan } from "@/types/dto/peraturan.dto";
 
 type PeraturanFormData = {

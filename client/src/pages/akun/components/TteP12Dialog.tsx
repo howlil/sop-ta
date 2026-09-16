@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FormField } from "@/components/ui/form-field";
-import { InfoCard } from "@/components/ui/info-card";
-import { useGenerateP12, useUploadP12 } from "@/api/tte";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { FormField } from "@/shared/ui/form-field";
+import { InfoCard } from "@/shared/ui/info-card";
+import { useGenerateP12, useUploadP12 } from "@/features/tte/api";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 
 export interface TteP12DialogProps {
   open: boolean;

@@ -4,8 +4,8 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { DialogFooterActions } from "@/components/ui/dialog-footer-actions";
+} from "@/shared/ui/dialog";
+import { DialogFooterActions } from "@/shared/ui/dialog-footer-actions";
 
 export interface ConfirmDialogProps {
   open: boolean;

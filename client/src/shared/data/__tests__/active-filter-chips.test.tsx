@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { ActiveFilterChips } from '@/components/data/active-filter-chips'
+import { ActiveFilterChips } from '@/shared/data/active-filter-chips'
 
 describe('ActiveFilterChips', () => {
   it('menghapus filter individual dan seluruh filter secara eksplisit', () => {

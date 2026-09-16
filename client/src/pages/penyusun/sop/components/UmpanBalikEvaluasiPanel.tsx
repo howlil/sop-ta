@@ -1,14 +1,14 @@
 import { Check, MessageSquare } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { LoadingState } from '@/components/ui/loading-state'
-import { EmptyState } from '@/components/ui/empty-state'
-import { HasilEvaluasiBadge } from '@/components/status/hasil-evaluasi-badge'
+import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
+import { LoadingState } from '@/shared/ui/loading-state'
+import { EmptyState } from '@/shared/ui/empty-state'
+import { HasilEvaluasiBadge } from '@/shared/status/ui/hasil-evaluasi-badge'
 import { useTandaiTindakLanjutSelesai } from '@/features/evaluation'
 import {
   getStatusTindakLanjutBadgeClass,
   getStatusTindakLanjutLabel,
-} from '@/lib/status'
+} from '@/shared/status/model'
 import type { UmpanBalikEvaluasiDetail } from '@/types/dto/evaluasi.dto'
 
 export interface UmpanBalikEvaluasiPanelProps {

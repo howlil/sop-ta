@@ -1,13 +1,13 @@
 import { useId, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FormField } from "@/components/ui/form-field";
-import { SetPageHeader } from "@/components/layout/PageHeaderProvider";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { FormField } from "@/shared/ui/form-field";
+import { SetPageHeader } from "@/app/layout/PageHeaderProvider";
 import { useAuth } from "@/features/auth/api";
 import { useOpd } from "@/features/organization/api/opd";
-import { useTTEProfil } from "@/api/tte";
+import { useTTEProfil } from "@/features/tte/api";
 import { useAppRole } from "@/features/auth/hooks/use-app-role";
-import { roleMendukungTte } from "@/utils/role-routing";
+import { roleMendukungTte } from "@/shared/lib/role-routing";
 import { TteSetupSection } from "@/pages/akun/components/TteSetupSection";
 import { PhoneProfileSection } from "@/pages/akun/components/PhoneProfileSection";
 import {
@@ -22,7 +22,7 @@ import {
   Phone,
 } from "lucide-react";
 import { useState as useSt } from "react";
-import { formatIndonesianMobileNumberForInput } from "@/utils/indonesian-mobile-number";
+import { formatIndonesianMobileNumberForInput } from "@/shared/lib/indonesian-mobile-number";
 
 // ─── Atom: info row dalam kartu profil ────────────────────────────
 function ProfileRow({

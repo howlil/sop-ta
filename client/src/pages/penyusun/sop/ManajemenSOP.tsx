@@ -7,17 +7,17 @@ import {
   FileText,
   Trash2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Table } from "@/components/ui/data-table";
-import { SearchInput } from "@/components/ui/search-input";
-import { ListPageLayout } from "@/components/layout/ListPageLayout";
-import { EmptyState } from "@/components/ui/empty-state";
-import { FormField } from "@/components/ui/form-field";
-import { ActiveFilterChips } from "@/components/data/active-filter-chips";
-import { DataSurface } from "@/components/data/data-surface";
-import { FilterDropdownButton } from "@/components/data/filter-dropdown-button";
+import { Button } from "@/shared/ui/button";
+import { Table } from "@/shared/ui/data-table";
+import { SearchInput } from "@/shared/ui/search-input";
+import { ListPageLayout } from "@/app/layout/ListPageLayout";
+import { EmptyState } from "@/shared/ui/empty-state";
+import { FormField } from "@/shared/ui/form-field";
+import { ActiveFilterChips } from "@/shared/data/active-filter-chips";
+import { DataSurface } from "@/shared/data/data-surface";
+import { FilterDropdownButton } from "@/shared/data/filter-dropdown-button";
 import { DateRangeFilterFields } from "@/pages/penyusun/sop/components/date-range-filter-fields";
-import { RowActions } from "@/components/data/row-actions";
+import { RowActions } from "@/shared/data/row-actions";
 import {
   SopNumberCell,
   SopPrimaryCell,
@@ -25,9 +25,9 @@ import {
   SopUpdatedByCell,
   SopVersionCell,
 } from "@/features/sop/ui/sop-table-cells";
-import { ROUTES } from "@/utils/constants";
+import { ROUTES } from "@/shared/lib/constants";
 import { SOPStatusFilterSelect } from "@/features/sop/ui/sop-status-filter-select";
-import { SOP_STATUS_FILTER_OPTIONS } from "@/lib/status/sop-status.config";
+import { SOP_STATUS_FILTER_OPTIONS } from "@/shared/status/model/sop-status.config";
 import { BuatSOPDialog } from "@/pages/penyusun/sop/components/BuatSOPDialog";
 import { BukaPengajuanEvaluasiDialog } from "@/pages/penyusun/sop/components/BukaPengajuanEvaluasiDialog";
 import {
@@ -38,8 +38,8 @@ import {
 import type { SopListQueryParams } from "@/types/dto/sop.dto";
 import { useDaftarSopFilters } from "@/pages/penyusun/sop/hooks/use-daftar-sop-filters";
 import { useAppRole } from "@/features/auth/hooks/use-app-role";
-import { useDocumentTitle } from "@/hooks/use-document-title";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useDocumentTitle } from "@/shared/hooks/use-document-title";
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
 import type { SopDaftarRow } from "@/types/dto/sop.dto";
 import { canHapusSopDraftAwal, useHapusSopDraftAwal } from "@/features/sop";
 import { hasSopWorkflowAction } from "@/features/sop/model/sop-workflow";

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Phone, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { FormField } from "@/components/ui/form-field";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/shared/ui/button";
+import { FormField } from "@/shared/ui/form-field";
+import { Input } from "@/shared/ui/input";
 import {
   formatIndonesianMobileNumberForInput,
   normalizeIndonesianMobileNumber,
-} from "@/utils/indonesian-mobile-number";
+} from "@/shared/lib/indonesian-mobile-number";
 
 interface PhoneProfileSectionProps {
   currentPhone?: string | null;

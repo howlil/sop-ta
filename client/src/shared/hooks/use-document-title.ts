@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { APP_DISPLAY_NAME } from '@/config/env'
+import { APP_DISPLAY_NAME } from '@/app/config/env'
 
 export function useDocumentTitle(pageTitle: string | undefined) {
   useEffect(() => {

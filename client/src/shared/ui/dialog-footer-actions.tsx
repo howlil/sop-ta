@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button'
-import { DialogFooter } from '@/components/ui/dialog'
+import { Button } from '@/shared/ui/button'
+import { DialogFooter } from '@/shared/ui/dialog'
 
 export interface DialogFooterActionsProps {
   cancelLabel?: string

@@ -1,5 +1,5 @@
 import { X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/shared/ui/button'
 
 export interface ActiveFilterChipItem {
   id: string

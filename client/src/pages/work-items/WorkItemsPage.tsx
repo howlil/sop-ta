@@ -1,7 +1,7 @@
 import { ArrowRight, CheckCircle2, Loader2 } from 'lucide-react'
-import { SetPageHeader } from '@/components/layout/PageHeaderProvider'
+import { SetPageHeader } from '@/app/layout/PageHeaderProvider'
 import { useWorkItems } from '@/features/work-items'
-import { useDocumentTitle } from '@/hooks/use-document-title'
+import { useDocumentTitle } from '@/shared/hooks/use-document-title'
 
 export function WorkItemsPage() {
   useDocumentTitle('Pekerjaan Saya')

@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { Eye } from 'lucide-react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { EvaluasiWorkflowStepper } from '@/components/evaluasi/evaluasi-workflow-stepper'
-import { SopStatusBadge } from '@/components/status/sop-status-badge'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { EvaluasiWorkflowStepper } from '@/features/evaluation/ui/evaluasi-workflow-stepper'
+import { SopStatusBadge } from '@/shared/status/ui/sop-status-badge'
+import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
+import { Card } from '@/shared/ui/card'
 import {
   DataTableActionTd,
   DataTableActionTh,
@@ -16,20 +16,20 @@ import {
   DataTableRoot,
   DataTableTable,
   DataTableTh,
-} from '@/components/ui/data-table'
-import { RowActions } from '@/components/data/row-actions'
-import { Input } from '@/components/ui/input'
-import { FormField } from '@/components/ui/form-field'
-import { OptionCardPicker } from '@/components/ui/option-card-picker'
-import { Pagination } from '@/components/ui/pagination'
-import { LoadingState } from '@/components/ui/loading-state'
-import { Toast } from '@/components/ui/toast'
+} from '@/shared/ui/data-table'
+import { RowActions } from '@/shared/data/row-actions'
+import { Input } from '@/shared/ui/input'
+import { FormField } from '@/shared/ui/form-field'
+import { OptionCardPicker } from '@/shared/ui/option-card-picker'
+import { Pagination } from '@/shared/ui/pagination'
+import { LoadingState } from '@/shared/ui/loading-state'
+import { Toast } from '@/shared/ui/toast'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@/shared/ui/dialog'
 import { SkorRatingPicker } from '@/pages/evaluator/evaluasi/components/SkorRatingPicker'
 
 describe('regresi aksesibilitas komponen UI', () => {

@@ -1,6 +1,6 @@
 import { Search } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { cn } from '@/utils/cn'
+import { Input } from '@/shared/ui/input'
+import { cn } from '@/shared/lib/cn'
 
 interface SearchInputProps extends Omit<React.ComponentProps<typeof Input>, 'className'> {
   className?: string

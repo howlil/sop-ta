@@ -1,9 +1,9 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { z } from 'zod'
 import { LoginPage } from '@/pages/login/LoginPage'
-import { RouteErrorPage } from '@/components/ui/route-error'
-import { useAuthStore, ensureAuthHydrated, syncAuthFromCookie } from '@/stores/authStore'
-import { redirectArgsFromAppPath, resolvePostLoginPath } from '@/utils/role-routing'
+import { RouteErrorPage } from '@/shared/ui/route-error'
+import { useAuthStore, ensureAuthHydrated, syncAuthFromCookie } from '@/app/stores/authStore'
+import { redirectArgsFromAppPath, resolvePostLoginPath } from '@/shared/lib/role-routing'
 
 const loginSearchSchema = z.object({
   redirect: z.string().optional(),

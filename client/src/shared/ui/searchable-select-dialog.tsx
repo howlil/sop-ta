@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useState } from 'react'
 import { Check } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { SearchInput } from '@/components/ui/search-input'
+import { Button } from '@/shared/ui/button'
+import { SearchInput } from '@/shared/ui/search-input'
 import {
   Dialog,
   DialogContent,
@@ -9,8 +9,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { cn } from '@/utils/cn'
+} from '@/shared/ui/dialog'
+import { cn } from '@/shared/lib/cn'
 
 export interface SearchableSelectDialogProps<T> {
   open: boolean

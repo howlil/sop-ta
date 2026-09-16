@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router'
 import { PanelLeftClose, PanelLeftOpen, type LucideIcon } from 'lucide-react'
 import logoSvg from '@/assets/logo.svg'
-import { APP_DISPLAY_NAME } from '@/config/env'
-import { SidebarUserMenu } from '@/components/layout/SidebarUserMenu'
-import { cn } from '@/utils/cn'
+import { APP_DISPLAY_NAME } from '@/app/config/env'
+import { SidebarUserMenu } from '@/app/layout/SidebarUserMenu'
+import { cn } from '@/shared/lib/cn'
 
 export interface AppSidebarItem {
   to: string

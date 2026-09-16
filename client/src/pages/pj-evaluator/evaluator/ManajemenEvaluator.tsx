@@ -1,26 +1,26 @@
 import { useState } from 'react'
-import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { useDebouncedValue } from '@/shared/hooks/use-debounced-value'
 import { Users, Plus, Edit, Trash2 } from 'lucide-react'
-import { DataSurface } from '@/components/data/data-surface'
-import { Button } from '@/components/ui/button'
-import { Table } from '@/components/ui/data-table'
-import { SearchInput } from '@/components/ui/search-input'
-import { PersonFormDialog } from '@/components/forms/person-form-dialog'
-import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { Badge } from '@/components/ui/badge'
-import { ListPageLayout } from '@/components/layout/ListPageLayout'
-import { EmptyState } from '@/components/ui/empty-state'
+import { DataSurface } from '@/shared/data/data-surface'
+import { Button } from '@/shared/ui/button'
+import { Table } from '@/shared/ui/data-table'
+import { SearchInput } from '@/shared/ui/search-input'
+import { PersonFormDialog } from '@/shared/forms/ui/person-form-dialog'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { Badge } from '@/shared/ui/badge'
+import { ListPageLayout } from '@/app/layout/ListPageLayout'
+import { EmptyState } from '@/shared/ui/empty-state'
 import { useEvaluatorAnggota } from '@/features/organization/api/evaluator-anggota'
 import type { EvaluatorAnggota, StatusTim } from '@/types/dto/tim.dto'
-import { RowActions } from '@/components/data/row-actions'
+import { RowActions } from '@/shared/data/row-actions'
 import {
   PersonMonoCell,
   PersonNameCell,
   PersonStatusCell,
   PersonTextCell,
-} from '@/components/person/person-table-cells'
-import { formatDateId } from '@/utils/format-date'
-import { hasRequiredStringFields } from '@/lib/forms/validation'
+} from '@/shared/person/person-table-cells'
+import { formatDateId } from '@/shared/lib/format-date'
+import { hasRequiredStringFields } from '@/shared/forms/model/validation'
 
 const REQUIRED_EVALUATOR_FIELDS = [
   'namaLengkap',

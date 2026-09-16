@@ -21,11 +21,11 @@ vi.mock('@/features/auth/api', () => ({
   useAuth: () => ({ logout }),
 }))
 
-vi.mock('@/utils/role-routing', () => ({
+vi.mock('@/shared/lib/role-routing', () => ({
   getMeRoute: () => '/penyusun/me',
 }))
 
-import { SidebarUserMenu } from '@/components/layout/SidebarUserMenu'
+import { SidebarUserMenu } from '@/app/layout/SidebarUserMenu'
 
 function openProfileMenu() {
   fireEvent.pointerDown(screen.getByRole('button', { name: 'Menu profil Pengguna Uji' }), {

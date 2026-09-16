@@ -1,10 +1,10 @@
 /** Cell components for the inline SOP procedure spreadsheet editor. */
 
 import { useEffect, useMemo, useRef } from 'react'
-import { AutoResizeTextarea } from '@/components/ui/auto-resize-textarea'
-import { Input } from '@/components/ui/input'
+import { AutoResizeTextarea } from '@/shared/ui/auto-resize-textarea'
+import { Input } from '@/shared/ui/input'
 import type { ProsedurRow } from '@/types/ui/sop'
-import { resolveProsedurPelaksanaIdOrFallback } from '@/lib/sop/resolve-prosedur-implementer'
+import { resolveProsedurPelaksanaIdOrFallback } from '@/features/sop/model/resolve-prosedur-implementer'
 
 interface CompactTextCellProps {
   label: string

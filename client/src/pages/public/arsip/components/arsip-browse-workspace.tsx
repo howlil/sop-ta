@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Building2, PanelLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/shared/ui/button'
 import {
   CollapsedStripButton,
   CollapsibleSidePanel,
   CollapsibleSidePanelContent,
   CollapsibleSidePanelHeader,
   SimplePanelHeader,
-} from '@/components/ui/collapsible-side-panel'
+} from '@/shared/ui/collapsible-side-panel'
 import type { PublicOpdItem, PublicSopItem } from '@/types/dto/sop-public.dto'
 import type { PaginationMetaDto } from '@/types/contracts/pagination.contract'
 import { ArsipOpdSidebar } from './arsip-opd-sidebar'

@@ -1,6 +1,6 @@
 import { createContext, useContext, useId, type ReactNode } from 'react'
-import { Label } from '@/components/ui/label'
-import { cn } from '@/utils/cn'
+import { Label } from '@/shared/ui/label'
+import { cn } from '@/shared/lib/cn'
 
 export interface FormFieldProps {
   /** Teks atau konten label (bisa string atau ReactNode untuk label dengan inline style) */

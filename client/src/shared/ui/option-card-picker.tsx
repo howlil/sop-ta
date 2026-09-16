@@ -1,6 +1,6 @@
 import { useRef, type KeyboardEvent, type ReactNode } from 'react'
-import { FormField } from '@/components/ui/form-field'
-import { cn } from '@/utils/cn'
+import { FormField } from '@/shared/ui/form-field'
+import { cn } from '@/shared/lib/cn'
 
 export type OptionCardVariant = 'success' | 'warning' | 'neutral' | 'info'
 

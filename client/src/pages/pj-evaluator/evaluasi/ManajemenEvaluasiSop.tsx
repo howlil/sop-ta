@@ -5,19 +5,19 @@ import {
   STATUS_RIWAYAT_FINAL_EVALUASI,
   usePengajuanEvaluasiRingkas,
 } from '@/features/evaluation'
-import { DataSurface } from '@/components/data/data-surface'
-import { ListPageLayout } from '@/components/layout/ListPageLayout'
-import { SearchInput } from '@/components/ui/search-input'
-import { RowActions } from '@/components/data/row-actions'
+import { DataSurface } from '@/shared/data/data-surface'
+import { ListPageLayout } from '@/app/layout/ListPageLayout'
+import { SearchInput } from '@/shared/ui/search-input'
+import { RowActions } from '@/shared/data/row-actions'
 import {
   EvaluasiFilterTabs,
   type EvaluasiFilterTab,
 } from '@/features/evaluation/ui/evaluasi-filter-tabs'
 import { EvaluasiPengajuanGroupedList } from '@/features/evaluation/ui/evaluasi-pengajuan-grouped-list'
-import { readPaginationMeta } from '@/lib/api/pagination'
-import { ROUTES, IA, DEFAULT_PAGE_SIZE } from '@/utils/constants'
-import { useDocumentTitle } from '@/hooks/use-document-title'
-import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { readPaginationMeta } from '@/shared/api/pagination'
+import { ROUTES, IA, DEFAULT_PAGE_SIZE } from '@/shared/lib/constants'
+import { useDocumentTitle } from '@/shared/hooks/use-document-title'
+import { useDebouncedValue } from '@/shared/hooks/use-debounced-value'
 
 export function ManajemenEvaluasiSop() {
   useDocumentTitle(`${IA.NAV_BIRO_EVALUASI_REQUEST_EVALUATOR} — PJ Evaluator`)

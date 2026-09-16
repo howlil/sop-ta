@@ -1,7 +1,7 @@
 import { ChevronRight } from 'lucide-react'
-import { Table } from '@/components/ui/data-table'
-import { formatDateIdLong } from '@/utils/format-date'
-import { cn } from '@/utils/cn'
+import { Table } from '@/shared/ui/data-table'
+import { formatDateIdLong } from '@/shared/lib/format-date'
+import { cn } from '@/shared/lib/cn'
 import type { PublicSopItem } from '@/types/dto/sop-public.dto'
 
 export type ArsipSopTableVariant = 'default' | 'compact'

@@ -1,14 +1,14 @@
 import { forwardRef, useImperativeHandle, useState } from 'react'
 import { Building2, MoreVertical, Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Table } from '@/components/ui/data-table'
-import { SingleTextFieldDialog } from '@/components/forms/single-text-field-dialog'
+import { Button } from '@/shared/ui/button'
+import { Table } from '@/shared/ui/data-table'
+import { SingleTextFieldDialog } from '@/shared/forms/ui/single-text-field-dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@/shared/ui/dropdown-menu'
 import type { OPDUI as OPD } from '@/types/ui/organisasi'
 
 interface OpdDialogState {

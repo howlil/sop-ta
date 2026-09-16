@@ -1,17 +1,17 @@
 import { useMemo, useState } from 'react'
 import { Plus } from 'lucide-react'
-import { DataSurface } from '@/components/data/data-surface'
-import { Button } from '@/components/ui/button'
-import { SearchInput } from '@/components/ui/search-input'
-import { ListPageLayout } from '@/components/layout/ListPageLayout'
-import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { Skeleton } from '@/components/ui/skeleton'
+import { DataSurface } from '@/shared/data/data-surface'
+import { Button } from '@/shared/ui/button'
+import { SearchInput } from '@/shared/ui/search-input'
+import { ListPageLayout } from '@/app/layout/ListPageLayout'
+import { ConfirmDialog } from '@/shared/ui/confirm-dialog'
+import { Skeleton } from '@/shared/ui/skeleton'
 import type { Peraturan } from "@/types/dto/peraturan.dto";
-import { usePeraturan } from "@/api/peraturan";
-import { useAuthStore } from '@/stores/authStore'
-import { useToast } from "@/hooks/useToast"
+import { usePeraturan } from "@/features/regulations/api";
+import { useAuthStore } from '@/app/stores/authStore'
+import { useToast } from "@/shared/hooks/use-toast"
 import { PeraturanTableTab } from './components/PeraturanTableTab'
-import { hasRequiredStringFields } from '@/lib/forms/validation'
+import { hasRequiredStringFields } from '@/shared/forms/model/validation'
 
 const REQUIRED_PERATURAN_FIELDS = ['peraturan', 'nomor', 'tahun', 'tentang'] as const
 

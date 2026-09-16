@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/utils/cn'
+import { Button } from '@/shared/ui/button'
+import { cn } from '@/shared/lib/cn'
 
 const cornerRemoveButtonClassName =
   'absolute right-1 top-1 z-10 h-5 w-5 rounded-full border border-border bg-surface p-0 text-muted-foreground shadow-surface hover:border-danger hover:bg-danger-subtle hover:text-danger'

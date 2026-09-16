@@ -5,7 +5,7 @@
  */
 
 import type { RoleKey } from "@/types/dto/access.dto";
-import { SOP_STATUS_FILTER_OPTIONS } from "@/lib/status";
+import { SOP_STATUS_FILTER_OPTIONS } from "@/shared/status/model";
 
 // ==================== CONSTANTS ====================
 

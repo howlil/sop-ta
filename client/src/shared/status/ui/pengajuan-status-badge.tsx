@@ -1,4 +1,4 @@
-import { getPengajuanStatusColors } from '@/lib/status/pengajuan-status.config'
+import { getPengajuanStatusColors } from '@/shared/status/model/pengajuan-status.config'
 import { DomainStatusBadge } from './domain-status-badge'
 
 export interface PengajuanStatusBadgeProps {

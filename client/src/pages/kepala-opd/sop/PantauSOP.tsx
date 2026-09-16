@@ -1,22 +1,22 @@
 import { useMemo, useState } from "react";
 import { Ban, Eye, FileText } from "lucide-react";
-import { ActiveFilterChips } from "@/components/data/active-filter-chips";
-import { DataSurface } from "@/components/data/data-surface";
-import { Table } from "@/components/ui/data-table";
-import { SearchInput } from "@/components/ui/search-input";
+import { ActiveFilterChips } from "@/shared/data/active-filter-chips";
+import { DataSurface } from "@/shared/data/data-surface";
+import { Table } from "@/shared/ui/data-table";
+import { SearchInput } from "@/shared/ui/search-input";
 import { SOPStatusFilterSelect } from "@/features/sop/ui/sop-status-filter-select";
-import { ListPageLayout } from "@/components/layout/ListPageLayout";
-import { EmptyState } from "@/components/ui/empty-state";
+import { ListPageLayout } from "@/app/layout/ListPageLayout";
+import { EmptyState } from "@/shared/ui/empty-state";
 import { CabutSopDialog } from "@/features/sop/ui/CabutSopDialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
 import {
   SopDateCell,
   SopNumberCell,
   SopPrimaryCell,
   SopStatusCell,
 } from "@/features/sop/ui/sop-table-cells";
-import { SOP_STATUS_FILTER_OPTIONS } from "@/lib/status/sop-status.config";
-import { ROUTES } from "@/utils/constants";
+import { SOP_STATUS_FILTER_OPTIONS } from "@/shared/status/model/sop-status.config";
+import { ROUTES } from "@/shared/lib/constants";
 import { useCabutSop, useSop } from "@/features/sop";
 import type { SopDaftarRow } from "@/types/dto/sop.dto";
 import { canShowCabutSopAction, getCabutSopBlockingReason } from "@/features/sop/model/cabut-sop.util";

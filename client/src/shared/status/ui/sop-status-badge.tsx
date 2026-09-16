@@ -1,4 +1,4 @@
-import { getSopStatusColors } from '@/lib/status/sop-status.config'
+import { getSopStatusColors } from '@/shared/status/model/sop-status.config'
 import { DomainStatusBadge } from './domain-status-badge'
 
 export interface SopStatusBadgeProps {

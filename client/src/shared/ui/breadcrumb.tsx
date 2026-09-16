@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { ChevronRight } from 'lucide-react'
-import { cn } from '@/utils/cn'
+import { cn } from '@/shared/lib/cn'
 
 export interface BreadcrumbItem {
   /** Label tampilan. */

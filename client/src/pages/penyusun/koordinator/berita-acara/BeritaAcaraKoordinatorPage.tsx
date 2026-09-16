@@ -1,17 +1,17 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useBeritaAcaraPjPenyusun } from '@/features/evaluation'
-import { ListPageLayout } from '@/components/layout/ListPageLayout'
-import { RowActions } from '@/components/data/row-actions'
+import { ListPageLayout } from '@/app/layout/ListPageLayout'
+import { RowActions } from '@/shared/data/row-actions'
 import {
   PengajuanBaNumberCell,
   PengajuanDateCell,
   PengajuanTabbedTable,
-} from '@/components/pengajuan/pengajuan-tabbed-table'
-import { PengajuanStatusBadge } from '@/components/status/pengajuan-status-badge'
-import { Button } from '@/components/ui/button'
+} from '@/features/submission/ui/pengajuan-tabbed-table'
+import { PengajuanStatusBadge } from '@/shared/status/ui/pengajuan-status-badge'
+import { Button } from '@/shared/ui/button'
 import { FileText, Eye, AlertCircle, RefreshCw } from 'lucide-react'
-import { ROUTES } from '@/utils/constants'
-import { formatDateIdFull } from '@/utils/format-date'
+import { ROUTES } from '@/shared/lib/constants'
+import { formatDateIdFull } from '@/shared/lib/format-date'
 
 export function BeritaAcaraKoordinatorPage() {
   const navigate = useNavigate()

@@ -1,6 +1,6 @@
 import type { RoleKey } from '@/types/dto/access.dto';
-import { ROUTES } from '@/utils/constants';
-import { toNavigationRole } from '@/utils/role-key';
+import { ROUTES } from '@/shared/lib/constants';
+import { toNavigationRole } from '@/shared/lib/role-key';
 
 /** Halaman kerja pertama per peran — dipakai untuk redirect `/` dan setelah login. */
 export const ROLE_DEFAULT_LANDING: Record<RoleKey, string> = {

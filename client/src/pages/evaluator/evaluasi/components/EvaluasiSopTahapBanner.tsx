@@ -1,10 +1,10 @@
 import { Info } from 'lucide-react'
-import { formatDateId } from '@/utils/format-date'
+import { formatDateId } from '@/shared/lib/format-date'
 import {
   getTahapPenilaianCopy,
   isDetailDiperbaruiSetelahTindakLanjut,
   type TahapPenilaianSop,
-} from '@/lib/evaluasi/evaluasi-domain'
+} from '@/features/evaluation/model/evaluasi-domain'
 
 export interface EvaluasiSopTahapBannerProps {
   tahap: TahapPenilaianSop

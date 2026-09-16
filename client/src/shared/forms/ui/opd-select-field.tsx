@@ -1,5 +1,5 @@
-import { FormField } from '@/components/ui/form-field'
-import { Select } from '@/components/ui/select'
+import { FormField } from '@/shared/ui/form-field'
+import { Select } from '@/shared/ui/select'
 
 export interface OpdOption {
   id: string
