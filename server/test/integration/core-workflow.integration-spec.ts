@@ -265,6 +265,7 @@ describeIntegration('Core workflow integration test', () => {
     await penyusunAgent
       .patch(`${API}/sop/langkah/${state.detailSopId}`)
       .send({
+        expectedRevision: 0,
         pelaksana: [{ pelaksanaId: state.pelaksanaId }],
         langkah: [
           {
@@ -284,7 +285,7 @@ describeIntegration('Core workflow integration test', () => {
 
     await penyusunAgent
       .patch(`${API}/sop/diagram/${state.detailSopId}`)
-      .send({ jenis: 'FLOWCHART', layoutSeed: 1, pathOverrides: { edges: {}, labels: {} } })
+      .send({ expectedRevision: 0, jenis: 'FLOWCHART', layoutSeed: 1, pathOverrides: { edges: {}, labels: {} } })
       .expect(200);
 
     const detail = await prisma.detailSOP.findUniqueOrThrow({
@@ -314,6 +315,7 @@ describeIntegration('Core workflow integration test', () => {
     const invalidBranch = await penyusunAgent
       .patch(`${API}/sop/langkah/${state.detailSopId}`)
       .send({
+        expectedRevision: 1,
         pelaksana: [{ pelaksanaId: state.pelaksanaId }],
         langkah: [
           {

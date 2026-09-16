@@ -110,6 +110,7 @@ async function buildAndPromoteSopToBerlaku(
   await penyusunAgent
     .patch(`${API}/sop/langkah/${detailSopId}`)
     .send({
+      expectedRevision: 0,
       pelaksana: [{ pelaksanaId: opts.pelaksanaId }],
       langkah: [
         {
@@ -129,7 +130,7 @@ async function buildAndPromoteSopToBerlaku(
 
   await penyusunAgent
     .patch(`${API}/sop/diagram/${detailSopId}`)
-    .send({ jenis: 'FLOWCHART', layoutSeed: 1, pathOverrides: { edges: {}, labels: {} } })
+    .send({ expectedRevision: 0, jenis: 'FLOWCHART', layoutSeed: 1, pathOverrides: { edges: {}, labels: {} } })
     .expect(200);
 
   await penyusunAgent
@@ -637,6 +638,7 @@ describeIntegration('SOP Versioning — siklus hidup versi SOP', () => {
       await penyusunAgent
         .patch(`${API}/sop/langkah/${draftSopId}`)
         .send({
+          expectedRevision: 0,
           pelaksana: [{ pelaksanaId }],
           langkah: [
             {
@@ -656,7 +658,7 @@ describeIntegration('SOP Versioning — siklus hidup versi SOP', () => {
 
       await penyusunAgent
         .patch(`${API}/sop/diagram/${draftSopId}`)
-        .send({ jenis: 'FLOWCHART', layoutSeed: 1, pathOverrides: { edges: {}, labels: {} } })
+        .send({ expectedRevision: 0, jenis: 'FLOWCHART', layoutSeed: 1, pathOverrides: { edges: {}, labels: {} } })
         .expect(200);
     });
 
