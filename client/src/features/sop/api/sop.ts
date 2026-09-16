@@ -5,7 +5,7 @@ export {
   useDetailSopPenyusun,
   type UseDetailSopPenyusunDataResult,
   type UseDetailSopPenyusunReturn,
-} from '@/pages/penyusun/sop/hooks/use-detail-sop-penyusun'
+} from '../application/editor'
 export {
   canBuatVersiBaru,
   canHapusSopDraftAwal,
