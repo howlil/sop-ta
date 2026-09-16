@@ -3,11 +3,11 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { apiClient, buildQueryString } from '@/lib/api/api-client'
-import { unwrapApiData, unwrapApiVoid } from '@/lib/api/response'
-import { queryKeys } from '@/config/query-keys'
-import { useMutationWithToast } from '@/hooks/useMutationWithToast'
-import { STALE_TIME } from '@/utils/constants'
+import { apiClient, buildQueryString } from '@/shared/api/api-client'
+import { unwrapApiData, unwrapApiVoid } from '@/shared/api/response'
+import { queryKeys } from '@/app/config/query-keys'
+import { useMutationWithToast } from '@/shared/hooks/use-mutation-with-toast'
+import { STALE_TIME } from '@/shared/lib/constants'
 import type { ApiSuccessResponse } from '@/types/dto/auth.dto'
 import type {
   CreateOpdDto,
