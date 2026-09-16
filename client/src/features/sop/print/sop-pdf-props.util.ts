@@ -8,8 +8,8 @@ export interface SopPrintPreview {
   name?: string
   number?: string
   metadata?: SopPdfDocumentProps['metadata']
-  prosedurRows: NonNullable<SopPdfDocumentProps['prosedurRows']>
-  implementers: NonNullable<SopPdfDocumentProps['implementers']>
+  prosedurRows?: SopPdfDocumentProps['prosedurRows']
+  implementers?: SopPdfDocumentProps['implementers']
   diagramKonfigurasi?: SopPdfDocumentProps['diagramKonfigurasi']
 }
 
