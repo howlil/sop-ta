@@ -22,61 +22,14 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import base64
           path = Path('server/test/integration/core-workflow.integration-spec.ts')
           text = path.read_text()
           marker = "  it('menolak constraint header dan prosedur yang melanggar aturan bisnis', async () => {"
           if text.count(marker) != 1:
               raise SystemExit('integration insertion point not found')
-          test = r'''  it('menolak stale replace-all prosedur secara atomik', async () => {
-    const before = await prisma.detailSOP.findUniqueOrThrow({
-      where: { detailSopId: state.detailSopId },
-      select: { prosedurRevision: true },
-    });
-    expect(before.prosedurRevision).toBe(1);
-
-    const payload = (marker: string) => ({
-      expectedRevision: before.prosedurRevision,
-      pelaksana: [{ pelaksanaId: state.pelaksanaId }],
-      langkah: [
-        {
-          tempId: `parallel-${marker}`,
-          jenis: JenisLangkahProsedur.AWAL_AKHIR,
-          kegiatan: `Parallel winner ${marker}`,
-          kelengkapan: 'Dokumen',
-          keluaran: 'Hasil',
-          waktu: 1,
-          satuanWaktu: SatuanWaktu.d,
-          keterangan: `Writer ${marker}`,
-          pelaksanaId: state.pelaksanaId,
-        },
-      ],
-    });
-
-    const [responseA, responseB] = await Promise.all([
-      penyusunAgent.patch(`${API}/sop/langkah/${state.detailSopId}`).send(payload('A')),
-      pjPenyusunAgent.patch(`${API}/sop/langkah/${state.detailSopId}`).send(payload('B')),
-    ]);
-
-    expect([responseA.status, responseB.status].sort((a, b) => a - b)).toEqual([200, 409]);
-    const conflict = responseA.status === 409 ? responseA : responseB;
-    const winnerMarker = responseA.status === 200 ? 'A' : 'B';
-    expect(conflict.body.code).toBe('SOP_EDIT_CONFLICT');
-    expect(conflict.body.section).toBe('PROSEDUR');
-
-    const after = await prisma.detailSOP.findUniqueOrThrow({
-      where: { detailSopId: state.detailSopId },
-      select: {
-        prosedurRevision: true,
-        langkahSOP: { select: { kegiatan: true }, orderBy: { urutan: 'asc' } },
-      },
-    });
-    expect(after.prosedurRevision).toBe(before.prosedurRevision + 1);
-    expect(after.langkahSOP.map((row) => row.kegiatan)).toEqual([
-      `Parallel winner ${winnerMarker}`,
-    ]);
-  });
-
-'''
+          encoded = 'ICBpdCgnbWVub2xhayBzdGFsZSByZXBsYWNlLWFsbCBwcm9zZWR1ciBzZWNhcmEgYXRvbWlrJywgYXN5bmMgKCkgPT4gewogICAgY29uc3QgYmVmb3JlID0gYXdhaXQgcHJpc21hLmRldGFpbFNPUC5maW5kVW5pcXVlT3JUaHJvdyh7CiAgICAgIHdoZXJlOiB7IGRldGFpbFNvcElkOiBzdGF0ZS5kZXRhaWxTb3BJZCB9LAogICAgICBzZWxlY3Q6IHsgcHJvc2VkdXJSZXZpc2lvbjogdHJ1ZSB9LAogICAgfSk7CiAgICBleHBlY3QoYmVmb3JlLnByb3NlZHVyUmV2aXNpb24pLnRvQmUoMSk7CgogICAgY29uc3QgcGF5bG9hZCA9IChtYXJrZXI6IHN0cmluZykgPT4gKHsKICAgICAgZXhwZWN0ZWRSZXZpc2lvbjogYmVmb3JlLnByb3NlZHVyUmV2aXNpb24sCiAgICAgIHBlbGFrc2FuYTogW3sgcGVsYWtzYW5hSWQ6IHN0YXRlLnBlbGFrc2FuYUlkIH1dLAogICAgICBsYW5na2FoOiBbCiAgICAgICAgewogICAgICAgICAgdGVtcElkOiBgcGFyYWxsZWwtJHttYXJrZXJ9YCwKICAgICAgICAgIGplbmlzOiBKZW5pc0xhbmdrYWhQcm9zZWR1ci5BV0FMX0FLSElSLAogICAgICAgICAga2VnaWF0YW46IGBQYXJhbGxlbCB3aW5uZXIgJHttYXJrZXJ9YCwKICAgICAgICAgIGtlbGVuZ2thcGFuOiAnRG9rdW1lbicsCiAgICAgICAgICBrZWx1YXJhbjogJ0hhc2lsJywKICAgICAgICAgIHdha3R1OiAxLAogICAgICAgICAgc2F0dWFuV2FrdHU6IFNhdHVhbldha3R1LmQsCiAgICAgICAgICBrZXRlcmFuZ2FuOiBgV3JpdGVyICR7bWFya2VyfWAsCiAgICAgICAgICBwZWxha3NhbmFJZDogc3RhdGUucGVsYWtzYW5hSWQsCiAgICAgICAgfSwKICAgICAgXSwKICAgIH0pOwoKICAgIGNvbnN0IFtyZXNwb25zZUEsIHJlc3BvbnNlQl0gPSBhd2FpdCBQcm9taXNlLmFsbChbCiAgICAgIHBlbnl1c3VuQWdlbnQucGF0Y2goYCR7QVBJfS9zb3AvbGFuZ2thaC8ke3N0YXRlLmRldGFpbFNvcElkfWApLnNlbmQocGF5bG9hZCgnQScpKSwKICAgICAgcGpQZW55dXN1bkFnZW50LnBhdGNoKGAke0FQSX0vc29wL2xhbmdrYWgvJHtzdGF0ZS5kZXRhaWxTb3BJZH1gKS5zZW5kKHBheWxvYWQoJ0InKSksCiAgICBdKTsKCiAgICBleHBlY3QoW3Jlc3BvbnNlQS5zdGF0dXMsIHJlc3BvbnNlQi5zdGF0dXNdLnNvcnQoKGEsIGIpID0+IGEgLSBiKSkudG9FcXVhbChbMjAwLCA0MDldKTsKICAgIGNvbnN0IGNvbmZsaWN0ID0gcmVzcG9uc2VBLnN0YXR1cyA9PT0gNDA5ID8gcmVzcG9uc2VBIDogcmVzcG9uc2VCOwogICAgY29uc3Qgd2lubmVyTWFya2VyID0gcmVzcG9uc2VBLnN0YXR1cyA9PT0gMjAwID8gJ0EnIDogJ0InOwogICAgZXhwZWN0KGNvbmZsaWN0LmJvZHkuY29kZSkudG9CZSgnU09QX0VESVRfQ09ORkxJQ1QnKTsKICAgIGV4cGVjdChjb25mbGljdC5ib2R5LnNlY3Rpb24pLnRvQmUoJ1BST1NFRFVSJyk7CgogICAgY29uc3QgYWZ0ZXIgPSBhd2FpdCBwcmlzbWEuZGV0YWlsU09QLmZpbmRVbmlxdWVPclRocm93KHsKICAgICAgd2hlcmU6IHsgZGV0YWlsU29wSWQ6IHN0YXRlLmRldGFpbFNvcElkIH0sCiAgICAgIHNlbGVjdDogewogICAgICAgIHByb3NlZHVyUmV2aXNpb246IHRydWUsCiAgICAgICAgbGFuZ2thaFNPUDogeyBzZWxlY3Q6IHsga2VnaWF0YW46IHRydWUgfSwgb3JkZXJCeTogeyB1cnV0YW46ICdhc2MnIH0gfSwKICAgICAgfSwKICAgIH0pOwogICAgZXhwZWN0KGFmdGVyLnByb3NlZHVyUmV2aXNpb24pLnRvQmUoYmVmb3JlLnByb3NlZHVyUmV2aXNpb24gKyAxKTsKICAgIGV4cGVjdChhZnRlci5sYW5na2FoU09QLm1hcCgocm93KSA9PiByb3cua2VnaWF0YW4pKS50b0VxdWFsKFsKICAgICAgYFBhcmFsbGVsIHdpbm5lciAke3dpbm5lck1hcmtlcn1gLAogICAgXSk7CiAgfSk7Cgo='
+          test = base64.b64decode(encoded).decode()
           text = text.replace(marker, test + marker, 1)
           old = '        expectedRevision: 1,\n        pelaksana: [{ pelaksanaId: state.pelaksanaId }],'
           if text.count(old) != 1:
