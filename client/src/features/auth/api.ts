@@ -1,4 +1,4 @@
-import { apiClient } from "@/lib/api/api-client";
+import { apiClient } from "@/shared/api/api-client";
 import type {
   ApiSuccessResponse,
   ChangePasswordDto,
@@ -49,11 +49,11 @@ export const authApi = {
 };
 
 import { useMutation } from "@tanstack/react-query";
-import { queryClient } from "@/config/query-client";
-import { useAuthStore, ensureAuthHydrated, mapPublicDataToAuthUser } from "@/stores/authStore";
-import { useToast, showErrorMessages } from "@/hooks/useToast";
+import { queryClient } from "@/app/config/query-client";
+import { useAuthStore, ensureAuthHydrated, mapPublicDataToAuthUser } from "@/app/stores/authStore";
+import { useToast, showErrorMessages } from "@/shared/hooks/use-toast";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { navigateToAppPath, resolvePostLoginPath } from "@/utils/role-routing";
+import { navigateToAppPath, resolvePostLoginPath } from "@/shared/lib/role-routing";
 
 export function useAuth() {
   const navigate = useNavigate();

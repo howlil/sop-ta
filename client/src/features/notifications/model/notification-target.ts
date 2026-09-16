@@ -1,5 +1,5 @@
 import type { InAppNotificationDto } from '@/types/dto/notifications.dto'
-import { ROUTES } from '@/utils/constants'
+import { ROUTES } from '@/shared/lib/constants'
 
 function withRouteId(route: string, id: string): string {
   return route.replace('$id', encodeURIComponent(id))

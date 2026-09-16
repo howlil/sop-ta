@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
-import { useTTEProfil } from "@/api/tte";
+import { useTTEProfil } from "@/features/tte/api";
 import {
   isTteProfileReady,
   isTteSetupRequiredError,
-} from "@/lib/tte/tte-setup-state";
+} from "@/features/tte/model/tte-setup-state";
 
 export function useRequireTteSetup() {
   const [tteSetupDialogOpen, setTteSetupDialogOpen] = useState(false);

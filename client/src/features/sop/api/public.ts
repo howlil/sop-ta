@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { queryKeys } from '@/config/query-keys'
-import { apiClient, buildQueryString } from '@/lib/api/api-client'
-import { unwrapApiData } from '@/lib/api/response'
-import { SOP_EVALUASI_WORKFLOW_REFRESH_OPTIONS } from '@/lib/api/cache-invalidation'
+import { queryKeys } from '@/app/config/query-keys'
+import { apiClient, buildQueryString } from '@/shared/api/api-client'
+import { unwrapApiData } from '@/shared/api/response'
+import { SOP_EVALUASI_WORKFLOW_REFRESH_OPTIONS } from '@/shared/api/cache-invalidation'
 import type { ApiSuccessResponse } from '@/types/dto/auth.dto'
 import type {
   PublicArsipQueryParams,

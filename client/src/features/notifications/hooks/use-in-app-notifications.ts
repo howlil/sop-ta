@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   notificationApi,
   resolveNotificationStreamUrl,
-} from '@/api/notifications'
-import { useAuthStore } from '@/stores/authStore'
+} from '@/features/notifications/api'
+import { useAuthStore } from '@/app/stores/authStore'
 import type {
   InAppNotificationDto,
   NotificationKind,

@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/config/query-keys";
+import { queryKeys } from "@/app/config/query-keys";
 import { STATUS_HASIL_EVALUASI } from "@/types/dto/evaluasi.dto";
 import type {
   EvaluasiWorkspaceOpdResponse,
@@ -7,7 +7,7 @@ import type {
   PengajuanEvaluasi,
   StatusHasilEvaluasi,
 } from "@/types/dto/evaluasi.dto";
-import { invalidateSopEvaluasiWorkflow } from "@/lib/api/cache-invalidation";
+import { invalidateSopEvaluasiWorkflow } from "@/shared/api/cache-invalidation";
 
 export interface SaveDraftMutationVariables {
   pengajuanId: string;

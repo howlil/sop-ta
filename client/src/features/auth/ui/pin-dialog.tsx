@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { FormField } from '@/components/ui/form-field'
+import { Button } from '@/shared/ui/button'
+import { Input } from '@/shared/ui/input'
+import { FormField } from '@/shared/ui/form-field'
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@/shared/ui/dialog'
 
 export interface PinDialogSubmitPayload {
   pin: string

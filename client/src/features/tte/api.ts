@@ -2,8 +2,8 @@
  * TTE (Tanda Tangan Elektronik) API — mirror Nest `/tte` (bungkus `{ message, success, data }`).
  */
 
-import { apiClient } from "@/lib/api/api-client";
-import { unwrapApiData } from "@/lib/api/response";
+import { apiClient } from "@/shared/api/api-client";
+import { unwrapApiData } from "@/shared/api/response";
 import type { ApiSuccessResponse } from "@/types/dto/auth.dto";
 import type {
   RegisterTteDto,
@@ -123,11 +123,11 @@ export const tteApi = {
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@/config/query-keys";
-import { useMutationWithToast } from "@/hooks/useMutationWithToast";
-import { isTteSetupRequiredError } from "@/lib/tte/tte-setup-state";
-import { STALE_TIME } from "@/utils/constants";
-import { SOP_EVALUASI_WORKFLOW_QUERY_KEYS } from "@/lib/api/cache-invalidation";
+import { queryKeys } from "@/app/config/query-keys";
+import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
+import { isTteSetupRequiredError } from "@/features/tte/model/tte-setup-state";
+import { STALE_TIME } from "@/shared/lib/constants";
+import { SOP_EVALUASI_WORKFLOW_QUERY_KEYS } from "@/shared/api/cache-invalidation";
 
 export function useTTEProfil(options?: { enabled?: boolean }) {
   return useQuery({

@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { queryKeys } from "@/config/query-keys";
-import { useMutationWithToast } from "@/hooks/useMutationWithToast";
-import { STALE_TIME } from "@/utils/constants";
+import { queryKeys } from "@/app/config/query-keys";
+import { useMutationWithToast } from "@/shared/hooks/use-mutation-with-toast";
+import { STALE_TIME } from "@/shared/lib/constants";
 import { sopApi } from "@/features/sop/api/client";
-import { SOP_EVALUASI_WORKFLOW_REFRESH_OPTIONS } from "@/lib/api/cache-invalidation";
+import { SOP_EVALUASI_WORKFLOW_REFRESH_OPTIONS } from "@/shared/api/cache-invalidation";
 import type { CreateSopRequestDto, SopDaftarRow, SopListQueryParams } from "@/types/dto/sop.dto";
 /**
  * useSop hook - TanStack Query

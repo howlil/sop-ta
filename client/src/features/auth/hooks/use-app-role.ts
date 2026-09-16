@@ -2,10 +2,10 @@
  * Hook akses role & helpers — satu titik akses untuk UI.
  * Uses Zustand selectors with shallow comparison for optimal performance.
  */
-import { useAuthStore } from "@/stores/authStore";
-import { ROLES, ROLE_LABELS } from "@/utils/constants";
+import { useAuthStore } from "@/app/stores/authStore";
+import { ROLES, ROLE_LABELS } from "@/shared/lib/constants";
 import type { RoleKey } from "@/types/dto/access.dto";
-import { toNavigationRole } from "@/utils/role-key";
+import { toNavigationRole } from "@/shared/lib/role-key";
 
 export { ROLES };
 
