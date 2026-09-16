@@ -4,22 +4,22 @@ import { ActiveFilterChips } from "@/components/data/active-filter-chips";
 import { DataSurface } from "@/components/data/data-surface";
 import { Table } from "@/components/ui/data-table";
 import { SearchInput } from "@/components/ui/search-input";
-import { SOPStatusFilterSelect } from "@/components/sop/sop-status-filter-select";
+import { SOPStatusFilterSelect } from "@/features/sop/ui/sop-status-filter-select";
 import { ListPageLayout } from "@/components/layout/ListPageLayout";
 import { EmptyState } from "@/components/ui/empty-state";
-import { CabutSopDialog } from "@/components/sop/CabutSopDialog";
+import { CabutSopDialog } from "@/features/sop/ui/CabutSopDialog";
 import { Button } from "@/components/ui/button";
 import {
   SopDateCell,
   SopNumberCell,
   SopPrimaryCell,
   SopStatusCell,
-} from "@/components/sop/sop-table-cells";
+} from "@/features/sop/ui/sop-table-cells";
 import { SOP_STATUS_FILTER_OPTIONS } from "@/lib/status/sop-status.config";
 import { ROUTES } from "@/utils/constants";
-import { useCabutSop, useSop } from "@/api/sop";
+import { useCabutSop, useSop } from "@/features/sop";
 import type { SopDaftarRow } from "@/types/dto/sop.dto";
-import { canShowCabutSopAction, getCabutSopBlockingReason } from "@/lib/sop/cabut-sop.util";
+import { canShowCabutSopAction, getCabutSopBlockingReason } from "@/features/sop/model/cabut-sop.util";
 
 export function PantauSOP() {
   const [filterStatus, setFilterStatus] = useState("all");
