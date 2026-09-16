@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
 import { useAppRole } from "@/features/auth/hooks/use-app-role";
-import { getMeRoute, navigateToAppPath } from "@/utils/role-routing";
+import { getMeRoute, navigateToAppPath } from "@/shared/lib/role-routing";
 
 interface TteSetupRequiredDialogProps {
   open: boolean;
