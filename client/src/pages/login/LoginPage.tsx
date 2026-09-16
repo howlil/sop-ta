@@ -1,4 +1,4 @@
-import { useAuth } from '@/api/auth'
+import { useAuth } from '@/features/auth/api'
 import { LoginForm } from '@/pages/login/components/LoginForm'
 import { LoginHero } from '@/pages/login/components/LoginHero'
 
