@@ -17,6 +17,8 @@ export type SopWorkflowAction =
   | 'REVOKE'
   | 'VIEW_HISTORY';
 
+export type SopGraphStage = Exclude<WorkflowStage, 'TTE'>;
+
 const ALL_ROLES: readonly PeranPengguna[] = [
   PeranPengguna.PJ_EVALUATOR,
   PeranPengguna.EVALUATOR,
@@ -60,7 +62,7 @@ export const SOP_WORKFLOW_GRAPH = defineWorkflowGraph<
       stage: 'FINAL_APPROVAL',
       actions: [{ action: 'SIGN', roles: [PeranPengguna.KEPALA_OPD] }],
     },
-    [StatusSOP.BERLAKU]: { stage: 'EFFECTIVE' },
+    [StatusSOP.BERLAKU]: { stage: 'EFFECTIVE', terminal: true },
     [StatusSOP.DIGANTIKAN]: { stage: 'SUPERSEDED', terminal: true },
     [StatusSOP.DICABUT]: { stage: 'REVOKED', terminal: true },
   },
@@ -108,8 +110,14 @@ export const SOP_WORKFLOW_GRAPH = defineWorkflowGraph<
   ],
 });
 
-export function getSopWorkflowStage(status: StatusSOP): WorkflowStage {
-  return getWorkflowNode(SOP_WORKFLOW_GRAPH, status).stage;
+export const TERMINAL_SOP_STATUSES: ReadonlySet<StatusSOP> = new Set(
+  (Object.values(StatusSOP) as StatusSOP[]).filter(
+    (status) => getWorkflowNode(SOP_WORKFLOW_GRAPH, status).terminal === true,
+  ),
+);
+
+export function getSopWorkflowStage(status: StatusSOP): SopGraphStage {
+  return getWorkflowNode(SOP_WORKFLOW_GRAPH, status).stage as SopGraphStage;
 }
 
 export function getSopWorkflowActions(
