@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import type { StatusPengajuanEvaluasi } from '@/types/dto/evaluasi.dto'
 import { getEvaluasiStatusBanner, type EvaluasiBannerRole } from '@/features/evaluation/model/evaluasi-status-copy'
-import { PengajuanStatusBadge } from '@/components/status/pengajuan-status-badge'
-import { EvaluasiStatusLegend } from '@/components/status/evaluasi-status-legend'
-import { Button } from '@/components/ui/button'
+import { PengajuanStatusBadge } from '@/shared/status/ui/pengajuan-status-badge'
+import { EvaluasiStatusLegend } from '@/shared/status/ui/evaluasi-status-legend'
+import { Button } from '@/shared/ui/button'
 import { EvaluasiWorkflowStepper } from './evaluasi-workflow-stepper'
-import { cn } from '@/utils/cn'
+import { cn } from '@/shared/lib/cn'
 
 export interface PengajuanEvaluasiStatusHeaderProps {
   status: StatusPengajuanEvaluasi | string
