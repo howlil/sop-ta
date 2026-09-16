@@ -1,6 +1,6 @@
-import { resolveApiBaseUrl } from '@/config/env'
-import { apiClient, buildQueryString } from '@/lib/api/api-client'
-import { unwrapApiData } from '@/lib/api/response'
+import { resolveApiBaseUrl } from '@/app/config/env'
+import { apiClient, buildQueryString } from '@/shared/api/api-client'
+import { unwrapApiData } from '@/shared/api/response'
 import type { ApiSuccessResponse } from '@/types/dto/auth.dto'
 import type {
   InAppNotificationDto,
