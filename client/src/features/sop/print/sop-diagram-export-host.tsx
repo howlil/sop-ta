@@ -1,10 +1,13 @@
 import { useMemo } from 'react'
-import { SOPDiagramBpmn } from '@/components/sop/sop-diagram'
-import { SOPDiagramFlowchart } from '@/components/sop/sop-diagram'
-import { rowsToSteps, toDiagramProsedurRows } from '@/components/sop/sop-diagram'
-import { SOP_DOCUMENT_CONTENT_WRAPPER_CLASS } from '@/components/sop/sop-diagram/layout/sopDocumentLayout'
-import { buildDiagramStateForPreviewTab } from '@/lib/sop/diagram-config.mapper'
-import type { SopDiagramExportInput } from '@/lib/print/sop-diagram-export.util'
+import {
+  SOPDiagramBpmn,
+  SOPDiagramFlowchart,
+  rowsToSteps,
+  toDiagramProsedurRows,
+} from '@/features/sop/diagram'
+import { SOP_DOCUMENT_CONTENT_WRAPPER_CLASS } from '@/features/sop/diagram/layout/sopDocumentLayout'
+import { buildDiagramStateForPreviewTab } from '@/features/sop/model/diagram-config.mapper'
+import type { SopDiagramExportInput } from './sop-diagram-export.util'
 
 export function SopDiagramExportHost({
   input,

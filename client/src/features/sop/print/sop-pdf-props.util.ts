@@ -1,9 +1,17 @@
-import type { SopPreviewWorkbenchProps } from '@/components/pengajuan/sop-document-preview-pane'
 import type {
   SopPdfDocumentProps,
   SopPdfPrintMode,
-} from '@/components/sop/sop-pdf-document'
+} from '@/features/sop/ui/sop-pdf-document'
 import type { TTESignaturePayload } from '@/types/dto/tte.dto'
+
+export interface SopPrintPreview {
+  name?: string
+  number?: string
+  metadata?: SopPdfDocumentProps['metadata']
+  prosedurRows?: SopPdfDocumentProps['prosedurRows']
+  implementers?: SopPdfDocumentProps['implementers']
+  diagramKonfigurasi?: SopPdfDocumentProps['diagramKonfigurasi']
+}
 
 export interface SopPdfPropsFromPreviewOptions {
   includeHeader?: boolean
@@ -11,9 +19,9 @@ export interface SopPdfPropsFromPreviewOptions {
   tteSignaturePayload?: TTESignaturePayload | null
 }
 
-/** Memetakan props pratinjau workbench ke dokumen PDF SOP. */
+/** Memetakan data preview SOP ke dokumen PDF tanpa bergantung pada feature lain. */
 export function sopPreviewPropsToPdfDocumentProps(
-  preview: SopPreviewWorkbenchProps,
+  preview: SopPrintPreview,
   options: SopPdfPropsFromPreviewOptions = {},
 ): SopPdfDocumentProps {
   const printMode = options.printMode ?? 'diagrams_only'

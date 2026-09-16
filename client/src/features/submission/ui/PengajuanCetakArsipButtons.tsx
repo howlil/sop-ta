@@ -12,7 +12,7 @@ import {
   canCetakBeritaAcaraPengajuan,
   canCetakSopArsipPengajuan,
   type PengajuanPrintTarget,
-} from '@/lib/print/pengajuan-print'
+} from '@/features/submission/print/pengajuan-print'
 
 export type PengajuanCetakArsipPrintScope = 'pj-evaluator' | 'pj-penyusun-kepala-opd'
 

@@ -27,7 +27,7 @@ import { LoadingState } from '@/components/ui/loading-state'
 import { ROUTES } from '@/utils/constants'
 import { PengajuanCetakArsipButtons } from '@/components/pengajuan/PengajuanCetakArsipButtons'
 import { usePengajuanCetakArsip } from '@/components/pengajuan/hooks/use-pengajuan-cetak-arsip'
-import { canCetakBeritaAcaraPengajuan, canCetakSopArsipPengajuan } from '@/lib/print/pengajuan-print'
+import { canCetakBeritaAcaraPengajuan, canCetakSopArsipPengajuan } from '@/features/submission/print/pengajuan-print'
 import { formatDateIdFull } from '@/utils/format-date'
 import { useRequireTteSetup } from '@/hooks/use-require-tte-setup'
 

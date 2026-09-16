@@ -4,7 +4,7 @@ import { CheckCircle, History } from "lucide-react";
 import { LoadingState } from "@/components/ui/loading-state";
 import { PengajuanCetakArsipButtons } from "@/components/pengajuan/PengajuanCetakArsipButtons";
 import { usePengajuanCetakArsip } from "@/components/pengajuan/hooks/use-pengajuan-cetak-arsip";
-import { canCetakBeritaAcaraPengajuan, canCetakSopArsipPengajuan } from "@/lib/print/pengajuan-print";
+import { canCetakBeritaAcaraPengajuan, canCetakSopArsipPengajuan } from "@/features/submission/print/pengajuan-print";
 import { BeritaAcaraPreviewPane } from "@/components/pengajuan/berita-acara-preview-pane";
 import { SopDocumentPreviewPane } from "@/components/pengajuan/sop-document-preview-pane";
 import { mapBeritaAcaraTemplateProps } from "@/lib/pengajuan/map-berita-acara-template-props";
@@ -274,44 +274,44 @@ export function DetailPengajuanEvaluasi() {
         }
       >
         <div className="flex h-full min-h-0 min-w-0 flex-col">
-        <DocumentPreviewTabs
-          value={previewMainTab}
-          onValueChange={setPreviewMainTab}
-          headerClassName="px-0 py-1"
-          listClassName="h-7 gap-1"
-          triggerClassName="h-7 px-2.5"
-          tabs={[
-            {
-              value: "sop",
-              label: "Pratinjau SOP",
-              contentClassName:
-                "mt-1 flex min-h-0 flex-1 flex-col overflow-auto px-0 pb-0.5 sm:px-0.5",
-              content: (
-                <SopDocumentPreviewPane
-                  selectedSop={displaySop}
-                  isLoading={sopWorkbenchLoading}
-                  sopPreviewProps={sopPreviewProps}
-                  tteSignaturePayload={tteSignaturePayloadKepalaOpd ?? null}
-                  loadingMessage="Memuat dokumen SOP…"
-                />
-              ),
-            },
-            {
-              value: "ba",
-              label: "Berita Acara",
-              contentClassName:
-                "mt-1 flex min-h-0 flex-1 flex-col overflow-auto px-0 pb-0.5 sm:px-0.5",
-              content:
-                baTemplateProps != null ? (
-                  <BeritaAcaraPreviewPane
-                    isLoading={baViewLoading}
-                    templateProps={baTemplateProps}
-                    loadingMessage="Memuat Berita Acara…"
+          <DocumentPreviewTabs
+            value={previewMainTab}
+            onValueChange={setPreviewMainTab}
+            headerClassName="px-0 py-1"
+            listClassName="h-7 gap-1"
+            triggerClassName="h-7 px-2.5"
+            tabs={[
+              {
+                value: "sop",
+                label: "Pratinjau SOP",
+                contentClassName:
+                  "mt-1 flex min-h-0 flex-1 flex-col overflow-auto px-0 pb-0.5 sm:px-0.5",
+                content: (
+                  <SopDocumentPreviewPane
+                    selectedSop={displaySop}
+                    isLoading={sopWorkbenchLoading}
+                    sopPreviewProps={sopPreviewProps}
+                    tteSignaturePayload={tteSignaturePayloadKepalaOpd ?? null}
+                    loadingMessage="Memuat dokumen SOP…"
                   />
-                ) : null,
-            },
-          ]}
-        />
+                ),
+              },
+              {
+                value: "ba",
+                label: "Berita Acara",
+                contentClassName:
+                  "mt-1 flex min-h-0 flex-1 flex-col overflow-auto px-0 pb-0.5 sm:px-0.5",
+                content:
+                  baTemplateProps != null ? (
+                    <BeritaAcaraPreviewPane
+                      isLoading={baViewLoading}
+                      templateProps={baTemplateProps}
+                      loadingMessage="Memuat Berita Acara…"
+                    />
+                  ) : null,
+              },
+            ]}
+          />
         </div>
       </DetailPageLayout>
 

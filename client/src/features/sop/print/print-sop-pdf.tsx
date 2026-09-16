@@ -1,14 +1,14 @@
 import { pdf } from '@react-pdf/renderer'
 import QRCode from 'qrcode'
-import { tteApi } from '@/api/tte'
+import { tteApi } from '@/features/tte/api'
 import {
   SopPdfDocument,
   type SopPdfDocumentProps,
   type SopPdfPrintMode,
-} from '@/components/sop/sop-pdf-document'
-import { exportSopDiagramSnapshots } from '@/lib/print/sop-diagram-export.util'
-import { getValidasiPengesahanUrl } from '@/lib/tte/url'
+} from '@/features/sop/ui/sop-pdf-document'
+import { getValidasiPengesahanUrl } from '@/features/tte/model/url'
 import type { TTESignaturePayload } from '@/types/dto/tte.dto'
+import { exportSopDiagramSnapshots } from './sop-diagram-export.util'
 
 const QR_SIZE = 64
 
@@ -149,8 +149,6 @@ export async function blobToBase64(blob: Blob): Promise<string> {
 export async function buildSopOfficialPdfBase64(props: SopPdfDocumentProps): Promise<string> {
   const requiredKinds = getRequiredDiagramKinds(props)
 
-  // Jika tidak ada diagram yang dibutuhkan (misalnya prosedurRows kosong),
-  // langsung buat PDF tanpa diagram.
   if (requiredKinds.length === 0) {
     const blob = await buildSopPdfBlob(props, { skipDiagramExport: true })
     return blobToBase64(blob)

@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { BeritaAcaraTemplateProps } from '@/components/pengajuan/berita-acara-template'
+import type { BeritaAcaraTemplateProps } from '@/features/submission/ui/berita-acara-template'
 import {
   buildBeritaAcaraPdfQrUrls,
   sanitizeBeritaAcaraPdfFilename,
-} from '@/lib/print/download-berita-acara-pdf'
+} from '../download-berita-acara-pdf'
 
 const baseProps: BeritaAcaraTemplateProps = {
   opd: 'Dinas Kesehatan',

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { resolvePrintSections } from '@/components/sop/sop-pdf-document.test-utils'
-import { sopPreviewPropsToPdfDocumentProps } from '@/lib/print/sop-pdf-props.util'
+import { resolvePrintSections } from '@/features/sop/ui/sop-pdf-document.test-utils'
+import { sopPreviewPropsToPdfDocumentProps } from '../sop-pdf-props.util'
 
 describe('sopPreviewPropsToPdfDocumentProps', () => {
   it('mengatur cetak arsip tanpa header dan mode diagram', () => {

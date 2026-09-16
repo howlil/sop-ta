@@ -1,4 +1,4 @@
-import { waitForPaintFrames } from './print-frame-wait'
+import { waitForPaintFrames } from '@/shared/print/print-frame-wait'
 
 export const SOP_PRINT_READY_TIMEOUT_MS = 6000
 export const SOP_PRINT_POLL_INTERVAL_MS = 80
@@ -9,8 +9,6 @@ export interface WaitForSopDiagramPrintReadyOptions {
   scope?: ParentNode
   requiredKinds?: SopDiagramKind[]
 }
-
-
 
 /** Judul kosong mengurangi header bawaan browser (tanggal/judul) di dialog cetak. */
 export function suppressBrowserPrintChrome(): () => void {
@@ -123,7 +121,6 @@ export async function waitForSopDiagramPrintReady(
   const requiredKinds = options.requiredKinds ?? ALL_SOP_DIAGRAM_KINDS
   const deadline = Date.now() + timeoutMs
 
-  // Fase 1: tunggu sampai host diagram ter-mount (React perlu beberapa siklus effect)
   while (Date.now() < deadline) {
     await waitForPrintPaint()
     if (hasDiagramHostsMounted(scope, requiredKinds)) break
@@ -132,12 +129,9 @@ export async function waitForSopDiagramPrintReady(
     })
   }
 
-  // Fase 2: tunggu sampai semua root diagram dan connector path ter-render
   while (Date.now() < deadline) {
     await waitForPrintPaint()
     if (areSopDiagramRootsReady(scope, requiredKinds)) return true
-    // Gunakan polling interval yang lebih panjang setelah beberapa iterasi
-    // untuk memberi waktu layout effect berjalan
     const remaining = deadline - Date.now()
     const interval = remaining > 4000 ? SOP_PRINT_POLL_INTERVAL_MS : 200
     await new Promise((resolve) => {
@@ -145,7 +139,6 @@ export async function waitForSopDiagramPrintReady(
     })
   }
 
-  // Cek terakhir setelah timeout — beri satu paint frame lagi
   await waitForPrintPaint()
   const isReady = areSopDiagramRootsReady(scope, requiredKinds)
   if (!isReady) {
@@ -154,6 +147,3 @@ export async function waitForSopDiagramPrintReady(
   }
   return isReady
 }
-
-
-

@@ -26,7 +26,7 @@ import type { SopHeaderAutosaveStatus } from '@/pages/penyusun/sop/hooks/use-sop
 import { usePenyusunWorkbench } from '@/features/sop'
 import { useSopEditor } from '../SopEditorContext'
 import { useToast } from '@/hooks/useToast'
-import { printSopArsipFromPreviewProps } from '@/lib/print/pengajuan-print'
+import { printSopArsipFromPreviewProps } from '@/features/sop/print/sop-print'
 import { mapPenyusunWorkbenchToPreviewProps } from '@/features/sop/model/detailSop.mappers'
 
 export interface DetailSOPPenyusunHeaderProps {

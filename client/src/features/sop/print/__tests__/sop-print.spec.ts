@@ -4,41 +4,22 @@ import {
   printSopPdfDocument,
 } from '../print-sop-pdf'
 import {
-  canCetakBeritaAcaraPengajuan,
-  canCetakSopArsipPengajuan,
   PRINT_DELAY_MS,
   printSopArsipFromPreviewProps,
   scheduleSopDocumentPrint,
   triggerSopPrint,
-} from '../pengajuan-print'
+} from '../sop-print'
 
 vi.mock('../print-sop-pdf', () => ({
   downloadSopPdf: vi.fn(() => Promise.resolve({ diagramExportFailed: false })),
   printSopPdfDocument: vi.fn(() => Promise.resolve({ diagramExportFailed: false })),
+  buildSopOfficialPdfBase64: vi.fn(() => Promise.resolve('base64')),
 }))
 
 const sampleSopPrintProps = {
   name: 'SOP Pengujian',
   number: '001/SOP',
 }
-
-describe('canCetakBeritaAcaraPengajuan', () => {
-  it('mengizinkan cetak BA setelah kedua PJ menandatangani', () => {
-    expect(canCetakBeritaAcaraPengajuan('DITANDATANGANI_PJ_PENYUSUN')).toBe(true)
-    expect(canCetakBeritaAcaraPengajuan('SELESAI')).toBe(true)
-    expect(canCetakBeritaAcaraPengajuan('DITANDATANGANI_PJ_EVALUATOR')).toBe(false)
-    expect(canCetakBeritaAcaraPengajuan(undefined)).toBe(false)
-  })
-})
-
-describe('canCetakSopArsipPengajuan', () => {
-  it('mengizinkan cetak SOP arsip hanya saat status SELESAI', () => {
-    expect(canCetakSopArsipPengajuan('SELESAI')).toBe(true)
-    expect(canCetakSopArsipPengajuan('DITANDATANGANI_PJ_PENYUSUN')).toBe(false)
-    expect(canCetakSopArsipPengajuan(undefined)).toBe(false)
-  })
-})
-
 
 describe('triggerSopPrint', () => {
   beforeEach(() => {
@@ -76,7 +57,6 @@ describe('printSopArsipFromPreviewProps', () => {
     )
   })
 })
-
 
 describe('scheduleSopDocumentPrint', () => {
   beforeEach(() => {

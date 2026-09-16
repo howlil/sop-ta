@@ -3,9 +3,9 @@ import QRCode from 'qrcode'
 import {
   BeritaAcaraPdfDocument,
   type BeritaAcaraPdfDocumentProps,
-} from '@/components/pengajuan/berita-acara-pdf-document'
-import type { BeritaAcaraTemplateProps } from '@/components/pengajuan/berita-acara-template'
-import { getValidasiPengesahanUrl } from '@/lib/tte/url'
+} from '@/features/submission/ui/berita-acara-pdf-document'
+import type { BeritaAcaraTemplateProps } from '@/features/submission/ui/berita-acara-template'
+import { getValidasiPengesahanUrl } from '@/features/tte/model/url'
 import type { TTESignaturePayload } from '@/types/dto/tte.dto'
 
 const QR_SIZE = 64
