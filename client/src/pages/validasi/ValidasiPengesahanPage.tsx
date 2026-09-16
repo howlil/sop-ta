@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { InfoCard } from "@/components/ui/info-card";
 import { useDocumentTitle } from "@/hooks/use-document-title";
 import { mapPenyusunWorkbenchToPreviewProps } from "@/lib/sop/detailSop.mappers";
-import { scheduleSopDocumentPrint } from "@/lib/print/pengajuan-print";
+import { scheduleSopDocumentPrint } from "@/features/sop/print/sop-print";
 import { ROLE_LABELS, ROUTES } from "@/utils/constants";
 import type { PeranTTE, TTESignaturePayload } from "@/types/dto/tte.dto";
 import { formatDateIdLong } from "@/utils/format-date";
@@ -247,8 +247,6 @@ export function ValidasiPengesahanPage() {
             </Link>
           </Button>
         </div>
-
-
       </div>
     </div>
   );
