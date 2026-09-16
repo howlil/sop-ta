@@ -2,8 +2,8 @@
  * Dialog riwayat penempatan OPD - GET /api/v1/penyusun/:id/riwayat-opd
  */
 import { useQuery } from '@tanstack/react-query'
-import { RiwayatOpdDialog } from '@/components/organisasi/riwayat-opd-dialog'
-import { penyusunApi } from '@/api/penyusun'
+import { RiwayatOpdDialog } from '@/features/organization/ui/riwayat-opd-dialog'
+import { penyusunApi } from '@/features/organization/api/penyusun'
 import { queryKeys } from '@/config/query-keys'
 import { STALE_TIME } from '@/utils/constants'
 
