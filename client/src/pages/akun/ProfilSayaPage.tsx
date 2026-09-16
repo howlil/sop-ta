@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/ui/form-field";
 import { SetPageHeader } from "@/components/layout/PageHeaderProvider";
 import { useAuth } from "@/features/auth/api";
-import { useOpd } from "@/api/opd";
+import { useOpd } from "@/features/organization/api/opd";
 import { useTTEProfil } from "@/api/tte";
 import { useAppRole } from "@/features/auth/hooks/use-app-role";
 import { roleMendukungTte } from "@/utils/role-routing";
