@@ -1,0 +1,96 @@
+name: One-shot SOP concurrency DB test patch
+
+on:
+  push:
+    branches:
+      - feat/sop-optimistic-concurrency
+    paths:
+      - .github/workflows/sop-concurrency-db-test-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Add MariaDB-backed stale writer integration test
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('server/test/integration/core-workflow.integration-spec.ts')
+          text = path.read_text()
+          marker = "  it('menolak constraint header dan prosedur yang melanggar aturan bisnis', async () => {"
+          if text.count(marker) != 1:
+              raise SystemExit('integration insertion point not found')
+          test = r'''  it('menolak stale replace-all prosedur secara atomik', async () => {
+    const before = await prisma.detailSOP.findUniqueOrThrow({
+      where: { detailSopId: state.detailSopId },
+      select: { prosedurRevision: true },
+    });
+    expect(before.prosedurRevision).toBe(1);
+
+    const payload = (marker: string) => ({
+      expectedRevision: before.prosedurRevision,
+      pelaksana: [{ pelaksanaId: state.pelaksanaId }],
+      langkah: [
+        {
+          tempId: `parallel-${marker}`,
+          jenis: JenisLangkahProsedur.AWAL_AKHIR,
+          kegiatan: `Parallel winner ${marker}`,
+          kelengkapan: 'Dokumen',
+          keluaran: 'Hasil',
+          waktu: 1,
+          satuanWaktu: SatuanWaktu.d,
+          keterangan: `Writer ${marker}`,
+          pelaksanaId: state.pelaksanaId,
+        },
+      ],
+    });
+
+    const [responseA, responseB] = await Promise.all([
+      penyusunAgent.patch(`${API}/sop/langkah/${state.detailSopId}`).send(payload('A')),
+      pjPenyusunAgent.patch(`${API}/sop/langkah/${state.detailSopId}`).send(payload('B')),
+    ]);
+
+    expect([responseA.status, responseB.status].sort((a, b) => a - b)).toEqual([200, 409]);
+    const conflict = responseA.status === 409 ? responseA : responseB;
+    const winnerMarker = responseA.status === 200 ? 'A' : 'B';
+    expect(conflict.body.code).toBe('SOP_EDIT_CONFLICT');
+    expect(conflict.body.section).toBe('PROSEDUR');
+
+    const after = await prisma.detailSOP.findUniqueOrThrow({
+      where: { detailSopId: state.detailSopId },
+      select: {
+        prosedurRevision: true,
+        langkahSOP: { select: { kegiatan: true }, orderBy: { urutan: 'asc' } },
+      },
+    });
+    expect(after.prosedurRevision).toBe(before.prosedurRevision + 1);
+    expect(after.langkahSOP.map((row) => row.kegiatan)).toEqual([
+      `Parallel winner ${winnerMarker}`,
+    ]);
+  });
+
+'''
+          text = text.replace(marker, test + marker, 1)
+          old = '        expectedRevision: 1,\n        pelaksana: [{ pelaksanaId: state.pelaksanaId }],'
+          if text.count(old) != 1:
+              raise SystemExit('invalid-branch revision point not found')
+          text = text.replace(
+              old,
+              '        expectedRevision: 2,\n        pelaksana: [{ pelaksanaId: state.pelaksanaId }],',
+              1,
+          )
+          path.write_text(text)
+          PY
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add server/test/integration/core-workflow.integration-spec.ts
+          git commit -m "test(sop): prove stale writer rejection against MariaDB"
+          git push origin HEAD:${GITHUB_REF_NAME}
