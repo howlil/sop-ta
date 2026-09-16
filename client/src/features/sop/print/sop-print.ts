@@ -1,4 +1,3 @@
-import type { SopPreviewWorkbenchProps } from '@/features/submission/ui/sop-document-preview-pane'
 import type { SopPdfDocumentProps } from '@/features/sop/ui/sop-pdf-document'
 import type { TTESignaturePayload } from '@/types/dto/tte.dto'
 import {
@@ -7,7 +6,10 @@ import {
   printSopPdfDocument,
   type SopPdfPrintOptions,
 } from './print-sop-pdf'
-import { sopPreviewPropsToPdfDocumentProps } from './sop-pdf-props.util'
+import {
+  sopPreviewPropsToPdfDocumentProps,
+  type SopPrintPreview,
+} from './sop-pdf-props.util'
 
 export const PRINT_DELAY_MS = 150
 
@@ -23,9 +25,9 @@ const SOP_ARSIP_PDF_OPTIONS: Pick<SopPdfFromPreviewOptions, 'includeHeader' | 'p
   printMode: 'header_steps_bpmn',
 }
 
-/** Cetak SOP dari props pratinjau workbench (PDF + diagram). */
+/** Cetak SOP dari data pratinjau (PDF + diagram). */
 export async function printSopFromPreviewProps(
-  preview: SopPreviewWorkbenchProps,
+  preview: SopPrintPreview,
   tteSignaturePayload: TTESignaturePayload | null = null,
   options: SopPdfFromPreviewOptions = {},
 ): Promise<{ diagramExportFailed: boolean }> {
@@ -39,7 +41,7 @@ export async function printSopFromPreviewProps(
 
 /** Cetak SOP resmi dengan format arsip yang sama di seluruh halaman. */
 export function printSopArsipFromPreviewProps(
-  preview: SopPreviewWorkbenchProps,
+  preview: SopPrintPreview,
   tteSignaturePayload: TTESignaturePayload | null = null,
   options: SopPdfPrintOptions = {},
 ): Promise<{ diagramExportFailed: boolean }> {
@@ -51,16 +53,16 @@ export function printSopArsipFromPreviewProps(
 
 /** Bangun artefak PDF resmi untuk disimpan server saat Kepala OPD mengesahkan SOP. */
 export function buildSopArsipPdfBase64FromPreviewProps(
-  preview: SopPreviewWorkbenchProps,
+  preview: SopPrintPreview,
 ): Promise<string> {
   return buildSopOfficialPdfBase64(
     sopPreviewPropsToPdfDocumentProps(preview, SOP_ARSIP_PDF_OPTIONS),
   )
 }
 
-/** Unduh SOP dari props pratinjau workbench (PDF + diagram). */
+/** Unduh SOP dari data pratinjau (PDF + diagram). */
 export async function downloadSopFromPreviewProps(
-  preview: SopPreviewWorkbenchProps,
+  preview: SopPrintPreview,
   tteSignaturePayload: TTESignaturePayload | null = null,
   options: SopPdfFromPreviewOptions = {},
 ): Promise<{ diagramExportFailed: boolean }> {
