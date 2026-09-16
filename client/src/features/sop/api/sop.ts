@@ -10,4 +10,4 @@ export {
   canBuatVersiBaru,
   canHapusSopDraftAwal,
   canPjPenyusunRunCoordinatorActions,
-} from '@/lib/sop/sop-permissions'
+} from '../model/sop-permissions'

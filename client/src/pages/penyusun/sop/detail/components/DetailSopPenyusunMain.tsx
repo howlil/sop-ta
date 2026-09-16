@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ListTree, PenLine, RotateCcw } from 'lucide-react'
-import { SOPPreviewTemplate } from '@/components/sop/sop-preview-template'
+import { SOPPreviewTemplate } from '@/features/sop/ui/sop-preview-template'
 import { DetailSOPProsedurEditor } from './DetailSopProsedurEditor'
 import type { SOPDetailMetadata } from '@/types/ui/sop'
-import { namaLembagaToInstitutionLines } from '@/lib/sop/detailSop.mappers'
+import { namaLembagaToInstitutionLines } from '@/features/sop/model/detailSop.mappers'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/cn'
 import { useSopEditor } from '../SopEditorContext'
-import { usePenyusunWorkbench } from '@/api/sop'
+import { usePenyusunWorkbench } from '@/features/sop'
 import { usePenyusunDiagramConfig } from '../../hooks/use-penyusun-diagram-config'
 
 export interface DetailSOPPenyusunMainProps {

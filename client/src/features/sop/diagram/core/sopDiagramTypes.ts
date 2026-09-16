@@ -2,7 +2,7 @@
 export type { ProsedurRow as ProsedurStepType } from '@/types/ui/sop'
 
 import type { ProsedurRow as CanonicalProsedurRow } from '@/types/ui/sop'
-import { resolveProsedurPelaksanaIdOrFallback } from '@/lib/sop/resolve-prosedur-implementer'
+import { resolveProsedurPelaksanaIdOrFallback } from '../../model/resolve-prosedur-implementer'
 
 /**
  * Shape khusus renderer flowchart lama. Alias presentation ini tidak menjadi editor state;

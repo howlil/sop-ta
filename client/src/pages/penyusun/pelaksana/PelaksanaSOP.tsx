@@ -5,7 +5,7 @@ import {
   useDeletePelaksana,
   usePelaksana,
   useUpdatePelaksana,
-} from "@/api/sop";
+} from "@/features/sop";
 import { DataSurface } from "@/components/data/data-surface";
 import { RowActions } from "@/components/data/row-actions";
 import { SingleTextFieldDialog } from "@/components/forms/single-text-field-dialog";

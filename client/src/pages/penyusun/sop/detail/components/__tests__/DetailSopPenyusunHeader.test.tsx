@@ -6,7 +6,7 @@ const retryAutosave = vi.fn()
 const onComplete = vi.fn()
 const onBuatVersiBaru = vi.fn()
 
-vi.mock('@/api/sop', () => ({
+vi.mock('@/features/sop', () => ({
   usePenyusunWorkbench: () => ({ data: null, isLoading: false }),
 }))
 
@@ -22,7 +22,7 @@ vi.mock('@/lib/print/pengajuan-print', () => ({
   printSopArsipFromPreviewProps: vi.fn(),
 }))
 
-vi.mock('@/lib/sop/detailSop.mappers', () => ({
+vi.mock('@/features/sop/model/detailSop.mappers', () => ({
   mapPenyusunWorkbenchToPreviewProps: vi.fn(),
 }))
 

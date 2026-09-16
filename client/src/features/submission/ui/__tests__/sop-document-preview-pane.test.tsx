@@ -2,11 +2,11 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { SopDocumentPreviewPane } from '../sop-document-preview-pane'
 
-vi.mock('@/hooks/use-sop-preview-diagram-state', () => ({
+vi.mock('@/features/sop/hooks/use-sop-preview-diagram-state', () => ({
   useSopPreviewDiagramState: () => ({ diagramMountEnabled: true }),
 }))
 
-vi.mock('@/components/sop/sop-preview-template', () => ({
+vi.mock('@/features/sop/ui/sop-preview-template', () => ({
   SOPPreviewTemplate: ({ name, previewOptions, diagramState }: any) => (
     <div data-testid="sop-preview-template">
       <span>{name}</span>

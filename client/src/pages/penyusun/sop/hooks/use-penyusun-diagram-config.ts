@@ -1,11 +1,11 @@
 import { startTransition, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import type { PathUpdatedPayload } from '@/components/sop/sop-diagram/shapes/FlowchartArrowConnector'
+import type { PathUpdatedPayload } from '@/features/sop/diagram/shapes/FlowchartArrowConnector'
 import type {
   ArrowConfig,
   LabelConfig,
   SOPStep,
-} from '@/components/sop/sop-diagram/core/sopDiagramTypes'
-import { rowsToSteps } from '@/components/sop/sop-diagram/core/sopDiagramTypes'
+} from '@/features/sop/diagram/core/sopDiagramTypes'
+import { rowsToSteps } from '@/features/sop/diagram/core/sopDiagramTypes'
 import type { ProsedurRow } from '@/types/ui/sop'
 import type { PenyusunWorkbenchData } from '@/types/dto/sop.dto'
 import {
@@ -19,8 +19,8 @@ import {
   type DiagramConfigSlice,
   type DiagramKonfigurasiState,
   type JenisDiagramClient,
-} from '@/lib/sop/diagram-config.mapper'
-import { useUpdateSopDiagram } from '@/api/sop'
+} from '@/features/sop/model/diagram-config.mapper'
+import { useUpdateSopDiagram } from '@/features/sop'
 import { useSopDiagramAutosave } from './use-sop-diagram-autosave'
 
 function buildFlowchartConnections(

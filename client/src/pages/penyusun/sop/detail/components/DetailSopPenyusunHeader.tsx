@@ -23,11 +23,11 @@ import { cn } from '@/utils/cn'
 import type { SOPDetailMetadata } from '@/types/ui/sop'
 import type { StatusSOP } from '@/types/dto/sop.dto'
 import type { SopHeaderAutosaveStatus } from '@/pages/penyusun/sop/hooks/use-sop-header-autosave'
-import { usePenyusunWorkbench } from '@/api/sop'
+import { usePenyusunWorkbench } from '@/features/sop'
 import { useSopEditor } from '../SopEditorContext'
 import { useToast } from '@/hooks/useToast'
 import { printSopArsipFromPreviewProps } from '@/lib/print/pengajuan-print'
-import { mapPenyusunWorkbenchToPreviewProps } from '@/lib/sop/detailSop.mappers'
+import { mapPenyusunWorkbenchToPreviewProps } from '@/features/sop/model/detailSop.mappers'
 
 export interface DetailSOPPenyusunHeaderProps {
   metadata: SOPDetailMetadata

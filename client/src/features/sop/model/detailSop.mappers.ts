@@ -6,7 +6,7 @@ import type {
   SopDetail,
 } from "@/types/dto/sop.dto";
 import type { ProsedurRow, SOPDetailMetadata } from "@/types/ui/sop";
-import { SOP_INSTITUTION_LOGO_URL } from "@/lib/sop/sop-institution-logo";
+import { SOP_INSTITUTION_LOGO_URL } from "./sop-institution-logo";
 
 const API_JENIS_TO_ROW_TYPE: Record<JenisLangkahProsedur, ProsedurRow["type"]> = {
   AWAL_AKHIR: "terminator",

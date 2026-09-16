@@ -10,11 +10,7 @@ export const clientTopologyAliases = [
   { find: '@/api/evaluasi', replacement: src('features/evaluation/index.ts') },
   { find: '@/api/notifications', replacement: src('features/notifications/api.ts') },
   { find: '@/api/peraturan', replacement: src('features/regulations/api.ts') },
-  { find: '@/api/sop-client', replacement: src('features/sop/api/client.ts') },
-  { find: '@/api/sop-mutations', replacement: src('features/sop/api/mutations.ts') },
   { find: '@/api/sop-public', replacement: src('features/sop/api/public.ts') },
-  { find: '@/api/sop-queries', replacement: src('features/sop/api/queries.ts') },
-  { find: '@/api/sop', replacement: src('features/sop/index.ts') },
   { find: '@/api/tte', replacement: src('features/tte/api.ts') },
 
   { find: '@/components/sop/sop-diagram', replacement: src('features/sop/diagram') },
@@ -29,15 +25,12 @@ export const clientTopologyAliases = [
   { find: '@/components/tte', replacement: src('features/tte/ui') },
   { find: '@/components/ui', replacement: src('shared/ui') },
 
-  { find: '@/hooks/use-app-role', replacement: src('features/auth/hooks/use-app-role.ts') },
   { find: '@/hooks/use-debounced-value', replacement: src('shared/hooks/use-debounced-value.ts') },
   { find: '@/hooks/use-document-title', replacement: src('shared/hooks/use-document-title.ts') },
   { find: '@/hooks/use-in-app-notifications', replacement: src('features/notifications/hooks/use-in-app-notifications.ts') },
   { find: '@/hooks/use-mutation-with-toast', replacement: src('shared/hooks/use-mutation-with-toast.ts') },
   { find: '@/hooks/use-require-tte-setup', replacement: src('features/tte/hooks/use-require-tte-setup.ts') },
-  { find: '@/hooks/use-sop-preview-diagram-state', replacement: src('features/sop/hooks/use-sop-preview-diagram-state.ts') },
   { find: '@/hooks/use-toast', replacement: src('shared/hooks/use-toast.ts') },
-  { find: '@/hooks/useAppRole', replacement: src('features/auth/hooks/use-app-role.ts') },
   { find: '@/hooks/useMutationWithToast', replacement: src('shared/hooks/use-mutation-with-toast.ts') },
   { find: '@/hooks/useToast', replacement: src('shared/hooks/use-toast.ts') },
 

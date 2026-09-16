@@ -4,8 +4,8 @@ import { DocumentPreviewEmptyState } from '@/components/pengajuan/document-previ
 import {
   SOPPreviewTemplate,
   type SOPPreviewTemplateProps,
-} from '@/components/sop/sop-preview-template'
-import { useSopPreviewDiagramState } from '@/hooks/use-sop-preview-diagram-state'
+} from '@/features/sop/ui/sop-preview-template'
+import { useSopPreviewDiagramState } from '@/features/sop/hooks/use-sop-preview-diagram-state'
 import type { PenyusunWorkbenchDiagramKonfigurasi } from '@/types/dto/sop.dto'
 import type { TTESignaturePayload } from '@/types/dto/tte.dto'
 import { Button } from '@/components/ui/button'

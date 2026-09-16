@@ -5,12 +5,12 @@ import { SopStatusBadge } from '@/components/status/sop-status-badge'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { LoadingState } from '@/components/ui/loading-state'
 import { EmptyState } from '@/components/ui/empty-state'
-import { useHapusVersiDraft, useRiwayatVersi } from '@/api/sop'
+import { useHapusVersiDraft, useRiwayatVersi } from '@/features/sop'
 import { ROUTES } from '@/utils/constants'
 import type { SopRiwayatVersiRow, StatusSOP } from '@/types/dto/sop.dto'
 import { useState } from 'react'
 import { formatDateIdLong } from '@/utils/format-date'
-import { isTerminalVersionStatus } from '@/lib/sop/sop-version-domain'
+import { isTerminalVersionStatus } from '@/features/sop/model/sop-version-domain'
 
 export interface RiwayatVersiPanelProps {
   sopId: string

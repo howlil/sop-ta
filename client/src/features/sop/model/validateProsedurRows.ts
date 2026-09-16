@@ -1,5 +1,5 @@
 import type { ProsedurRow } from '@/types/ui/sop'
-import { resolveProsedurPelaksanaId } from '@/lib/sop/resolve-prosedur-implementer'
+import { resolveProsedurPelaksanaId } from './resolve-prosedur-implementer'
 
 export interface ProsedurRowsValidationResult {
   valid: boolean

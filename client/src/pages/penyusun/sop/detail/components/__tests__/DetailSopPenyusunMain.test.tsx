@@ -10,7 +10,7 @@ const diagramState = vi.hoisted(() => ({
   isEditingDiagramPaths: false,
 }))
 
-vi.mock('@/components/sop/sop-preview-template', () => ({
+vi.mock('@/features/sop/ui/sop-preview-template', () => ({
   SOPPreviewTemplate: ({
     previewOptions,
   }: {
@@ -34,7 +34,7 @@ vi.mock('@/pages/penyusun/sop/detail/SopEditorContext', () => ({
   }),
 }))
 
-vi.mock('@/api/sop', () => ({
+vi.mock('@/features/sop', () => ({
   usePenyusunWorkbench: () => ({
     data: { detail: { id: 'detail-1' } },
     isLoading: false,

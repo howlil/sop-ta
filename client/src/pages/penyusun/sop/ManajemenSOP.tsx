@@ -24,9 +24,9 @@ import {
   SopStatusCell,
   SopUpdatedByCell,
   SopVersionCell,
-} from "@/components/sop/sop-table-cells";
+} from "@/features/sop/ui/sop-table-cells";
 import { ROUTES } from "@/utils/constants";
-import { SOPStatusFilterSelect } from "@/components/sop/sop-status-filter-select";
+import { SOPStatusFilterSelect } from "@/features/sop/ui/sop-status-filter-select";
 import { SOP_STATUS_FILTER_OPTIONS } from "@/lib/status/sop-status.config";
 import { BuatSOPDialog } from "@/pages/penyusun/sop/components/BuatSOPDialog";
 import { BukaPengajuanEvaluasiDialog } from "@/pages/penyusun/sop/components/BukaPengajuanEvaluasiDialog";
@@ -34,15 +34,15 @@ import {
   canPjPenyusunRunCoordinatorActions,
   useDaftarSopData,
   useSopSuspense,
-} from "@/api/sop";
+} from "@/features/sop";
 import type { SopListQueryParams } from "@/types/dto/sop.dto";
 import { useDaftarSopFilters } from "@/pages/penyusun/sop/hooks/use-daftar-sop-filters";
-import { useAppRole } from "@/hooks/useAppRole";
+import { useAppRole } from "@/features/auth/hooks/use-app-role";
 import { useDocumentTitle } from "@/hooks/use-document-title";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { SopDaftarRow } from "@/types/dto/sop.dto";
-import { canHapusSopDraftAwal, useHapusSopDraftAwal } from "@/api/sop";
-import { hasSopWorkflowAction } from "@/lib/sop/sop-workflow";
+import { canHapusSopDraftAwal, useHapusSopDraftAwal } from "@/features/sop";
+import { hasSopWorkflowAction } from "@/features/sop/model/sop-workflow";
 
 const formatFilterDate = (value: string) =>
   new Intl.DateTimeFormat("id-ID", {
