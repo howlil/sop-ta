@@ -1,0 +1,104 @@
+name: One-shot client alias codemod
+
+on:
+  push:
+    branches:
+      - refactor/client-perimeter-alias-cleanup
+    paths:
+      - .github/workflows/alias-codemod.yml
+
+permissions:
+  contents: write
+
+jobs:
+  codemod:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rewrite compatibility aliases to canonical ownership
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          replacements = [
+              ('@/api/evaluasi', '@/features/evaluation'),
+              ('@/api/notifications', '@/features/notifications/api'),
+              ('@/api/peraturan', '@/features/regulations/api'),
+              ('@/api/sop-public', '@/features/sop/api/public'),
+              ('@/api/tte', '@/features/tte/api'),
+              ('@/components/sop/sop-diagram', '@/features/sop/diagram'),
+              ('@/components/data', '@/shared/data'),
+              ('@/components/evaluasi', '@/features/evaluation/ui'),
+              ('@/components/forms', '@/shared/forms/ui'),
+              ('@/components/layout', '@/app/layout'),
+              ('@/components/pengajuan', '@/features/submission/ui'),
+              ('@/components/person', '@/shared/person'),
+              ('@/components/sop', '@/features/sop/ui'),
+              ('@/components/status', '@/shared/status/ui'),
+              ('@/components/tte', '@/features/tte/ui'),
+              ('@/components/ui', '@/shared/ui'),
+              ('@/hooks/use-debounced-value', '@/shared/hooks/use-debounced-value'),
+              ('@/hooks/use-document-title', '@/shared/hooks/use-document-title'),
+              ('@/hooks/use-in-app-notifications', '@/features/notifications/hooks/use-in-app-notifications'),
+              ('@/hooks/use-mutation-with-toast', '@/shared/hooks/use-mutation-with-toast'),
+              ('@/hooks/use-require-tte-setup', '@/features/tte/hooks/use-require-tte-setup'),
+              ('@/hooks/use-toast', '@/shared/hooks/use-toast'),
+              ('@/hooks/useMutationWithToast', '@/shared/hooks/use-mutation-with-toast'),
+              ('@/hooks/useToast', '@/shared/hooks/use-toast'),
+              ('@/lib/api', '@/shared/api'),
+              ('@/lib/evaluasi/hooks', '@/features/evaluation/hooks'),
+              ('@/lib/evaluasi', '@/features/evaluation/model'),
+              ('@/lib/forms', '@/shared/forms/model'),
+              ('@/lib/hydration', '@/shared/hydration'),
+              ('@/lib/notifications', '@/features/notifications/model'),
+              ('@/lib/pengajuan', '@/features/submission/model'),
+              ('@/lib/print', '@/shared/print'),
+              ('@/lib/sop', '@/features/sop/model'),
+              ('@/lib/status', '@/shared/status/model'),
+              ('@/lib/tte', '@/features/tte/model'),
+              ('@/utils', '@/shared/lib'),
+              ('@/config', '@/app/config'),
+              ('@/stores', '@/app/stores'),
+          ]
+
+          changed = []
+          for path in Path('client/src').rglob('*'):
+              if path.suffix not in {'.ts', '.tsx'}:
+                  continue
+              original = path.read_text(encoding='utf-8')
+              updated = original
+              for old, new in replacements:
+                  updated = updated.replace(old, new)
+              if updated != original:
+                  path.write_text(updated, encoding='utf-8')
+                  changed.append(str(path))
+
+          print(f'Canonicalized {len(changed)} files')
+          for path in changed:
+              print(path)
+          PY
+
+          git diff --check
+
+          if grep -R -nE "@/(api|components|hooks|lib|utils|config|stores)/" client/src --include='*.ts' --include='*.tsx'; then
+            echo 'Legacy compatibility aliases remain after codemod.' >&2
+            exit 1
+          fi
+
+      - name: Commit canonical imports
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add client/src
+          if git diff --cached --quiet; then
+            echo 'No alias changes needed.'
+            exit 0
+          fi
+          git commit -m "refactor(client): canonicalize perimeter imports"
+          git push origin HEAD:${GITHUB_REF_NAME}
