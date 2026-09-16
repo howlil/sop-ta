@@ -1,0 +1,106 @@
+import { useMemo } from 'react'
+import {
+  SOPDiagramBpmn,
+  SOPDiagramFlowchart,
+  rowsToSteps,
+  toDiagramProsedurRows,
+} from '@/features/sop/diagram'
+import { SOP_DOCUMENT_CONTENT_WRAPPER_CLASS } from '@/features/sop/diagram/layout/sopDocumentLayout'
+import { buildDiagramStateForPreviewTab } from '@/features/sop/model/diagram-config.mapper'
+import type { SopDiagramExportInput } from './sop-diagram-export.util'
+
+export function SopDiagramExportHost({
+  input,
+  kinds = ['flowchart', 'bpmn'],
+}: {
+  input: SopDiagramExportInput
+  kinds?: Array<'flowchart' | 'bpmn'>
+}) {
+  const safeImplementers = useMemo(
+    () =>
+      (input.implementers ?? []).map((impl, index) => ({
+        id: impl?.id ?? `impl-${index + 1}`,
+        name: (impl?.name ?? impl?.id ?? `Pelaksana ${index + 1}`).toString(),
+      })),
+    [input.implementers],
+  )
+  const canonicalRows = input.prosedurRows ?? []
+  const diagramSteps = useMemo(
+    () => rowsToSteps(canonicalRows, safeImplementers),
+    [canonicalRows, safeImplementers],
+  )
+  const flowchartRows = useMemo(
+    () => toDiagramProsedurRows(canonicalRows),
+    [canonicalRows],
+  )
+  const flowchartState = useMemo(
+    () =>
+      buildDiagramStateForPreviewTab({
+        diagramKonfigurasi: input.diagramKonfigurasi,
+        prosedurRows: canonicalRows,
+        implementers: safeImplementers,
+        activeTab: 'flowchart',
+      }),
+    [input.diagramKonfigurasi, canonicalRows, safeImplementers],
+  )
+  const bpmnState = useMemo(
+    () =>
+      buildDiagramStateForPreviewTab({
+        diagramKonfigurasi: input.diagramKonfigurasi,
+        prosedurRows: canonicalRows,
+        implementers: safeImplementers,
+        activeTab: 'bpmn',
+      }),
+    [input.diagramKonfigurasi, canonicalRows, safeImplementers],
+  )
+  const flowchartProps = {
+    data: {
+      rows: flowchartRows,
+      steps: diagramSteps,
+      implementers: safeImplementers,
+    },
+    config: {
+      pathLayoutSeed: flowchartState.pathLayoutSeed,
+      arrowConfig: flowchartState.arrowConfig,
+      labelConfig: flowchartState.labelConfig,
+      editMode: false,
+      selectedConnectionId: null,
+    },
+    events: {
+      onManualChange: undefined,
+      onSelectConnection: () => {},
+    },
+  }
+  const bpmnProps = {
+    data: {
+      name: input.name,
+      steps: diagramSteps,
+      implementers: safeImplementers,
+    },
+    config: {
+      pathLayoutSeed: bpmnState.pathLayoutSeed,
+      arrowConfig: bpmnState.arrowConfig,
+      labelConfig: bpmnState.labelConfig,
+      editMode: false,
+      selectedConnectionId: null,
+    },
+    events: {
+      onManualChange: undefined,
+      onSelectConnection: () => {},
+    },
+  }
+  return (
+    <div data-sop-diagram-export-root className="bg-surface">
+      {kinds.includes('flowchart') && (
+        <div className={`sop-print-diagram-flowchart ${SOP_DOCUMENT_CONTENT_WRAPPER_CLASS}`}>
+          <SOPDiagramFlowchart {...flowchartProps} />
+        </div>
+      )}
+      {kinds.includes('bpmn') && (
+        <div className={`sop-print-diagram-bpmn ${SOP_DOCUMENT_CONTENT_WRAPPER_CLASS}`}>
+          <SOPDiagramBpmn {...bpmnProps} />
+        </div>
+      )}
+    </div>
+  )
+}
