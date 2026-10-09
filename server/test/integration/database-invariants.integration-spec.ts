@@ -1,6 +1,8 @@
 import { ConflictException, type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PrismaService } from '../../src/common/prisma/prisma.service';
+import { toWibDateOnly } from '../../src/common/date/wib-date.util';
+import { TteRepository } from '../../src/modules/tte/shared/repository/tte.repository';
 import {
   JenisDokumenTte,
   JenisPengajuanEvaluasi,
@@ -310,4 +312,111 @@ describeIntegration('Database migration invariants', () => {
       }),
     ).resolves.toBe(1);
   });
+  it('allows exactly one MariaDB finalization when two Kepala OPD signing attempts race', async () => {
+    const repository = app.get(TteRepository);
+    const opd = await prisma.oPD.create({ data: { nama: 'OPD Signing Race' } });
+    const kepala = await createTestUser(prisma, opd.opdId, '909', PeranPengguna.KEPALA_OPD);
+    const sop = await prisma.sOP.create({
+      data: { opdId: opd.opdId, judul: 'Concurrent Signing' },
+    });
+    const detail = await prisma.detailSOP.create({
+      data: {
+        sopId: sop.sopId,
+        status: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
+        versi: 1,
+        nomorSOP: 'DB-CONCURRENT-TTE-1',
+        namaLembaga: opd.nama,
+      },
+    });
+    const pengajuan = await prisma.pengajuanEvaluasi.create({
+      data: {
+        opdId: opd.opdId,
+        jenis: JenisPengajuanEvaluasi.EVALUASI_REQUEST_OPD,
+        status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
+      },
+    });
+    await prisma.nilaiEvaluasi.create({
+      data: {
+        pengajuanEvaluasiId: pengajuan.pengajuanEvaluasiId,
+        detailSopId: detail.detailSopId,
+      },
+    });
+    const dokumen = await prisma.dokumenTte.create({
+      data: {
+        detailSopId: detail.detailSopId,
+        nomorDokumen: 'DB-TTE-CONCURRENT-1',
+        judulDokumen: 'TTE concurrency document',
+        hashDokumen: 'a'.repeat(64),
+        jenisDokumen: JenisDokumenTte.SOP_BERLAKU,
+      },
+    });
+    const signedAt = new Date();
+    const common = {
+      pengajuanEvaluasiId: pengajuan.pengajuanEvaluasiId,
+      userId: kepala.penggunaId,
+      userOpdId: opd.opdId,
+      peran: PeranPengguna.KEPALA_OPD,
+      signedAt,
+      tanggalEfektif: toWibDateOnly(signedAt),
+    };
+    const signatureMetadata = {
+      signatureValue: 'test-signature',
+      signatureAlgorithm: 'SHA256withRSA',
+      signatureFormat: 'PKCS7_DETACHED',
+      certSerialNumber: '12',
+      certIssuer: 'Integration CA',
+      certSubject: 'Kepala OPD',
+      certFingerprint: 'b'.repeat(64),
+      certValidFrom: signedAt,
+      certValidTo: new Date(signedAt.getTime() + 86_400_000),
+    };
+    const finalize = (pdfPath: string) =>
+      repository.finalizeSopPengesahanWithArtifacts({
+        ...common,
+        artifacts: [{
+          detailSopId: detail.detailSopId,
+          dokumenTteId: dokumen.dokumenTteId,
+          pdfPath,
+          pdfSha256: 'c'.repeat(64),
+          pdfSizeBytes: 123,
+          signatureMetadata,
+        }],
+      });
+
+    // Two real Prisma interactive transactions compete on the same MariaDB row.
+    const attempts = await Promise.allSettled([
+      finalize('test/race-attempt-A.pdf'),
+      finalize('test/race-attempt-B.pdf'),
+    ]);
+    const accepted = attempts.filter(
+      (result) => result.status === 'fulfilled' && result.value.ok === true,
+    );
+    expect(accepted).toHaveLength(1);
+    const rejected = attempts.filter(
+      (result) => result.status === 'rejected' ||
+        (result.status === 'fulfilled' && result.value.ok !== true),
+    );
+    expect(rejected).toHaveLength(1);
+
+    const [persistedSubmission, persistedDetail, publishedDocument, signatures] =
+      await Promise.all([
+        prisma.pengajuanEvaluasi.findUniqueOrThrow({
+          where: { pengajuanEvaluasiId: pengajuan.pengajuanEvaluasiId },
+        }),
+        prisma.detailSOP.findUniqueOrThrow({ where: { detailSopId: detail.detailSopId } }),
+        prisma.dokumenTte.findUniqueOrThrow({ where: { dokumenTteId: dokumen.dokumenTteId } }),
+        prisma.riwayatTandaTangan.findMany({
+          where: { dokumenTteId: dokumen.dokumenTteId },
+        }),
+      ]);
+    expect(persistedSubmission.status).toBe(StatusPengajuanEvaluasi.SELESAI);
+    expect(persistedSubmission.version).toBe(1);
+    expect(persistedDetail.status).toBe(StatusSOP.BERLAKU);
+    expect(signatures).toHaveLength(1);
+    expect(publishedDocument.pdfStatus).toBe('PUBLISHED');
+    expect(['test/race-attempt-A.pdf', 'test/race-attempt-B.pdf']).toContain(
+      publishedDocument.pdfPath,
+    );
+  });
+
 });
