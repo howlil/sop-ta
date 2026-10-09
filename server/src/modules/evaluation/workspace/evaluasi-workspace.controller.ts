@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseUUIDPipe, Query, Req } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Post, Query, Req } from '@nestjs/common';
 import {
   ApiCookieAuth,
   ApiForbiddenResponse,
@@ -97,6 +97,19 @@ export class EvaluasiWorkspaceController {
       success: true,
       data,
     };
+  }
+
+  @Post('opd/:opdId/ensure-submission')
+  @Roles(PeranPengguna.EVALUATOR)
+  @ApiCookieAuth(ACCESS_TOKEN_COOKIE_NAME)
+  @ApiOperation({ summary: 'Buka evaluasi request OPD secara eksplisit (idempotent)' })
+  @ApiParam({ name: 'opdId', format: 'uuid' })
+  async ensureSubmissionForEvaluator(
+    @Req() req: Request & { user: JwtAccessPayload },
+    @Param('opdId', ParseUUIDPipe) opdId: string,
+  ): Promise<ApiSuccessResponse<null>> {
+    await this.evaluasiWorkspaceService.ensureSubmissionForEvaluator(req.user, opdId);
+    return { success: true, message: 'Pengajuan evaluasi siap', data: null };
   }
 
   @Get('pengajuan/:pengajuanEvaluasiId')

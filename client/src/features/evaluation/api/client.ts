@@ -113,6 +113,14 @@ export const evaluasiApi = {
       ),
     ),
 
+  ensureWorkspaceOpdSubmission: (opdId: string) =>
+    unwrapApiData(
+      apiClient.post<ApiSuccessResponse<null>>(
+        `/evaluasi/workspace/opd/${opdId}/ensure-submission`,
+        {},
+      ),
+    ),
+
   workspaceOpd: (opdId: string, params?: EvaluasiWorkspaceQueryParams) =>
     unwrapApiData(
       apiClient.get<ApiSuccessResponse<EvaluasiWorkspaceOpdResponse>>(

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import type { JwtAccessPayload } from '../../core/auth/helpers/auth.shared';
 import {
   displayHasilEvaluasi,
@@ -211,23 +211,11 @@ export class EvaluasiWorkspaceService {
     await this.pengajuanEvaluasiService.assertUserCanAccessPengajuan(user, opdId);
     const riwayatLimit = query.riwayatLimit ?? DEFAULT_RIWAYAT_LIMIT;
     const includeSiapDievaluasi = user.peran === PeranPengguna.PJ_PENYUSUN;
-    let [daftarRows, pengajuanAktifRepo, riwayatOpdRepo] = await Promise.all([
+    const [daftarRows, pengajuanAktifRepo, riwayatOpdRepo] = await Promise.all([
       this.evaluasiWorkspaceRepository.findDaftarDetailPipeline(opdId, { includeSiapDievaluasi }),
       this.evaluasiWorkspaceRepository.findPengajuanAktif(opdId),
       this.evaluasiWorkspaceRepository.findRiwayatOpdSelesai(opdId, riwayatLimit),
     ]);
-    if (
-      user.peran === PeranPengguna.EVALUATOR &&
-      pengajuanAktifRepo === null &&
-      daftarRows.length > 0
-    ) {
-      await this.pengajuanEvaluasiService.pastikanPengajuanRequestOpdUntukEvaluator(
-        user,
-        opdId,
-        daftarRows,
-      );
-      pengajuanAktifRepo = await this.evaluasiWorkspaceRepository.findPengajuanAktif(opdId);
-    }
     const detailIds = daftarRows.map((r) => r.detailSopId);
     const evaluatorMap =
       await this.evaluasiWorkspaceRepository.evaluatorTerakhirUntukDetailSop(detailIds);
@@ -283,6 +271,32 @@ export class EvaluasiWorkspaceService {
       preview,
       logNilaiSopTerpilih,
     };
+  }
+
+  /**
+   * Explicit command: bootstrap an evaluator-requested submission.
+   * GET workspace remains read-only even during query prefetch or retries.
+   */
+  async ensureSubmissionForEvaluator(user: JwtAccessPayload, opdId: string): Promise<void> {
+    if (user.peran !== PeranPengguna.EVALUATOR) {
+      throw new ForbiddenException('Hanya evaluator yang dapat membuka evaluasi request OPD');
+    }
+    const opd = await this.evaluasiWorkspaceRepository.findOpdRingkas(opdId);
+    if (opd === null) {
+      throw new NotFoundException('OPD tidak ditemukan');
+    }
+    await this.pengajuanEvaluasiService.assertUserCanAccessPengajuan(user, opdId);
+    if (await this.evaluasiWorkspaceRepository.findPengajuanAktif(opdId)) {
+      return;
+    }
+    const candidates = await this.evaluasiWorkspaceRepository.findDaftarDetailPipeline(opdId, {
+      includeSiapDievaluasi: true,
+    });
+    await this.pengajuanEvaluasiService.pastikanPengajuanRequestOpdUntukEvaluator(
+      user,
+      opdId,
+      candidates,
+    );
   }
 
   /**
