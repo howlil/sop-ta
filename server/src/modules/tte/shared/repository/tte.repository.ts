@@ -102,7 +102,7 @@ export type FinalizeSopPengesahanArtifactInput = {
 
 class BatchSigningTransactionAbort extends Error {
   constructor(
-    readonly failure: { readonly error: 'ALREADY_SIGNED' | 'INVALID_DOC_PARENT'; readonly detailSopId: string },
+    readonly failure: Extract<PreparedSopPengesahanResult, { readonly error: string }>,
   ) {
     super(failure.error);
   }
@@ -787,6 +787,23 @@ export class TteRepository {
         };
       }
 
+      // Lock/claim the submission before publishing any SOP or signature.
+      // The conditional update permits only one concurrent finalization.
+      const claim = await tx.pengajuanEvaluasi.updateMany({
+        where: {
+          pengajuanEvaluasiId: params.pengajuanEvaluasiId,
+          status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
+          version: pengajuan.version,
+        },
+        data: {
+          status: StatusPengajuanEvaluasi.SELESAI,
+          version: { increment: 1 },
+        },
+      });
+      if (claim.count !== 1) {
+        return { error: 'SOP_STATUS_DRIFT' as const, expectedCount: 1, updatedCount: 0 };
+      }
+
       for (const nilai of pengajuan.nilaiEvaluasi) {
         const detail = nilai.detailSop;
         const artifact = artifactByDetail.get(detail.detailSopId);
@@ -862,13 +879,6 @@ export class TteRepository {
           WHERE dokumenTteId = ${dokumen.dokumenTteId}
         `;
       }
-      await tx.pengajuanEvaluasi.update({
-        where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
-        data: {
-          status: StatusPengajuanEvaluasi.SELESAI,
-          version: { increment: 1 },
-        },
-      });
       return {
         ok: true as const,
         totalSopDitandatangani: pengajuan.nilaiEvaluasi.length,
@@ -994,17 +1004,17 @@ export class TteRepository {
       for (const nilai of pengajuan.nilaiEvaluasi) {
         const detail = nilai.detailSop;
         if (detail.sop.opdId !== params.userOpdId) {
-          return { error: 'FORBIDDEN_OPD' as const };
+          return abortBatchSigning({ error: 'FORBIDDEN_OPD' });
         }
         if (!allowedStatus.has(detail.status)) {
-          return {
-            error: 'BAD_SOP_STATUS' as const,
+          return abortBatchSigning({
+            error: 'BAD_SOP_STATUS',
             detailSopId: detail.detailSopId,
             nomorSOP: detail.nomorSOP,
             judulSOP: detail.sop.judul,
             status: detail.status,
             expectedStatus: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
-          };
+          });
         }
         let dokumen = await tx.dokumenTte.findUnique({
           where: { detailSopId: detail.detailSopId },

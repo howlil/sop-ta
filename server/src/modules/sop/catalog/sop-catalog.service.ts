@@ -156,6 +156,7 @@ export class SopCatalogService {
     const logsLimit = this.clampLogsLimit(logsLimitRaw);
     await this.sopCatalogRepository.updateDetailSopStatus({
       detailSopId: berlaku.detailSopId,
+      expectedStatus: StatusSOP.BERLAKU,
       status: StatusSOP.DICABUT,
       userId: user.sub,
     });
@@ -197,6 +198,7 @@ export class SopCatalogService {
     }
     await this.sopCatalogRepository.updateDetailSopStatus({
       detailSopId: ctx.detailSopId,
+      expectedStatus: ctx.status,
       status: dto.status,
       userId: user.sub,
     });

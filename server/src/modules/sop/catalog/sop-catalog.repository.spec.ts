@@ -36,7 +36,10 @@ function makeStatusTx(): {
       return { count: 0 };
     });
   const tx = {
-    detailSOP: { update: record('detailSOP', 'update') },
+    detailSOP: { update: record('detailSOP', 'update'), updateMany: jest.fn(async (args: unknown) => {
+      calls.push({ table: 'detailSOP', op: 'updateMany', args });
+      return { count: 1 };
+    }) },
     nilaiEvaluasi: {
       findFirst: record('nilaiEvaluasi', 'findFirst'),
       update: record('nilaiEvaluasi', 'update'),
@@ -84,10 +87,11 @@ describe('Pengujian logging status pada SopCatalogRepository', () => {
     const { repo, calls } = makeRepo();
     await repo.updateDetailSopStatus({
       detailSopId: 'det-1',
+      expectedStatus: StatusSOP.SEDANG_DISUSUN,
       status: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI,
       userId: 'u-1',
     });
-    expect(calls.some((c) => c.table === 'detailSOP' && c.op === 'update')).toBe(true);
+    expect(calls.some((c) => c.table === 'detailSOP' && c.op === 'updateMany')).toBe(true);
     const logCreate = calls.find((c) => c.table === 'logEditSOP' && c.op === 'create');
     expect(logCreate).toBeDefined();
     const data = (logCreate!.args as { data: { bagian: BagianSOP; discrete?: boolean } }).data;
