@@ -758,6 +758,9 @@ export class TteRepository {
       });
     } catch (error) {
       if (error instanceof BatchSigningTransactionAbort) {
+        if (error.failure.error === 'DOC_MISMATCH') {
+          throw error; // Not a possible preparation-domain failure.
+        }
         return error.failure;
       }
       throw error;
