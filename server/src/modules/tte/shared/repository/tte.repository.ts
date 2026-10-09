@@ -101,7 +101,8 @@ export type FinalizeSopPengesahanArtifactInput = {
 };
 
 class BatchSigningTransactionAbort extends Error {
-  constructor(readonly failure: Extract<PreparedSopPengesahanResult, { readonly error: string }>) {
+  constructor(readonly failure: | Extract<PreparedSopPengesahanResult, { readonly error: string }>
+    | { readonly ok?: false; readonly error: 'DOC_MISMATCH' }) {
     super(failure.error);
   }
 }
@@ -469,73 +470,80 @@ export class TteRepository {
     nomorDokumen: string;
     judulDokumen: string;
   }) {
-    return this.prisma.$transaction(async (tx) => {
-      const pengajuan = await tx.pengajuanEvaluasi.findUnique({
-        where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
-        include: { nilaiEvaluasi: { select: { detailSopId: true } } },
-      });
-      if (pengajuan === null) {
-        return { error: 'NOT_FOUND' as const };
-      }
-      if (pengajuan.status !== StatusPengajuanEvaluasi.SELESAI_DIEVALUASI) {
-        return { error: 'BAD_STATUS' as const, status: pengajuan.status };
-      }
-      let dokumen = await tx.dokumenTte.findUnique({
-        where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
-      });
-      if (dokumen === null) {
-        dokumen = await tx.dokumenTte.create({
-          data: {
-            nomorDokumen: params.nomorDokumen,
-            judulDokumen: params.judulDokumen,
-            hashDokumen: params.hashDokumen,
-            jenisDokumen: JenisDokumenTte.BERITA_ACARA_EVALUASI,
-            pengajuanEvaluasiId: params.pengajuanEvaluasiId,
-          },
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const pengajuan = await tx.pengajuanEvaluasi.findUnique({
+          where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
+          include: { nilaiEvaluasi: { select: { detailSopId: true } } },
         });
-      } else {
-        if (!this.isDokumenTteSingleParent(dokumen)) {
-          return { error: 'INVALID_DOC_PARENT' as const };
+        if (pengajuan === null) {
+          return { error: 'NOT_FOUND' as const };
         }
-        await tx.dokumenTte.update({
-          where: { dokumenTteId: dokumen.dokumenTteId },
+        if (pengajuan.status !== StatusPengajuanEvaluasi.SELESAI_DIEVALUASI) {
+          return { error: 'BAD_STATUS' as const, status: pengajuan.status };
+        }
+        let dokumen = await tx.dokumenTte.findUnique({
+          where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
+        });
+        if (dokumen === null) {
+          dokumen = await tx.dokumenTte.create({
+            data: {
+              nomorDokumen: params.nomorDokumen,
+              judulDokumen: params.judulDokumen,
+              hashDokumen: params.hashDokumen,
+              jenisDokumen: JenisDokumenTte.BERITA_ACARA_EVALUASI,
+              pengajuanEvaluasiId: params.pengajuanEvaluasiId,
+            },
+          });
+        } else {
+          if (!this.isDokumenTteSingleParent(dokumen)) {
+            return abortBatchSigning({ error: 'INVALID_DOC_PARENT' });
+          }
+          await tx.dokumenTte.update({
+            where: { dokumenTteId: dokumen.dokumenTteId },
+            data: {
+              nomorDokumen: params.nomorDokumen,
+              judulDokumen: params.judulDokumen,
+              hashDokumen: params.hashDokumen,
+            },
+          });
+        }
+        const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
+        if (dup !== null) {
+          return abortBatchSigning({ error: 'ALREADY_SIGNED' });
+        }
+        await tx.riwayatTandaTangan.create({
           data: {
-            nomorDokumen: params.nomorDokumen,
-            judulDokumen: params.judulDokumen,
-            hashDokumen: params.hashDokumen,
+            userId: params.userId,
+            dokumenTteId: dokumen.dokumenTteId,
+            peran: params.peran,
           },
         });
+        await tx.pengajuanEvaluasi.update({
+          where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
+          data: {
+            status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_EVALUATOR,
+            diverifikasiOlehUserId: params.userId,
+            version: { increment: 1 },
+          },
+        });
+        const riwayat = await tx.riwayatTandaTangan.findUnique({
+          where: {
+            userId_dokumenTteId: { userId: params.userId, dokumenTteId: dokumen.dokumenTteId },
+          },
+          include: {
+            dokumenTte: true,
+            user: { select: { penggunaId: true, nama: true, nip: true } },
+          },
+        });
+        return { ok: true as const, riwayat };
+      });
+    } catch (error) {
+      if (error instanceof BatchSigningTransactionAbort) {
+        return error.failure;
       }
-      const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
-      if (dup !== null) {
-        return { error: 'ALREADY_SIGNED' as const };
-      }
-      await tx.riwayatTandaTangan.create({
-        data: {
-          userId: params.userId,
-          dokumenTteId: dokumen.dokumenTteId,
-          peran: params.peran,
-        },
-      });
-      await tx.pengajuanEvaluasi.update({
-        where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
-        data: {
-          status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_EVALUATOR,
-          diverifikasiOlehUserId: params.userId,
-          version: { increment: 1 },
-        },
-      });
-      const riwayat = await tx.riwayatTandaTangan.findUnique({
-        where: {
-          userId_dokumenTteId: { userId: params.userId, dokumenTteId: dokumen.dokumenTteId },
-        },
-        include: {
-          dokumenTte: true,
-          user: { select: { penggunaId: true, nama: true, nip: true } },
-        },
-      });
-      return { ok: true as const, riwayat };
-    });
+      throw error;
+    }
   }
 
   /**
@@ -550,94 +558,101 @@ export class TteRepository {
     nomorDokumen: string;
     judulDokumen: string;
   }) {
-    return this.prisma.$transaction(async (tx) => {
-      const pengajuan = await tx.pengajuanEvaluasi.findUnique({
-        where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
-        include: { nilaiEvaluasi: { select: { detailSopId: true } } },
-      });
-      if (pengajuan === null) {
-        return { error: 'NOT_FOUND' as const };
-      }
-      if (pengajuan.opdId !== params.userOpdId) {
-        return { error: 'FORBIDDEN_OPD' as const };
-      }
-      if (pengajuan.status !== StatusPengajuanEvaluasi.DITANDATANGANI_PJ_EVALUATOR) {
-        return { error: 'BAD_STATUS' as const, status: pengajuan.status };
-      }
-      const dokumen =
-        (await tx.dokumenTte.findUnique({
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const pengajuan = await tx.pengajuanEvaluasi.findUnique({
           where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
-        })) ??
-        (await tx.dokumenTte.create({
+          include: { nilaiEvaluasi: { select: { detailSopId: true } } },
+        });
+        if (pengajuan === null) {
+          return { error: 'NOT_FOUND' as const };
+        }
+        if (pengajuan.opdId !== params.userOpdId) {
+          return { error: 'FORBIDDEN_OPD' as const };
+        }
+        if (pengajuan.status !== StatusPengajuanEvaluasi.DITANDATANGANI_PJ_EVALUATOR) {
+          return { error: 'BAD_STATUS' as const, status: pengajuan.status };
+        }
+        const dokumen =
+          (await tx.dokumenTte.findUnique({
+            where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
+          })) ??
+          (await tx.dokumenTte.create({
+            data: {
+              nomorDokumen: params.nomorDokumen,
+              judulDokumen: params.judulDokumen,
+              hashDokumen: params.hashDokumen,
+              jenisDokumen: JenisDokumenTte.BERITA_ACARA_EVALUASI,
+              pengajuanEvaluasiId: params.pengajuanEvaluasiId,
+            },
+          }));
+        if (!this.isDokumenTteSingleParent(dokumen)) {
+          return abortBatchSigning({ error: 'INVALID_DOC_PARENT' });
+        }
+        if (dokumen.pengajuanEvaluasiId !== params.pengajuanEvaluasiId) {
+          return abortBatchSigning({ error: 'DOC_MISMATCH' });
+        }
+        await tx.dokumenTte.update({
+          where: { dokumenTteId: dokumen.dokumenTteId },
           data: {
             nomorDokumen: params.nomorDokumen,
             judulDokumen: params.judulDokumen,
             hashDokumen: params.hashDokumen,
-            jenisDokumen: JenisDokumenTte.BERITA_ACARA_EVALUASI,
-            pengajuanEvaluasiId: params.pengajuanEvaluasiId,
           },
-        }));
-      if (!this.isDokumenTteSingleParent(dokumen)) {
-        return { error: 'INVALID_DOC_PARENT' as const };
+        });
+        const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
+        if (dup !== null) {
+          return abortBatchSigning({ error: 'ALREADY_SIGNED' });
+        }
+        const detailIds = pengajuan.nilaiEvaluasi.map((n) => n.detailSopId);
+        const promoted = await tx.detailSOP.updateMany({
+          where: {
+            detailSopId: { in: detailIds },
+            status: StatusSOP.MENUNGGU_TTD_PJ_EVALUATOR,
+          },
+          data: { status: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI },
+        });
+        if (promoted.count !== detailIds.length) {
+          return abortBatchSigning({
+            error: 'SOP_STATUS_DRIFT',
+            expectedCount: detailIds.length,
+            updatedCount: promoted.count,
+          });
+        }
+        await tx.riwayatTandaTangan.create({
+          data: {
+            userId: params.userId,
+            dokumenTteId: dokumen.dokumenTteId,
+            peran: params.peran,
+          },
+        });
+        const sekarang = new Date();
+        await tx.pengajuanEvaluasi.update({
+          where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
+          data: {
+            status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
+            ditandatanganiOlehPjPenyusunUserId: params.userId,
+            tanggalTTDBaPjPenyusun: sekarang,
+            version: { increment: 1 },
+          },
+        });
+        const riwayat = await tx.riwayatTandaTangan.findUnique({
+          where: {
+            userId_dokumenTteId: { userId: params.userId, dokumenTteId: dokumen.dokumenTteId },
+          },
+          include: {
+            dokumenTte: true,
+            user: { select: { penggunaId: true, nama: true, nip: true } },
+          },
+        });
+        return { ok: true as const, riwayat };
+      });
+    } catch (error) {
+      if (error instanceof BatchSigningTransactionAbort) {
+        return error.failure;
       }
-      if (dokumen.pengajuanEvaluasiId !== params.pengajuanEvaluasiId) {
-        return { error: 'DOC_MISMATCH' as const };
-      }
-      await tx.dokumenTte.update({
-        where: { dokumenTteId: dokumen.dokumenTteId },
-        data: {
-          nomorDokumen: params.nomorDokumen,
-          judulDokumen: params.judulDokumen,
-          hashDokumen: params.hashDokumen,
-        },
-      });
-      const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
-      if (dup !== null) {
-        return { error: 'ALREADY_SIGNED' as const };
-      }
-      const detailIds = pengajuan.nilaiEvaluasi.map((n) => n.detailSopId);
-      const promoted = await tx.detailSOP.updateMany({
-        where: {
-          detailSopId: { in: detailIds },
-          status: StatusSOP.MENUNGGU_TTD_PJ_EVALUATOR,
-        },
-        data: { status: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI },
-      });
-      if (promoted.count !== detailIds.length) {
-        return {
-          error: 'SOP_STATUS_DRIFT' as const,
-          expectedCount: detailIds.length,
-          updatedCount: promoted.count,
-        };
-      }
-      await tx.riwayatTandaTangan.create({
-        data: {
-          userId: params.userId,
-          dokumenTteId: dokumen.dokumenTteId,
-          peran: params.peran,
-        },
-      });
-      const sekarang = new Date();
-      await tx.pengajuanEvaluasi.update({
-        where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
-        data: {
-          status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
-          ditandatanganiOlehPjPenyusunUserId: params.userId,
-          tanggalTTDBaPjPenyusun: sekarang,
-          version: { increment: 1 },
-        },
-      });
-      const riwayat = await tx.riwayatTandaTangan.findUnique({
-        where: {
-          userId_dokumenTteId: { userId: params.userId, dokumenTteId: dokumen.dokumenTteId },
-        },
-        include: {
-          dokumenTte: true,
-          user: { select: { penggunaId: true, nama: true, nip: true } },
-        },
-      });
-      return { ok: true as const, riwayat };
-    });
+      throw error;
+    }
   }
 
   async prepareSopPengesahanDocuments(params: {
