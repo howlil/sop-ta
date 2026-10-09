@@ -101,9 +101,7 @@ export type FinalizeSopPengesahanArtifactInput = {
 };
 
 class BatchSigningTransactionAbort extends Error {
-  constructor(
-    readonly failure: Extract<PreparedSopPengesahanResult, { readonly error: string }>,
-  ) {
+  constructor(readonly failure: Extract<PreparedSopPengesahanResult, { readonly error: string }>) {
     super(failure.error);
   }
 }
@@ -654,88 +652,88 @@ export class TteRepository {
   }): Promise<PreparedSopPengesahanResult> {
     try {
       return await this.prisma.$transaction(async (tx) => {
-      const pengajuan = await tx.pengajuanEvaluasi.findUnique({
-        where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
-        include: {
-          nilaiEvaluasi: {
-            include: {
-              detailSop: {
-                include: {
-                  sop: { select: { opdId: true, judul: true } },
+        const pengajuan = await tx.pengajuanEvaluasi.findUnique({
+          where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
+          include: {
+            nilaiEvaluasi: {
+              include: {
+                detailSop: {
+                  include: {
+                    sop: { select: { opdId: true, judul: true } },
+                  },
                 },
               },
             },
           },
-        },
-      });
-      if (pengajuan === null) {
-        return { error: 'NOT_FOUND' as const };
-      }
-      const invalid = this.validateSopPengesahanPengajuan(pengajuan, params.userOpdId);
-      if (invalid !== null) {
-        return invalid;
-      }
-      const expectedDetailSopIds = new Set(params.expectedDetailSopIds);
-      if (
-        expectedDetailSopIds.size !== pengajuan.nilaiEvaluasi.length ||
-        pengajuan.nilaiEvaluasi.some(
-          (nilai) => !expectedDetailSopIds.has(nilai.detailSop.detailSopId),
-        )
-      ) {
-        return {
-          error: 'SOP_STATUS_DRIFT' as const,
-          expectedCount: pengajuan.nilaiEvaluasi.length,
-          updatedCount: expectedDetailSopIds.size,
-        };
-      }
-      const items: PreparedSopPengesahanItem[] = [];
-      for (const nilai of pengajuan.nilaiEvaluasi) {
-        const detail = nilai.detailSop;
-        let dokumen = await tx.dokumenTte.findUnique({
-          where: { detailSopId: detail.detailSopId },
         });
-        const judulDokumenPerSop = `${params.judulDokumen} - ${detail.sop.judul}`;
-        const nomorDokumenPerSop = `${params.nomorDokumen}-${detail.nomorSOP}`;
-        if (dokumen === null) {
-          dokumen = await tx.dokumenTte.create({
-            data: {
-              nomorDokumen: nomorDokumenPerSop,
-              judulDokumen: judulDokumenPerSop,
-              hashDokumen: params.hashDokumen,
-              jenisDokumen: JenisDokumenTte.SOP_BERLAKU,
-              detailSopId: detail.detailSopId,
-            },
+        if (pengajuan === null) {
+          return { error: 'NOT_FOUND' as const };
+        }
+        const invalid = this.validateSopPengesahanPengajuan(pengajuan, params.userOpdId);
+        if (invalid !== null) {
+          return invalid;
+        }
+        const expectedDetailSopIds = new Set(params.expectedDetailSopIds);
+        if (
+          expectedDetailSopIds.size !== pengajuan.nilaiEvaluasi.length ||
+          pengajuan.nilaiEvaluasi.some(
+            (nilai) => !expectedDetailSopIds.has(nilai.detailSop.detailSopId),
+          )
+        ) {
+          return {
+            error: 'SOP_STATUS_DRIFT' as const,
+            expectedCount: pengajuan.nilaiEvaluasi.length,
+            updatedCount: expectedDetailSopIds.size,
+          };
+        }
+        const items: PreparedSopPengesahanItem[] = [];
+        for (const nilai of pengajuan.nilaiEvaluasi) {
+          const detail = nilai.detailSop;
+          let dokumen = await tx.dokumenTte.findUnique({
+            where: { detailSopId: detail.detailSopId },
           });
-        } else {
-          if (!this.isDokumenTteSingleParent(dokumen)) {
-            return abortBatchSigning({ error: 'INVALID_DOC_PARENT', detailSopId: detail.detailSopId });
+          const judulDokumenPerSop = `${params.judulDokumen} - ${detail.sop.judul}`;
+          const nomorDokumenPerSop = `${params.nomorDokumen}-${detail.nomorSOP}`;
+          if (dokumen === null) {
+            dokumen = await tx.dokumenTte.create({
+              data: {
+                nomorDokumen: nomorDokumenPerSop,
+                judulDokumen: judulDokumenPerSop,
+                hashDokumen: params.hashDokumen,
+                jenisDokumen: JenisDokumenTte.SOP_BERLAKU,
+                detailSopId: detail.detailSopId,
+              },
+            });
+          } else {
+            if (!this.isDokumenTteSingleParent(dokumen)) {
+              return abortBatchSigning({ error: 'INVALID_DOC_PARENT', detailSopId: detail.detailSopId });
+            }
+            await tx.dokumenTte.update({
+              where: { dokumenTteId: dokumen.dokumenTteId },
+              data: {
+                nomorDokumen: nomorDokumenPerSop,
+                judulDokumen: judulDokumenPerSop,
+                hashDokumen: params.hashDokumen,
+              },
+            });
           }
-          await tx.dokumenTte.update({
-            where: { dokumenTteId: dokumen.dokumenTteId },
-            data: {
-              nomorDokumen: nomorDokumenPerSop,
-              judulDokumen: judulDokumenPerSop,
-              hashDokumen: params.hashDokumen,
-            },
+          const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
+          if (dup !== null) {
+            return abortBatchSigning({ error: 'ALREADY_SIGNED', detailSopId: detail.detailSopId });
+          }
+          items.push({
+            detailSopId: detail.detailSopId,
+            sopId: detail.sopId,
+            opdId: detail.sop.opdId,
+            judulSop: detail.sop.judul,
+            nomorSOP: detail.nomorSOP,
+            versi: detail.versi,
+            dokumenTteId: dokumen.dokumenTteId,
+            nomorDokumen: nomorDokumenPerSop,
+            judulDokumen: judulDokumenPerSop,
           });
         }
-        const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
-        if (dup !== null) {
-          return abortBatchSigning({ error: 'ALREADY_SIGNED', detailSopId: detail.detailSopId });
-        }
-        items.push({
-          detailSopId: detail.detailSopId,
-          sopId: detail.sopId,
-          opdId: detail.sop.opdId,
-          judulSop: detail.sop.judul,
-          nomorSOP: detail.nomorSOP,
-          versi: detail.versi,
-          dokumenTteId: dokumen.dokumenTteId,
-          nomorDokumen: nomorDokumenPerSop,
-          judulDokumen: judulDokumenPerSop,
-        });
-      }
-      return { ok: true as const, items };
+        return { ok: true as const, items };
       });
     } catch (error) {
       if (error instanceof BatchSigningTransactionAbort) {
@@ -757,132 +755,132 @@ export class TteRepository {
   }) {
     try {
       return await this.prisma.$transaction(async (tx) => {
-      const pengajuan = await tx.pengajuanEvaluasi.findUnique({
-        where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
-        include: {
-          nilaiEvaluasi: {
-            include: {
-              detailSop: {
-                include: {
-                  sop: { select: { opdId: true, judul: true } },
+        const pengajuan = await tx.pengajuanEvaluasi.findUnique({
+          where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
+          include: {
+            nilaiEvaluasi: {
+              include: {
+                detailSop: {
+                  include: {
+                    sop: { select: { opdId: true, judul: true } },
+                  },
                 },
               },
             },
           },
-        },
-      });
-      if (pengajuan === null) {
-        return { error: 'NOT_FOUND' as const };
-      }
-      const invalid = this.validateSopPengesahanPengajuan(pengajuan, params.userOpdId);
-      if (invalid !== null) {
-        return invalid;
-      }
-      const artifactByDetail = new Map(params.artifacts.map((item) => [item.detailSopId, item]));
-      if (artifactByDetail.size !== pengajuan.nilaiEvaluasi.length) {
-        return {
-          error: 'SOP_STATUS_DRIFT' as const,
-          expectedCount: pengajuan.nilaiEvaluasi.length,
-          updatedCount: artifactByDetail.size,
-        };
-      }
-
-      // Lock/claim the submission before publishing any SOP or signature.
-      // The conditional update permits only one concurrent finalization.
-      const claim = await tx.pengajuanEvaluasi.updateMany({
-        where: {
-          pengajuanEvaluasiId: params.pengajuanEvaluasiId,
-          status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
-          version: pengajuan.version,
-        },
-        data: {
-          status: StatusPengajuanEvaluasi.SELESAI,
-          version: { increment: 1 },
-        },
-      });
-      if (claim.count !== 1) {
-        return { error: 'SOP_STATUS_DRIFT' as const, expectedCount: 1, updatedCount: 0 };
-      }
-
-      for (const nilai of pengajuan.nilaiEvaluasi) {
-        const detail = nilai.detailSop;
-        const artifact = artifactByDetail.get(detail.detailSopId);
-        if (artifact === undefined) {
+        });
+        if (pengajuan === null) {
+          return { error: 'NOT_FOUND' as const };
+        }
+        const invalid = this.validateSopPengesahanPengajuan(pengajuan, params.userOpdId);
+        if (invalid !== null) {
+          return invalid;
+        }
+        const artifactByDetail = new Map(params.artifacts.map((item) => [item.detailSopId, item]));
+        if (artifactByDetail.size !== pengajuan.nilaiEvaluasi.length) {
           return {
             error: 'SOP_STATUS_DRIFT' as const,
             expectedCount: pengajuan.nilaiEvaluasi.length,
             updatedCount: artifactByDetail.size,
           };
         }
-        const dokumen = await tx.dokumenTte.findUnique({
-          where: { detailSopId: detail.detailSopId },
-        });
-        if (dokumen === null || dokumen.dokumenTteId !== artifact.dokumenTteId) {
-          return abortBatchSigning({ error: 'INVALID_DOC_PARENT', detailSopId: detail.detailSopId });
-        }
-        const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
-        if (dup !== null) {
-          return abortBatchSigning({ error: 'ALREADY_SIGNED', detailSopId: detail.detailSopId });
-        }
-        const replaced = await tx.detailSOP.findMany({
+
+        // Lock/claim the submission before publishing any SOP or signature.
+        // The conditional update permits only one concurrent finalization.
+        const claim = await tx.pengajuanEvaluasi.updateMany({
           where: {
+            pengajuanEvaluasiId: params.pengajuanEvaluasiId,
+            status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
+            version: pengajuan.version,
+          },
+          data: {
+            status: StatusPengajuanEvaluasi.SELESAI,
+            version: { increment: 1 },
+          },
+        });
+        if (claim.count !== 1) {
+          return { error: 'SOP_STATUS_DRIFT' as const, expectedCount: 1, updatedCount: 0 };
+        }
+
+        for (const nilai of pengajuan.nilaiEvaluasi) {
+          const detail = nilai.detailSop;
+          const artifact = artifactByDetail.get(detail.detailSopId);
+          if (artifact === undefined) {
+            return {
+              error: 'SOP_STATUS_DRIFT' as const,
+              expectedCount: pengajuan.nilaiEvaluasi.length,
+              updatedCount: artifactByDetail.size,
+            };
+          }
+          const dokumen = await tx.dokumenTte.findUnique({
+            where: { detailSopId: detail.detailSopId },
+          });
+          if (dokumen === null || dokumen.dokumenTteId !== artifact.dokumenTteId) {
+            return abortBatchSigning({ error: 'INVALID_DOC_PARENT', detailSopId: detail.detailSopId });
+          }
+          const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
+          if (dup !== null) {
+            return abortBatchSigning({ error: 'ALREADY_SIGNED', detailSopId: detail.detailSopId });
+          }
+          const replaced = await tx.detailSOP.findMany({
+            where: {
+              sopId: detail.sopId,
+              detailSopId: { not: detail.detailSopId },
+              status: StatusSOP.BERLAKU,
+            },
+            select: { detailSopId: true },
+          });
+          await this.gantikanVersiBerlakuLain(tx, {
             sopId: detail.sopId,
-            detailSopId: { not: detail.detailSopId },
-            status: StatusSOP.BERLAKU,
-          },
-          select: { detailSopId: true },
-        });
-        await this.gantikanVersiBerlakuLain(tx, {
-          sopId: detail.sopId,
-          detailSopId: detail.detailSopId,
-        });
-        await this.updatePdfStatusForDetailIds(
-          tx,
-          replaced.map((row) => row.detailSopId),
-          'SUPERSEDED',
-          params.signedAt,
-        );
-        await tx.riwayatTandaTangan.create({
-          data: {
-            userId: params.userId,
-            dokumenTteId: dokumen.dokumenTteId,
-            peran: params.peran,
-            ditandatanganiPada: params.signedAt,
-            signatureValue: artifact.signatureMetadata.signatureValue,
-            signatureAlgorithm: artifact.signatureMetadata.signatureAlgorithm,
-            signatureFormat: artifact.signatureMetadata.signatureFormat,
-            certSerialNumber: artifact.signatureMetadata.certSerialNumber,
-            certIssuer: artifact.signatureMetadata.certIssuer,
-            certSubject: artifact.signatureMetadata.certSubject,
-            certFingerprint: artifact.signatureMetadata.certFingerprint,
-            certValidFrom: artifact.signatureMetadata.certValidFrom,
-            certValidTo: artifact.signatureMetadata.certValidTo,
-          },
-        });
-        await tx.detailSOP.update({
-          where: { detailSopId: detail.detailSopId },
-          data: {
-            status: StatusSOP.BERLAKU,
-            terakhirDieditOlehId: params.userId,
-            tanggalEfektif: params.tanggalEfektif,
-          },
-        });
-        await tx.$executeRaw`
-          UPDATE DokumenTte
-          SET pdfPath = ${artifact.pdfPath},
-              pdfSha256 = ${artifact.pdfSha256},
-              pdfSizeBytes = ${artifact.pdfSizeBytes},
-              pdfGeneratedAt = ${params.signedAt},
-              pdfPublishedAt = ${params.signedAt},
-              pdfRevokedAt = NULL,
-              pdfStatus = ${'PUBLISHED'}
-          WHERE dokumenTteId = ${dokumen.dokumenTteId}
-        `;
-      }
-      return {
-        ok: true as const,
-        totalSopDitandatangani: pengajuan.nilaiEvaluasi.length,
-      };
+            detailSopId: detail.detailSopId,
+          });
+          await this.updatePdfStatusForDetailIds(
+            tx,
+            replaced.map((row) => row.detailSopId),
+            'SUPERSEDED',
+            params.signedAt,
+          );
+          await tx.riwayatTandaTangan.create({
+            data: {
+              userId: params.userId,
+              dokumenTteId: dokumen.dokumenTteId,
+              peran: params.peran,
+              ditandatanganiPada: params.signedAt,
+              signatureValue: artifact.signatureMetadata.signatureValue,
+              signatureAlgorithm: artifact.signatureMetadata.signatureAlgorithm,
+              signatureFormat: artifact.signatureMetadata.signatureFormat,
+              certSerialNumber: artifact.signatureMetadata.certSerialNumber,
+              certIssuer: artifact.signatureMetadata.certIssuer,
+              certSubject: artifact.signatureMetadata.certSubject,
+              certFingerprint: artifact.signatureMetadata.certFingerprint,
+              certValidFrom: artifact.signatureMetadata.certValidFrom,
+              certValidTo: artifact.signatureMetadata.certValidTo,
+            },
+          });
+          await tx.detailSOP.update({
+            where: { detailSopId: detail.detailSopId },
+            data: {
+              status: StatusSOP.BERLAKU,
+              terakhirDieditOlehId: params.userId,
+              tanggalEfektif: params.tanggalEfektif,
+            },
+          });
+          await tx.$executeRaw`
+            UPDATE DokumenTte
+            SET pdfPath = ${artifact.pdfPath},
+                pdfSha256 = ${artifact.pdfSha256},
+                pdfSizeBytes = ${artifact.pdfSizeBytes},
+                pdfGeneratedAt = ${params.signedAt},
+                pdfPublishedAt = ${params.signedAt},
+                pdfRevokedAt = NULL,
+                pdfStatus = ${'PUBLISHED'}
+            WHERE dokumenTteId = ${dokumen.dokumenTteId}
+          `;
+        }
+        return {
+          ok: true as const,
+          totalSopDitandatangani: pengajuan.nilaiEvaluasi.length,
+        };
       });
     } catch (error) {
       if (error instanceof BatchSigningTransactionAbort) {
@@ -969,117 +967,117 @@ export class TteRepository {
   }) {
     try {
       return await this.prisma.$transaction(async (tx) => {
-      const tanggalEfektif = toWibDateOnly(params.signedAt);
-      const pengajuan = await tx.pengajuanEvaluasi.findUnique({
-        where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
-        include: {
-          nilaiEvaluasi: {
-            include: {
-              detailSop: {
-                include: {
-                  sop: { select: { opdId: true, judul: true } },
+        const tanggalEfektif = toWibDateOnly(params.signedAt);
+        const pengajuan = await tx.pengajuanEvaluasi.findUnique({
+          where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
+          include: {
+            nilaiEvaluasi: {
+              include: {
+                detailSop: {
+                  include: {
+                    sop: { select: { opdId: true, judul: true } },
+                  },
                 },
               },
             },
           },
-        },
-      });
-      if (pengajuan === null) {
-        return { error: 'NOT_FOUND' as const };
-      }
-      if (pengajuan.opdId !== params.userOpdId) {
-        return { error: 'FORBIDDEN_OPD' as const };
-      }
-      if (pengajuan.status !== StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN) {
-        return {
-          error: 'BAD_PENGAJUAN_STATUS' as const,
-          status: pengajuan.status,
-          expectedStatus: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
-        };
-      }
-      if (pengajuan.nilaiEvaluasi.length === 0) {
-        return { error: 'EMPTY_SOP' as const };
-      }
-      const allowedStatus = new Set<StatusSOP>([StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI]);
-      for (const nilai of pengajuan.nilaiEvaluasi) {
-        const detail = nilai.detailSop;
-        if (detail.sop.opdId !== params.userOpdId) {
-          return abortBatchSigning({ error: 'FORBIDDEN_OPD' });
-        }
-        if (!allowedStatus.has(detail.status)) {
-          return abortBatchSigning({
-            error: 'BAD_SOP_STATUS',
-            detailSopId: detail.detailSopId,
-            nomorSOP: detail.nomorSOP,
-            judulSOP: detail.sop.judul,
-            status: detail.status,
-            expectedStatus: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
-          });
-        }
-        let dokumen = await tx.dokumenTte.findUnique({
-          where: { detailSopId: detail.detailSopId },
         });
-        const judulDokumenPerSop = `${params.judulDokumen} - ${detail.sop.judul}`;
-        const nomorDokumenPerSop = `${params.nomorDokumen}-${detail.nomorSOP}`;
-        if (dokumen === null) {
-          dokumen = await tx.dokumenTte.create({
-            data: {
-              nomorDokumen: nomorDokumenPerSop,
-              judulDokumen: judulDokumenPerSop,
-              hashDokumen: params.hashDokumen,
-              jenisDokumen: JenisDokumenTte.SOP_BERLAKU,
-              detailSopId: detail.detailSopId,
-            },
-          });
-        } else {
-          if (!this.isDokumenTteSingleParent(dokumen)) {
-            return abortBatchSigning({ error: 'INVALID_DOC_PARENT', detailSopId: detail.detailSopId });
+        if (pengajuan === null) {
+          return { error: 'NOT_FOUND' as const };
+        }
+        if (pengajuan.opdId !== params.userOpdId) {
+          return { error: 'FORBIDDEN_OPD' as const };
+        }
+        if (pengajuan.status !== StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN) {
+          return {
+            error: 'BAD_PENGAJUAN_STATUS' as const,
+            status: pengajuan.status,
+            expectedStatus: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
+          };
+        }
+        if (pengajuan.nilaiEvaluasi.length === 0) {
+          return { error: 'EMPTY_SOP' as const };
+        }
+        const allowedStatus = new Set<StatusSOP>([StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI]);
+        for (const nilai of pengajuan.nilaiEvaluasi) {
+          const detail = nilai.detailSop;
+          if (detail.sop.opdId !== params.userOpdId) {
+            return abortBatchSigning({ error: 'FORBIDDEN_OPD' });
           }
-          await tx.dokumenTte.update({
-            where: { dokumenTteId: dokumen.dokumenTteId },
+          if (!allowedStatus.has(detail.status)) {
+            return abortBatchSigning({
+              error: 'BAD_SOP_STATUS',
+              detailSopId: detail.detailSopId,
+              nomorSOP: detail.nomorSOP,
+              judulSOP: detail.sop.judul,
+              status: detail.status,
+              expectedStatus: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
+            });
+          }
+          let dokumen = await tx.dokumenTte.findUnique({
+            where: { detailSopId: detail.detailSopId },
+          });
+          const judulDokumenPerSop = `${params.judulDokumen} - ${detail.sop.judul}`;
+          const nomorDokumenPerSop = `${params.nomorDokumen}-${detail.nomorSOP}`;
+          if (dokumen === null) {
+            dokumen = await tx.dokumenTte.create({
+              data: {
+                nomorDokumen: nomorDokumenPerSop,
+                judulDokumen: judulDokumenPerSop,
+                hashDokumen: params.hashDokumen,
+                jenisDokumen: JenisDokumenTte.SOP_BERLAKU,
+                detailSopId: detail.detailSopId,
+              },
+            });
+          } else {
+            if (!this.isDokumenTteSingleParent(dokumen)) {
+              return abortBatchSigning({ error: 'INVALID_DOC_PARENT', detailSopId: detail.detailSopId });
+            }
+            await tx.dokumenTte.update({
+              where: { dokumenTteId: dokumen.dokumenTteId },
+              data: {
+                nomorDokumen: nomorDokumenPerSop,
+                judulDokumen: judulDokumenPerSop,
+                hashDokumen: params.hashDokumen,
+              },
+            });
+          }
+          const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
+          if (dup !== null) {
+            return abortBatchSigning({ error: 'ALREADY_SIGNED', detailSopId: detail.detailSopId });
+          }
+          await tx.riwayatTandaTangan.create({
             data: {
-              nomorDokumen: nomorDokumenPerSop,
-              judulDokumen: judulDokumenPerSop,
-              hashDokumen: params.hashDokumen,
+              userId: params.userId,
+              dokumenTteId: dokumen.dokumenTteId,
+              peran: params.peran,
+              ditandatanganiPada: params.signedAt,
+            },
+          });
+          await this.gantikanVersiBerlakuLain(tx, {
+            sopId: detail.sopId,
+            detailSopId: detail.detailSopId,
+          });
+          await tx.detailSOP.update({
+            where: { detailSopId: detail.detailSopId },
+            data: {
+              status: StatusSOP.BERLAKU,
+              terakhirDieditOlehId: params.userId,
+              tanggalEfektif,
             },
           });
         }
-        const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
-        if (dup !== null) {
-          return abortBatchSigning({ error: 'ALREADY_SIGNED', detailSopId: detail.detailSopId });
-        }
-        await tx.riwayatTandaTangan.create({
+        await tx.pengajuanEvaluasi.update({
+          where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
           data: {
-            userId: params.userId,
-            dokumenTteId: dokumen.dokumenTteId,
-            peran: params.peran,
-            ditandatanganiPada: params.signedAt,
+            status: StatusPengajuanEvaluasi.SELESAI,
+            version: { increment: 1 },
           },
         });
-        await this.gantikanVersiBerlakuLain(tx, {
-          sopId: detail.sopId,
-          detailSopId: detail.detailSopId,
-        });
-        await tx.detailSOP.update({
-          where: { detailSopId: detail.detailSopId },
-          data: {
-            status: StatusSOP.BERLAKU,
-            terakhirDieditOlehId: params.userId,
-            tanggalEfektif,
-          },
-        });
-      }
-      await tx.pengajuanEvaluasi.update({
-        where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
-        data: {
-          status: StatusPengajuanEvaluasi.SELESAI,
-          version: { increment: 1 },
-        },
-      });
-      return {
-        ok: true as const,
-        totalSopDitandatangani: pengajuan.nilaiEvaluasi.length,
-      };
+        return {
+          ok: true as const,
+          totalSopDitandatangani: pengajuan.nilaiEvaluasi.length,
+        };
       });
     } catch (error) {
       if (error instanceof BatchSigningTransactionAbort) {
