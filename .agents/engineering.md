@@ -79,3 +79,14 @@ For boundary changes, prioritize:
 Database + filesystem cannot be committed atomically. The current unique-attempt file + database-last protocol prevents accidental deletion of published artifacts, but a process crash can leave orphaned unreferenced files. Production requires scheduled reconciliation/cleanup of only unreferenced attempt files; do not delete a file referenced by published `DokumenTte.pdfPath`.
 
 Do not declare a new abstraction or refactor entire directories unless a concrete invariant or dependency demands it.
+
+## PDF attempt recovery
+
+- `SOP_PDF_RECONCILIATION_ENABLED` defaults to `true`.
+- `SOP_PDF_ORPHAN_MIN_AGE_HOURS` defaults to `24` (minimum 2 hours). The grace period must exceed the longest valid in-flight signing attempt.
+- `SOP_PDF_RECONCILIATION_INTERVAL_HOURS` defaults to `6`. The service runs on app bootstrap and then periodically.
+- The bounded sweeper scans at most 100 eligible files per pass under `SOP_PDF_STORAGE_DIR/{opdId}/{sopId}`. It accepts only UUID-named attempt PDFs and temporary writes, and never follows symlinks or purges legacy paths.
+- A file is deleted only when older than the grace period and no `DokumenTte.pdfPath` references it. Revoked and superseded documents are **not** exceptions: preserve every referenced path.
+- A database lookup error aborts the pass, preserving remaining files. Logs include counts without leaking PDF content.
+- The database and filesystem are not an atomic unit; long-running attempts that exceed the configured grace period should be prevented or the grace period increased. The algorithm is intentionally conservative, not a distributed lease/lock.
+- CI tests two concurrent TTE finalizations on real MariaDB in `database-invariants.integration-spec.ts` and exercises cleanup with a real temporary filesystem in `sop-pdf-reconciliation.service.spec.ts`.

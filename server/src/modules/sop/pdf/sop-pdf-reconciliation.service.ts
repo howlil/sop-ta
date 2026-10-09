@@ -21,8 +21,7 @@ export class SopPdfReconciliationService implements OnApplicationBootstrap, OnMo
   ) {
     this.enabled = config.get<boolean>('SOP_PDF_RECONCILIATION_ENABLED', true);
     this.minAgeMs = config.get<number>('SOP_PDF_ORPHAN_MIN_AGE_HOURS', 24) * 3_600_000;
-    this.intervalMs =
-      config.get<number>('SOP_PDF_RECONCILIATION_INTERVAL_HOURS', 6) * 3_600_000;
+    this.intervalMs = config.get<number>('SOP_PDF_RECONCILIATION_INTERVAL_HOURS', 6) * 3_600_000;
   }
 
   onApplicationBootstrap(): void {
@@ -43,8 +42,12 @@ export class SopPdfReconciliationService implements OnApplicationBootstrap, OnMo
       const result = await this.reconcile();
       if (result.scanned > 0) {
         this.logger.log(
-          'PDF orphan reconciliation scanned=' + result.scanned +
-            ' deleted=' + result.deleted + ' referenced=' + result.referenced,
+          [
+            'PDF orphan reconciliation',
+            'scanned=' + result.scanned,
+            'deleted=' + result.deleted,
+            'referenced=' + result.referenced,
+          ].join(' '),
         );
       }
     } catch (error) {

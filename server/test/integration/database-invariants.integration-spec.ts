@@ -373,14 +373,16 @@ describeIntegration('Database migration invariants', () => {
     const finalize = (pdfPath: string) =>
       repository.finalizeSopPengesahanWithArtifacts({
         ...common,
-        artifacts: [{
-          detailSopId: detail.detailSopId,
-          dokumenTteId: dokumen.dokumenTteId,
-          pdfPath,
-          pdfSha256: 'c'.repeat(64),
-          pdfSizeBytes: 123,
-          signatureMetadata,
-        }],
+        artifacts: [
+          {
+            detailSopId: detail.detailSopId,
+            dokumenTteId: dokumen.dokumenTteId,
+            pdfPath,
+            pdfSha256: 'c'.repeat(64),
+            pdfSizeBytes: 123,
+            signatureMetadata,
+          },
+        ],
       });
 
     // Two real Prisma interactive transactions compete on the same MariaDB row.
@@ -393,13 +395,14 @@ describeIntegration('Database migration invariants', () => {
     );
     expect(accepted).toHaveLength(1);
     const rejected = attempts.filter(
-      (result) => result.status === 'rejected' ||
+      (result) =>
+        result.status === 'rejected' ||
         (result.status === 'fulfilled' && result.value.ok !== true),
     );
     expect(rejected).toHaveLength(1);
 
-    const [persistedSubmission, persistedDetail, publishedDocument, signatures] =
-      await Promise.all([
+    const [persistedSubmission, persistedDetail, publishedDocument, signatures] = await Promise.all(
+      [
         prisma.pengajuanEvaluasi.findUniqueOrThrow({
           where: { pengajuanEvaluasiId: pengajuan.pengajuanEvaluasiId },
         }),
@@ -408,7 +411,8 @@ describeIntegration('Database migration invariants', () => {
         prisma.riwayatTandaTangan.findMany({
           where: { dokumenTteId: dokumen.dokumenTteId },
         }),
-      ]);
+      ],
+    );
     expect(persistedSubmission.status).toBe(StatusPengajuanEvaluasi.SELESAI);
     expect(persistedSubmission.version).toBe(1);
     expect(persistedDetail.status).toBe(StatusSOP.BERLAKU);
@@ -418,5 +422,4 @@ describeIntegration('Database migration invariants', () => {
       publishedDocument.pdfPath,
     );
   });
-
 });
