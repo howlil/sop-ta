@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useAppRole } from '@/features/auth/hooks/use-app-role'
 import { evaluasiApi } from '../../api/client'
 import { useTolakPengajuanEvaluasi } from '../../api/mutations'
 import {
@@ -54,6 +55,7 @@ export type EvaluasiWorkspaceControllerInput =
  */
 export function useEvaluasiWorkspaceController(props: EvaluasiWorkspaceControllerInput) {
   const navigate = useNavigate()
+  const { isEvaluator } = useAppRole()
   const preferredSopId = props.preferredSopId
   const listHref = props.listHref
 
@@ -85,7 +87,7 @@ export function useEvaluasiWorkspaceController(props: EvaluasiWorkspaceControlle
   // Once per workspace visit, send an explicit idempotent command instead of
   // causing mutations during GET, query retries, or prefetch.
   useEffect(() => {
-    if (props.mode !== 'opd' || !opdIdArg || bootstrapForOpdRef.current === opdIdArg) return
+    if (props.mode !== 'opd' || !isEvaluator || !opdIdArg || bootstrapForOpdRef.current === opdIdArg) return
     bootstrapForOpdRef.current = opdIdArg
     setBootstrapError(null)
     void evaluasiApi.ensureWorkspaceOpdSubmission(opdIdArg)
@@ -93,7 +95,7 @@ export function useEvaluasiWorkspaceController(props: EvaluasiWorkspaceControlle
       .catch((error: unknown) => {
         setBootstrapError(error instanceof Error ? error : new Error('Gagal membuka evaluasi OPD'))
       })
-  }, [props.mode, opdIdArg, wOpd.refetch])
+  }, [props.mode, isEvaluator, opdIdArg, wOpd.refetch])
 
   const workspace = props.mode === 'opd' ? wOpd.data : wPeng.data
   const isLoadingWorkspace = props.mode === 'opd' ? wOpd.isLoading : wPeng.isLoading
