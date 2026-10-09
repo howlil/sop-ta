@@ -395,8 +395,7 @@ describeIntegration('Database migration invariants', () => {
     );
     expect(accepted).toHaveLength(1);
     const rejected = attempts.filter(
-      (result) =>
-        result.status === 'rejected' ||
+      (result) => result.status === 'rejected' ||
         (result.status === 'fulfilled' && result.value.ok !== true),
     );
     expect(rejected).toHaveLength(1);
