@@ -1,12 +1,8 @@
 import { PeranPengguna, StatusPengajuanEvaluasi, StatusSOP } from '../../../../generated/prisma';
-import { toWibDateOnly } from '../../../../common/date/wib-date.util';
 import type { PrismaService } from '../../../../common/prisma/prisma.service';
 import { TteRepository } from './tte.repository';
 
 describe('Pengujian TteRepository', () => {
-  const signedAt = new Date('2026-05-19T14:30:00+07:00');
-  const expectedTanggalEfektif = toWibDateOnly(signedAt);
-
   function createRepository<T>(tx: T) {
     const prisma = {
       $transaction: jest.fn((callback: (transactionClient: T) => unknown) => callback(tx)),
@@ -14,148 +10,106 @@ describe('Pengujian TteRepository', () => {
     return new TteRepository(prisma as unknown as PrismaService);
   }
 
-  it('seharusnya menggunakan unique nomor dokumen per SOP ketika batch penandatanganan lebih dari satu SOP', async () => {
+
+  it('prepares per-SOP document numbers for multiple PDFs in the active signing path', async () => {
+    const details = [
+      { detailSopId: 'detail-1', sopId: 'sop-1', versi: 1, nomorSOP: 'SOP-001',
+        status: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
+        sop: { opdId: 'opd-1', judul: 'SOP A' } },
+      { detailSopId: 'detail-2', sopId: 'sop-2', versi: 1, nomorSOP: 'SOP-002',
+        status: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
+        sop: { opdId: 'opd-1', judul: 'SOP B' } },
+    ];
     const tx = {
       pengajuanEvaluasi: {
         findUnique: jest.fn().mockResolvedValue({
-          pengajuanEvaluasiId: 'pengajuan-1',
           opdId: 'opd-1',
           status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
-          nilaiEvaluasi: [
-            {
-              detailSop: {
-                detailSopId: 'detail-1',
-                sopId: 'sop-1',
-                nomorSOP: 'SOP-001',
-                status: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
-                sop: { opdId: 'opd-1', judul: 'SOP A' },
-              },
-            },
-            {
-              detailSop: {
-                detailSopId: 'detail-2',
-                sopId: 'sop-2',
-                nomorSOP: 'SOP-002',
-                status: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
-                sop: { opdId: 'opd-1', judul: 'SOP B' },
-              },
-            },
-          ],
+          nilaiEvaluasi: details.map((detailSop) => ({ detailSop })),
         }),
-        update: jest.fn().mockResolvedValue(undefined),
       },
       dokumenTte: {
         findUnique: jest.fn().mockResolvedValue(null),
         create: jest.fn().mockImplementation(({ data }: { data: { detailSopId: string } }) => ({
-          dokumenTteId: `dok-${data.detailSopId}`,
+          dokumenTteId: `doc-${data.detailSopId}`,
           detailSopId: data.detailSopId,
           pengajuanEvaluasiId: null,
         })),
-        update: jest.fn().mockResolvedValue(undefined),
       },
-      riwayatTandaTangan: {
-        create: jest.fn().mockResolvedValue(undefined),
-        findUnique: jest.fn().mockResolvedValue(null),
-      },
-      detailSOP: {
-        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
-        update: jest.fn().mockResolvedValue(undefined),
-      },
+      riwayatTandaTangan: { findUnique: jest.fn().mockResolvedValue(null) },
     };
     const repo = createRepository(tx);
-
-    await repo.transaksiTandaTanganiSemuaSopPengajuan({
+    const result = await repo.prepareSopPengesahanDocuments({
       pengajuanEvaluasiId: 'pengajuan-1',
       userId: 'kepala-1',
       userOpdId: 'opd-1',
       peran: PeranPengguna.KEPALA_OPD,
-      signedAt,
       hashDokumen: 'hash',
       nomorDokumen: 'DOC-BATCH',
       judulDokumen: 'Dokumen Batch',
+      expectedDetailSopIds: details.map((detail) => detail.detailSopId),
     });
-
-    expect(tx.detailSOP.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ tanggalEfektif: expectedTanggalEfektif }),
-      }),
-    );
-    expect(tx.dokumenTte.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ nomorDokumen: 'DOC-BATCH-SOP-001' }),
-      }),
-    );
-    expect(tx.dokumenTte.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ nomorDokumen: 'DOC-BATCH-SOP-002' }),
-      }),
-    );
+    expect(result).toMatchObject({
+      ok: true,
+      items: [
+        { nomorDokumen: 'DOC-BATCH-SOP-001' },
+        { nomorDokumen: 'DOC-BATCH-SOP-002' },
+      ],
+    });
+    expect(tx.dokumenTte.create).toHaveBeenCalledTimes(2);
   });
 
-  it('seharusnya sufiks nomor dokumen ketika batch penandatanganan tunggal SOP', async () => {
+  it('rejects empty submissions before preparing SOP signing documents', async () => {
     const tx = {
       pengajuanEvaluasi: {
         findUnique: jest.fn().mockResolvedValue({
-          pengajuanEvaluasiId: 'pengajuan-1',
           opdId: 'opd-1',
           status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
-          nilaiEvaluasi: [
-            {
-              detailSop: {
-                detailSopId: 'detail-1',
-                sopId: 'sop-1',
-                nomorSOP: 'SOP-DINKES-006-V1',
-                status: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
-                sop: { opdId: 'opd-1', judul: 'Manajemen Farmasi Puskesmas' },
-              },
-            },
-          ],
+          nilaiEvaluasi: [],
         }),
-        update: jest.fn().mockResolvedValue(undefined),
-      },
-      dokumenTte: {
-        findUnique: jest.fn().mockResolvedValue(null),
-        create: jest.fn().mockImplementation(({ data }: { data: { detailSopId: string } }) => ({
-          dokumenTteId: `dok-${data.detailSopId}`,
-          detailSopId: data.detailSopId,
-          pengajuanEvaluasiId: null,
-        })),
-        update: jest.fn().mockResolvedValue(undefined),
-      },
-      riwayatTandaTangan: {
-        create: jest.fn().mockResolvedValue(undefined),
-        findUnique: jest.fn().mockResolvedValue(null),
-      },
-      detailSOP: {
-        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
-        update: jest.fn().mockResolvedValue(undefined),
       },
     };
-    const repo = createRepository(tx);
-
-    await repo.transaksiTandaTanganiSemuaSopPengajuan({
-      pengajuanEvaluasiId: 'pengajuan-1',
-      userId: 'kepala-1',
+    const result = await createRepository(tx).prepareSopPengesahanDocuments({
+      pengajuanEvaluasiId: 'x',
+      userId: 'u',
       userOpdId: 'opd-1',
       peran: PeranPengguna.KEPALA_OPD,
-      signedAt,
-      hashDokumen: 'hash',
-      nomorDokumen: 'BA-DINKES-2026-002',
-      judulDokumen: 'Dokumen Batch',
+      hashDokumen: 'h',
+      nomorDokumen: 'n',
+      judulDokumen: 'j',
+      expectedDetailSopIds: [],
     });
+    expect(result).toEqual({ error: 'EMPTY_SOP' });
+  });
 
-    expect(tx.detailSOP.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ tanggalEfektif: expectedTanggalEfektif }),
-      }),
-    );
-    expect(tx.dokumenTte.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          nomorDokumen: 'BA-DINKES-2026-002-SOP-DINKES-006-V1',
+  it('rejects unverified SOPs before preparing signing documents', async () => {
+    const tx = {
+      pengajuanEvaluasi: {
+        findUnique: jest.fn().mockResolvedValue({
+          opdId: 'opd-1',
+          status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
+          nilaiEvaluasi: [{
+            detailSop: {
+              detailSopId: 'detail-1',
+              sop: { opdId: 'opd-1', judul: 'SOP' },
+              status: StatusSOP.MENUNGGU_TTD_PJ_EVALUATOR,
+              nomorSOP: 'SOP-001',
+            },
+          }],
         }),
-      }),
-    );
+      },
+    };
+    const result = await createRepository(tx).prepareSopPengesahanDocuments({
+      pengajuanEvaluasiId: 'x',
+      userId: 'u',
+      userOpdId: 'opd-1',
+      peran: PeranPengguna.KEPALA_OPD,
+      hashDokumen: 'h',
+      nomorDokumen: 'n',
+      judulDokumen: 'j',
+      expectedDetailSopIds: ['detail-1'],
+    });
+    expect(result).toMatchObject({ error: 'BAD_SOP_STATUS' });
   });
 
   // --- COMPREHENSIVE TESTS (FALSE, WORST, EDGE CASES) ---
@@ -374,57 +328,4 @@ describe('Pengujian TteRepository', () => {
     });
   });
 
-  describe('transaksiTandaTanganiSemuaSopPengajuan (Tambahan Kasus Kepala OPD)', () => {
-    it('seharusnya mengembalikan error EMPTY_SOP jika array nilaiEvaluasi kosong (Worst Case)', async () => {
-      const tx = {
-        pengajuanEvaluasi: {
-          findUnique: jest.fn().mockResolvedValue({
-            opdId: 'opd-1',
-            status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
-            nilaiEvaluasi: [],
-          }),
-        },
-      };
-      const repo = createRepository(tx);
-      const res = await repo.transaksiTandaTanganiSemuaSopPengajuan({
-        pengajuanEvaluasiId: 'x',
-        userId: 'u',
-        userOpdId: 'opd-1',
-        peran: PeranPengguna.KEPALA_OPD,
-        signedAt,
-        hashDokumen: 'h',
-        nomorDokumen: 'n',
-        judulDokumen: 'j',
-      });
-      expect(res).toEqual({ error: 'EMPTY_SOP' });
-    });
-
-    it('seharusnya mengembalikan error BAD_SOP_STATUS jika ada sop yang belum diverifikasi organisasi (False Case)', async () => {
-      const tx = {
-        pengajuanEvaluasi: {
-          findUnique: jest.fn().mockResolvedValue({
-            opdId: 'opd-1',
-            status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
-            nilaiEvaluasi: [
-              {
-                detailSop: { sop: { opdId: 'opd-1' }, status: StatusSOP.MENUNGGU_TTD_PJ_EVALUATOR },
-              },
-            ],
-          }),
-        },
-      };
-      const repo = createRepository(tx);
-      const res = await repo.transaksiTandaTanganiSemuaSopPengajuan({
-        pengajuanEvaluasiId: 'x',
-        userId: 'u',
-        userOpdId: 'opd-1',
-        peran: PeranPengguna.KEPALA_OPD,
-        signedAt,
-        hashDokumen: 'h',
-        nomorDokumen: 'n',
-        judulDokumen: 'j',
-      });
-      expect(res).toEqual(expect.objectContaining({ error: 'BAD_SOP_STATUS' }));
-    });
-  });
 });
