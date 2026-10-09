@@ -69,6 +69,10 @@ const envSchema = z
       z.string().min(1).default('/app/storage/sop-pdf'),
     ),
 
+    SOP_PDF_RECONCILIATION_ENABLED: envBoolean(true),
+    SOP_PDF_ORPHAN_MIN_AGE_HOURS: z.coerce.number().int().min(2).max(720).default(24),
+    SOP_PDF_RECONCILIATION_INTERVAL_HOURS: z.coerce.number().int().min(1).max(168).default(6),
+
     NOTIFICATION_IN_APP_ENABLED: envBoolean(true),
     NOTIFICATION_RECONCILE_INTERVAL_SECONDS: z.coerce.number().int().min(1).max(300).default(10),
 
