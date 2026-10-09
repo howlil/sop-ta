@@ -160,4 +160,56 @@ describe('TTE batch transaction atomicity', () => {
     expect(rolledBack).toBe(true);
     expect(committed).toBe(false);
   });
+  it('rejects mismatched artifact IDs before claiming the submission', async () => {
+    const tx = {
+      pengajuanEvaluasi: {
+        findUnique: jest.fn().mockResolvedValue(pengajuan),
+        updateMany: jest.fn(),
+      },
+    };
+    const prisma = {
+      $transaction: jest.fn((callback: (inner: typeof tx) => Promise<unknown>) => callback(tx)),
+    };
+    const repository = new TteRepository(prisma as unknown as PrismaService);
+    const signatureMetadata = {
+      signatureValue: 'signature',
+      signatureAlgorithm: 'SHA256withRSA',
+      signatureFormat: 'PKCS7_DETACHED',
+      certSerialNumber: '1',
+      certIssuer: 'issuer',
+      certSubject: 'subject',
+      certFingerprint: 'fingerprint',
+      certValidFrom: signedAt,
+      certValidTo: signedAt,
+    };
+    const result = await repository.finalizeSopPengesahanWithArtifacts({
+      pengajuanEvaluasiId: 'p-1',
+      userId: 'u-1',
+      userOpdId: 'opd-1',
+      peran: PeranPengguna.KEPALA_OPD,
+      signedAt,
+      tanggalEfektif: expectedTanggalEfektif,
+      artifacts: [
+        {
+          detailSopId: 'd-1',
+          dokumenTteId: 'doc-1',
+          pdfPath: 'first.pdf',
+          pdfSha256: 'hash-1',
+          pdfSizeBytes: 10,
+          signatureMetadata,
+        },
+        {
+          detailSopId: 'wrong-detail-id',
+          dokumenTteId: 'doc-2',
+          pdfPath: 'other.pdf',
+          pdfSha256: 'hash-2',
+          pdfSizeBytes: 20,
+          signatureMetadata,
+        },
+      ],
+    });
+    expect(result).toMatchObject({ error: 'SOP_STATUS_DRIFT' });
+    expect(tx.pengajuanEvaluasi.updateMany).not.toHaveBeenCalled();
+  });
+
 });
