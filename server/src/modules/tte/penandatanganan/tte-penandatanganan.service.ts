@@ -7,6 +7,7 @@ import {
   Optional,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 import type { JwtAccessPayload } from '../../../common';
 import { toWibDateOnly } from '../../../common/date/wib-date.util';
 import {
@@ -228,6 +229,7 @@ export class TtePenandatangananService {
           sopId: item.sopId,
           detailSopId: item.detailSopId,
           versi: item.versi,
+          attemptId: randomUUID(),
         });
         const qrStampedPdf = await this.sopOfficialPdfService.stampPengesahanMetadata({
           detailSopId: item.detailSopId,

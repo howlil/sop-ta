@@ -100,6 +100,19 @@ export type FinalizeSopPengesahanArtifactInput = {
   readonly signatureMetadata: PdfSignatureMetadataInput;
 };
 
+class BatchSigningTransactionAbort extends Error {
+  constructor(
+    readonly failure: { readonly error: 'ALREADY_SIGNED' | 'INVALID_DOC_PARENT'; readonly detailSopId: string },
+  ) {
+    super(failure.error);
+  }
+}
+
+/** Late validation failures must throw to rollback prior interactive transaction writes. */
+function abortBatchSigning(failure: BatchSigningTransactionAbort['failure']): never {
+  throw new BatchSigningTransactionAbort(failure);
+}
+
 @Injectable()
 export class TteRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -639,7 +652,8 @@ export class TteRepository {
     judulDokumen: string;
     expectedDetailSopIds: readonly string[];
   }): Promise<PreparedSopPengesahanResult> {
-    return this.prisma.$transaction(async (tx) => {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
       const pengajuan = await tx.pengajuanEvaluasi.findUnique({
         where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
         include: {
@@ -694,7 +708,7 @@ export class TteRepository {
           });
         } else {
           if (!this.isDokumenTteSingleParent(dokumen)) {
-            return { error: 'INVALID_DOC_PARENT' as const, detailSopId: detail.detailSopId };
+            return abortBatchSigning({ error: 'INVALID_DOC_PARENT', detailSopId: detail.detailSopId });
           }
           await tx.dokumenTte.update({
             where: { dokumenTteId: dokumen.dokumenTteId },
@@ -707,7 +721,7 @@ export class TteRepository {
         }
         const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
         if (dup !== null) {
-          return { error: 'ALREADY_SIGNED' as const, detailSopId: detail.detailSopId };
+          return abortBatchSigning({ error: 'ALREADY_SIGNED', detailSopId: detail.detailSopId });
         }
         items.push({
           detailSopId: detail.detailSopId,
@@ -722,7 +736,13 @@ export class TteRepository {
         });
       }
       return { ok: true as const, items };
-    });
+      });
+    } catch (error) {
+      if (error instanceof BatchSigningTransactionAbort) {
+        return error.failure;
+      }
+      throw error;
+    }
   }
 
   async finalizeSopPengesahanWithArtifacts(params: {
@@ -735,7 +755,8 @@ export class TteRepository {
     tanggalEfektif: Date;
     artifacts: FinalizeSopPengesahanArtifactInput[];
   }) {
-    return this.prisma.$transaction(async (tx) => {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
       const pengajuan = await tx.pengajuanEvaluasi.findUnique({
         where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
         include: {
@@ -780,11 +801,11 @@ export class TteRepository {
           where: { detailSopId: detail.detailSopId },
         });
         if (dokumen === null || dokumen.dokumenTteId !== artifact.dokumenTteId) {
-          return { error: 'INVALID_DOC_PARENT' as const, detailSopId: detail.detailSopId };
+          return abortBatchSigning({ error: 'INVALID_DOC_PARENT', detailSopId: detail.detailSopId });
         }
         const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
         if (dup !== null) {
-          return { error: 'ALREADY_SIGNED' as const, detailSopId: detail.detailSopId };
+          return abortBatchSigning({ error: 'ALREADY_SIGNED', detailSopId: detail.detailSopId });
         }
         const replaced = await tx.detailSOP.findMany({
           where: {
@@ -852,7 +873,13 @@ export class TteRepository {
         ok: true as const,
         totalSopDitandatangani: pengajuan.nilaiEvaluasi.length,
       };
-    });
+      });
+    } catch (error) {
+      if (error instanceof BatchSigningTransactionAbort) {
+        return error.failure;
+      }
+      throw error;
+    }
   }
 
   private validateSopPengesahanPengajuan(
@@ -930,7 +957,8 @@ export class TteRepository {
     nomorDokumen: string;
     judulDokumen: string;
   }) {
-    return this.prisma.$transaction(async (tx) => {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
       const tanggalEfektif = toWibDateOnly(params.signedAt);
       const pengajuan = await tx.pengajuanEvaluasi.findUnique({
         where: { pengajuanEvaluasiId: params.pengajuanEvaluasiId },
@@ -995,10 +1023,7 @@ export class TteRepository {
           });
         } else {
           if (!this.isDokumenTteSingleParent(dokumen)) {
-            return {
-              error: 'INVALID_DOC_PARENT' as const,
-              detailSopId: detail.detailSopId,
-            };
+            return abortBatchSigning({ error: 'INVALID_DOC_PARENT', detailSopId: detail.detailSopId });
           }
           await tx.dokumenTte.update({
             where: { dokumenTteId: dokumen.dokumenTteId },
@@ -1011,10 +1036,7 @@ export class TteRepository {
         }
         const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
         if (dup !== null) {
-          return {
-            error: 'ALREADY_SIGNED' as const,
-            detailSopId: detail.detailSopId,
-          };
+          return abortBatchSigning({ error: 'ALREADY_SIGNED', detailSopId: detail.detailSopId });
         }
         await tx.riwayatTandaTangan.create({
           data: {
@@ -1048,6 +1070,14 @@ export class TteRepository {
         ok: true as const,
         totalSopDitandatangani: pengajuan.nilaiEvaluasi.length,
       };
-    });
+      });
+    } catch (error) {
+      if (error instanceof BatchSigningTransactionAbort) {
+        return error.failure;
+      }
+      throw error;
+    }
   }
+
+
 }

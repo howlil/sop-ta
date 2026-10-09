@@ -26,11 +26,13 @@ export class SopPdfStorageService {
     sopId: string;
     detailSopId: string;
     versi: number;
+    /** Each signing attempt gets a distinct immutable artifact path. */
+    attemptId?: string;
   }): string {
     return [
       this.segment(params.opdId),
       this.segment(params.sopId),
-      `v${params.versi}-${this.segment(params.detailSopId)}.pdf`,
+      `v${params.versi}-${this.segment(params.detailSopId)}${params.attemptId ? `-${this.segment(params.attemptId)}` : ''}.pdf`,
     ].join('/');
   }
 
