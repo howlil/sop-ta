@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method -- Jest mock methods are asserted as values. */
 import { PeranPengguna, StatusPengajuanEvaluasi, StatusSOP } from '../../../../generated/prisma';
 import { toWibDateOnly } from '../../../../common/date/wib-date.util';
 import type { PrismaService } from '../../../../common/prisma/prisma.service';
@@ -30,14 +29,11 @@ describe('TTE batch transaction atomicity', () => {
     const tx = {
       pengajuanEvaluasi: { findUnique: jest.fn().mockResolvedValue(pengajuan) },
       dokumenTte: {
-        findUnique: jest
-          .fn()
-          .mockResolvedValueOnce(null)
-          .mockResolvedValueOnce({
-            dokumenTteId: 'bad',
-            detailSopId: 'd-2',
-            pengajuanEvaluasiId: 'p-other',
-          }),
+        findUnique: jest.fn().mockResolvedValueOnce(null).mockResolvedValueOnce({
+          dokumenTteId: 'bad',
+          detailSopId: 'd-2',
+          pengajuanEvaluasiId: 'p-other',
+        }),
         create: jest.fn().mockResolvedValue({
           dokumenTteId: 'doc-1',
           detailSopId: 'd-1',
@@ -153,10 +149,11 @@ describe('TTE batch transaction atomicity', () => {
     expect(result).toMatchObject({ error: 'INVALID_DOC_PARENT', detailSopId: 'd-2' });
     expect(tx.pengajuanEvaluasi.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({
+        where: {
+          pengajuanEvaluasiId: 'p-1',
           version: 7,
           status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
-        }),
+        },
       }),
     );
     expect(tx.riwayatTandaTangan.create.mock.calls).toHaveLength(1);
