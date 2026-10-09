@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method -- Jest mock methods are asserted as values. */
 import { PeranPengguna, StatusPengajuanEvaluasi, StatusSOP } from '../../../../generated/prisma';
 import { toWibDateOnly } from '../../../../common/date/wib-date.util';
 import type { PrismaService } from '../../../../common/prisma/prisma.service';
@@ -29,10 +30,19 @@ describe('TTE batch transaction atomicity', () => {
     const tx = {
       pengajuanEvaluasi: { findUnique: jest.fn().mockResolvedValue(pengajuan) },
       dokumenTte: {
-        findUnique: jest.fn()
+        findUnique: jest
+          .fn()
           .mockResolvedValueOnce(null)
-          .mockResolvedValueOnce({ dokumenTteId: 'bad', detailSopId: 'd-2', pengajuanEvaluasiId: 'p-other' }),
-        create: jest.fn().mockResolvedValue({ dokumenTteId: 'doc-1', detailSopId: 'd-1', pengajuanEvaluasiId: null }),
+          .mockResolvedValueOnce({
+            dokumenTteId: 'bad',
+            detailSopId: 'd-2',
+            pengajuanEvaluasiId: 'p-other',
+          }),
+        create: jest.fn().mockResolvedValue({
+          dokumenTteId: 'doc-1',
+          detailSopId: 'd-1',
+          pengajuanEvaluasiId: null,
+        }),
       },
       riwayatTandaTangan: { findUnique: jest.fn().mockResolvedValue(null) },
     };
@@ -50,9 +60,14 @@ describe('TTE batch transaction atomicity', () => {
     };
     const repository = new TteRepository(prisma as unknown as PrismaService);
     const result = await repository.prepareSopPengesahanDocuments({
-      pengajuanEvaluasiId: 'p-1', userId: 'u-1', userOpdId: 'opd-1',
-      peran: PeranPengguna.KEPALA_OPD, hashDokumen: 'hash',
-      nomorDokumen: 'DOC', judulDokumen: 'Document', expectedDetailSopIds: ['d-1', 'd-2'],
+      pengajuanEvaluasiId: 'p-1',
+      userId: 'u-1',
+      userOpdId: 'opd-1',
+      peran: PeranPengguna.KEPALA_OPD,
+      hashDokumen: 'hash',
+      nomorDokumen: 'DOC',
+      judulDokumen: 'Document',
+      expectedDetailSopIds: ['d-1', 'd-2'],
     });
     expect(result).toMatchObject({ error: 'INVALID_DOC_PARENT', detailSopId: 'd-2' });
     expect(tx.dokumenTte.create.mock.calls).toHaveLength(1);
@@ -69,7 +84,8 @@ describe('TTE batch transaction atomicity', () => {
         updateMany: jest.fn().mockResolvedValue({ count: 1 }),
       },
       dokumenTte: {
-        findUnique: jest.fn()
+        findUnique: jest
+          .fn()
           .mockResolvedValueOnce({ dokumenTteId: 'doc-1' })
           .mockResolvedValueOnce({ dokumenTteId: 'unexpected-doc' }),
       },
@@ -97,24 +113,52 @@ describe('TTE batch transaction atomicity', () => {
       }),
     };
     const metadata = {
-      signatureValue: 'signature', signatureAlgorithm: 'SHA256withRSA',
-      signatureFormat: 'PKCS7_DETACHED', certSerialNumber: '1',
-      certIssuer: 'issuer', certSubject: 'subject', certFingerprint: 'fingerprint',
-      certValidFrom: signedAt, certValidTo: signedAt,
+      signatureValue: 'signature',
+      signatureAlgorithm: 'SHA256withRSA',
+      signatureFormat: 'PKCS7_DETACHED',
+      certSerialNumber: '1',
+      certIssuer: 'issuer',
+      certSubject: 'subject',
+      certFingerprint: 'fingerprint',
+      certValidFrom: signedAt,
+      certValidTo: signedAt,
     };
     const repository = new TteRepository(prisma as unknown as PrismaService);
     const result = await repository.finalizeSopPengesahanWithArtifacts({
-      pengajuanEvaluasiId: 'p-1', userId: 'u-1', userOpdId: 'opd-1',
-      peran: PeranPengguna.KEPALA_OPD, signedAt, tanggalEfektif: expectedTanggalEfektif,
+      pengajuanEvaluasiId: 'p-1',
+      userId: 'u-1',
+      userOpdId: 'opd-1',
+      peran: PeranPengguna.KEPALA_OPD,
+      signedAt,
+      tanggalEfektif: expectedTanggalEfektif,
       artifacts: [
-        { detailSopId: 'd-1', dokumenTteId: 'doc-1', pdfPath: 'first.pdf', pdfSha256: 'hash-1', pdfSizeBytes: 10, signatureMetadata: metadata },
-        { detailSopId: 'd-2', dokumenTteId: 'doc-2', pdfPath: 'second.pdf', pdfSha256: 'hash-2', pdfSizeBytes: 20, signatureMetadata: metadata },
+        {
+          detailSopId: 'd-1',
+          dokumenTteId: 'doc-1',
+          pdfPath: 'first.pdf',
+          pdfSha256: 'hash-1',
+          pdfSizeBytes: 10,
+          signatureMetadata: metadata,
+        },
+        {
+          detailSopId: 'd-2',
+          dokumenTteId: 'doc-2',
+          pdfPath: 'second.pdf',
+          pdfSha256: 'hash-2',
+          pdfSizeBytes: 20,
+          signatureMetadata: metadata,
+        },
       ],
     });
     expect(result).toMatchObject({ error: 'INVALID_DOC_PARENT', detailSopId: 'd-2' });
-    expect(tx.pengajuanEvaluasi.updateMany.mock.calls[0]?.[0]).toMatchObject({
-      where: { version: 7, status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN },
-    });
+    expect(tx.pengajuanEvaluasi.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          version: 7,
+          status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
+        }),
+      }),
+    );
     expect(tx.riwayatTandaTangan.create.mock.calls).toHaveLength(1);
     expect(rolledBack).toBe(true);
     expect(committed).toBe(false);
