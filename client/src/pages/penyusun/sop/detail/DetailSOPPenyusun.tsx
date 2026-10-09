@@ -19,8 +19,10 @@ import {
   isTerminalVersionStatus,
 } from '@/features/sop/model/sop-version-domain'
 import type { SopRiwayatVersiRow } from '@/types/dto/sop.dto'
-import type { SopHeaderAutosaveStatus } from '@/pages/penyusun/sop/hooks/use-sop-header-autosave'
-import type { SopProsedurAutosaveStatus } from '@/pages/penyusun/sop/hooks/use-sop-prosedur-autosave'
+import type {
+  SopHeaderAutosaveStatus,
+  SopProsedurAutosaveStatus,
+} from '@/features/sop/application/editor'
 import { DetailSOPPenyusunHeader } from './components/DetailSopPenyusunHeader'
 import { DetailSOPPenyusunMain } from './components/DetailSopPenyusunMain'
 import { DetailSOPPenyusunSidePanel } from './components/DetailSopPenyusunSidePanel'

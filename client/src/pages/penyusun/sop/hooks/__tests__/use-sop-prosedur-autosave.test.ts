@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildSopProsedurSnapshot } from '@/pages/penyusun/sop/hooks/use-sop-prosedur-autosave'
+import { buildSopProsedurSnapshot } from '@/features/sop/application/editor'
 import type { ProsedurRow } from '@/types/ui/sop'
 
 describe('buildSopProsedurSnapshot', () => {
