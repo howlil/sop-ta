@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PenyusunWorkbenchDiagramKonfigurasiDto } from '../../modules/sop/diagram/dto/penyusun-workbench-diagram.dto';
-import { PenyusunWorkbenchDetailDto } from '../../modules/sop/catalog/dto/penyusun-workbench-detail.dto';
-import { PenyusunWorkbenchLangkahDto } from '../../modules/sop/catalog/dto/penyusun-workbench-langkah.dto';
-import { PenyusunWorkbenchLogEditDto } from '../../modules/sop/catalog/dto/penyusun-workbench-log-edit.dto';
-import { SopWorkflowProjectionDto } from '../../modules/sop/catalog/dto/sop-workflow.dto';
-import { BeritaAcaraTteSignaturePayloadDto } from './tte-signature-payload.dto';
+import { PenyusunWorkbenchDiagramKonfigurasiDto } from '../../diagram/dto/penyusun-workbench-diagram.dto';
+import { PenyusunWorkbenchDetailDto } from './penyusun-workbench-detail.dto';
+import { PenyusunWorkbenchLangkahDto } from './penyusun-workbench-langkah.dto';
+import { PenyusunWorkbenchLogEditDto } from './penyusun-workbench-log-edit.dto';
+import { SopWorkflowProjectionDto } from './sop-workflow.dto';
+import { BeritaAcaraTteSignaturePayloadDto } from '../../../../common/contracts/tte-signature-payload.dto';
 
 /**
  * Read-model lintas SOP/Evaluation untuk dokumen SOP lengkap.

@@ -1,1 +1,1 @@
-export { PenyusunWorkbenchDataDto } from '../../../../common/contracts/sop-workbench-read-model.dto';
+export { PenyusunWorkbenchDataDto } from './sop-workbench-read-model.dto';
