@@ -244,9 +244,13 @@ describe('Pengujian TteRepository', () => {
         judulDokumen: 'j',
       });
       expect(res).toEqual({ ok: true, riwayat: { berhasil: true } });
-      const updateCall: unknown = tx.pengajuanEvaluasi.update.mock.calls[0]?.[0];
-      expect(updateCall).toMatchObject({
-        data: { status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_EVALUATOR },
+      expect(tx.pengajuanEvaluasi.update).toHaveBeenCalledWith({
+        where: { pengajuanEvaluasiId: 'x' },
+        data: {
+          status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_EVALUATOR,
+          diverifikasiOlehUserId: 'u',
+          version: { increment: 1 },
+        },
       });
     });
   });
