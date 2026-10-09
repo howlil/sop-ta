@@ -101,8 +101,11 @@ export type FinalizeSopPengesahanArtifactInput = {
 };
 
 class BatchSigningTransactionAbort extends Error {
-  constructor(readonly failure: | Extract<PreparedSopPengesahanResult, { readonly error: string }>
-    | { readonly ok?: false; readonly error: 'DOC_MISMATCH' }) {
+  constructor(
+    readonly failure:
+      | Extract<PreparedSopPengesahanResult, { readonly error: string }>
+      | { readonly ok?: false; readonly error: 'DOC_MISMATCH' },
+  ) {
     super(failure.error);
   }
 }
