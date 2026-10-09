@@ -105,6 +105,29 @@ describe('Pengujian logging status pada SopCatalogRepository', () => {
     ).toEqual(expect.arrayContaining([{ domainField: 'status' }]));
   });
 
+  it('menolak stale status tanpa mencatat audit log', async () => {
+    const { tx, calls } = makeStatusTx();
+    const detail = tx.detailSOP as {
+      updateMany: jest.Mock;
+    };
+    detail.updateMany = jest.fn().mockResolvedValue({ count: 0 });
+    const prismaMock = {
+      $transaction: jest.fn((callback: (inner: typeof tx) => Promise<void>) => callback(tx)),
+    } as unknown as PrismaService;
+    const repo = new SopCatalogRepository(prismaMock);
+
+    await expect(
+      repo.updateDetailSopStatus({
+        detailSopId: 'det-stale',
+        expectedStatus: StatusSOP.DRAFT,
+        status: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI,
+        userId: 'u-1',
+      }),
+    ).rejects.toThrow('Status SOP sudah berubah');
+
+    expect(calls.some((call) => call.table === 'logEditSOP')).toBe(false);
+  });
+
   it('seharusnya menulis dua log status terpisah ketika revisi menjadi sedang dievaluasi', async () => {
     const { repo, calls } = makeRepo();
     await repo.transitionDetailSopRevisiToSedangDievaluasi({
