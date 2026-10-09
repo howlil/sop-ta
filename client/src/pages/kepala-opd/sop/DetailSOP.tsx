@@ -24,15 +24,13 @@ import { ROUTES } from "@/shared/lib/constants";
 export interface DetailSOPProps {
   /** Breadcrumb (default: Daftar SOP → Detail SOP). */
   breadcrumb?: { label: string; to?: string }[];
-  /** Back link (default: Daftar SOP). */
-  backTo?: string;
 }
 
 /**
  * Halaman detail SOP untuk Kepala OPD: pratinjau dan cabut versi BERLAKU.
  */
 export function DetailSOP(props: DetailSOPProps = {}) {
-  const { breadcrumb, backTo } = props;
+  const { breadcrumb } = props;
   const params = useParams({ strict: false });
   const id = "id" in params ? params.id : undefined;
 
@@ -87,7 +85,6 @@ export function DetailSOP(props: DetailSOPProps = {}) {
     { label: "SOP", to: ROUTES.KEPALA_OPD.SOP },
     { label: "Detail SOP" },
   ];
-  const effectiveBackTo = backTo ?? ROUTES.KEPALA_OPD.SOP;
 
   async function handleConfirmCabut() {
     if (id == null) return;
@@ -128,10 +125,6 @@ export function DetailSOP(props: DetailSOPProps = {}) {
       <DetailPageLayout
         breadcrumb={effectiveBreadcrumb}
         title="Detail Dokumen SOP"
-        description={sopName}
-        backTo={effectiveBackTo}
-        backSize="icon"
-        actions={null}
         header={workspaceHeaderToolbar}
         main={
           <div className="flex h-full min-h-0 flex-col gap-3 overflow-y-auto p-4">

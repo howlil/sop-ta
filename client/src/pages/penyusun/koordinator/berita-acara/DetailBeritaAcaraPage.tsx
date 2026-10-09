@@ -172,13 +172,6 @@ export function DetailBeritaAcaraPage() {
           { label: 'Berita Acara', to: ROUTES.PENYUSUN.PJ_PENYUSUN_BERITA_ACARA },
         ]}
         title="Detail Berita Acara"
-        description={
-          pengajuan.nomorBA
-            ? `${pengajuan.nomorBA} — tanda tangani Berita Acara dengan tanda tangan elektronik.`
-            : 'Tanda tangani Berita Acara dengan tanda tangan elektronik.'
-        }
-        backTo={ROUTES.PENYUSUN.PJ_PENYUSUN_BERITA_ACARA}
-        backSize="icon"
         header={
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-4 flex-wrap">

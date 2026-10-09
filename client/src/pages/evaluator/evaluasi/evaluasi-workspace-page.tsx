@@ -102,8 +102,6 @@ export function EvaluasiWorkspacePage(props: EvaluasiWorkspacePageProps) {
       <DetailPageLayout
         breadcrumb={[{ label: 'Evaluasi SOP', to: listHref }]}
         title="Evaluasi SOP"
-        description=""
-        backTo={listHref}
         main={
           <p className="p-4 text-sm text-secondary-foreground">Memuat data evaluasi…</p>
         }
@@ -116,8 +114,6 @@ export function EvaluasiWorkspacePage(props: EvaluasiWorkspacePageProps) {
       <DetailPageLayout
         breadcrumb={[{ label: 'Evaluasi SOP', to: listHref }]}
         title="Evaluasi SOP"
-        description=""
-        backTo={listHref}
         main={
           <p className="p-4 text-sm text-red-600">
             {workspaceError instanceof Error
@@ -134,8 +130,6 @@ export function EvaluasiWorkspacePage(props: EvaluasiWorkspacePageProps) {
       <DetailPageLayout
         breadcrumb={[{ label: 'Evaluasi SOP', to: listHref }]}
         title="Evaluasi SOP"
-        description=""
-        backTo={listHref}
         main={<p className="p-4 text-sm text-secondary-foreground">{notFoundMessage}</p>}
       />
     )
@@ -146,8 +140,6 @@ export function EvaluasiWorkspacePage(props: EvaluasiWorkspacePageProps) {
       <DetailPageLayout
         breadcrumb={[{ label: 'Evaluasi SOP', to: listHref }]}
         title="Evaluasi SOP"
-        description=""
-        backTo={listHref}
         main={
           <p className="p-4 text-sm text-secondary-foreground">Memuat data OPD…</p>
         }
@@ -163,15 +155,6 @@ export function EvaluasiWorkspacePage(props: EvaluasiWorkspacePageProps) {
           { label: opd.nama },
         ]}
         title={`Evaluasi SOP — ${opd.nama}`}
-        description={
-          pengajuanAktifEffektif?.status === 'DITOLAK'
-            ? 'Pengajuan ditolak final. Seluruh versi SOP di dalamnya tidak dapat diajukan ulang dan penyusun wajib membuat versi baru.'
-            : isPengajuanReadOnly
-              ? 'Mode baca — pengajuan evaluasi ini sudah selesai. Lihat hasil dan riwayat di panel kanan.'
-              : 'Pilih SOP di daftar kiri, isi form evaluasi di panel kanan.'
-        }
-        backTo={listHref}
-        backSize="icon"
         header={
           <>
             <div className="flex items-center justify-between gap-4">
