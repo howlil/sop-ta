@@ -201,7 +201,6 @@ export function GrafikEvaluasiTahunan() {
     <ListPageLayout
       breadcrumb={[{ label: 'Grafik Evaluasi Tahunan' }]}
       title="Grafik Evaluasi Tahunan"
-      description={`Analitik penilaian OPD per tahun (skor ${NILAI_OPD_SKOR_MAX} poin). Satu OPD dapat dievaluasi lebih dari sekali dalam setahun.`}
     >
       {isLoading ? (
         <LoadingState message="Memuat data evaluasi…" />

@@ -6,7 +6,6 @@ import {
   StatusPengajuanEvaluasi,
   StatusSOP,
 } from '../../../../generated/prisma';
-import { toWibDateOnly } from '../../../../common/date/wib-date.util';
 import { PrismaService } from '../../../../common/prisma/prisma.service';
 
 export type TtePenggunaRingkas = {
