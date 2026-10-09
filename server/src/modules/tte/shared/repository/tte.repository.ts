@@ -983,5 +983,4 @@ export class TteRepository {
         AND jenisDokumen = ${JenisDokumenTte.SOP_BERLAKU}
     `;
   }
-
 }

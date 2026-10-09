@@ -10,15 +10,24 @@ describe('Pengujian TteRepository', () => {
     return new TteRepository(prisma as unknown as PrismaService);
   }
 
-
   it('prepares per-SOP document numbers for multiple PDFs in the active signing path', async () => {
     const details = [
-      { detailSopId: 'detail-1', sopId: 'sop-1', versi: 1, nomorSOP: 'SOP-001',
+      {
+        detailSopId: 'detail-1',
+        sopId: 'sop-1',
+        versi: 1,
+        nomorSOP: 'SOP-001',
         status: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
-        sop: { opdId: 'opd-1', judul: 'SOP A' } },
-      { detailSopId: 'detail-2', sopId: 'sop-2', versi: 1, nomorSOP: 'SOP-002',
+        sop: { opdId: 'opd-1', judul: 'SOP A' },
+      },
+      {
+        detailSopId: 'detail-2',
+        sopId: 'sop-2',
+        versi: 1,
+        nomorSOP: 'SOP-002',
         status: StatusSOP.DIVERIFIKASI_PJ_EVALUATOR_ORGANISASI,
-        sop: { opdId: 'opd-1', judul: 'SOP B' } },
+        sop: { opdId: 'opd-1', judul: 'SOP B' },
+      },
     ];
     const tx = {
       pengajuanEvaluasi: {
@@ -51,10 +60,7 @@ describe('Pengujian TteRepository', () => {
     });
     expect(result).toMatchObject({
       ok: true,
-      items: [
-        { nomorDokumen: 'DOC-BATCH-SOP-001' },
-        { nomorDokumen: 'DOC-BATCH-SOP-002' },
-      ],
+      items: [{ nomorDokumen: 'DOC-BATCH-SOP-001' }, { nomorDokumen: 'DOC-BATCH-SOP-002' }],
     });
     expect(tx.dokumenTte.create).toHaveBeenCalledTimes(2);
   });
@@ -88,14 +94,16 @@ describe('Pengujian TteRepository', () => {
         findUnique: jest.fn().mockResolvedValue({
           opdId: 'opd-1',
           status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_PENYUSUN,
-          nilaiEvaluasi: [{
-            detailSop: {
-              detailSopId: 'detail-1',
-              sop: { opdId: 'opd-1', judul: 'SOP' },
-              status: StatusSOP.MENUNGGU_TTD_PJ_EVALUATOR,
-              nomorSOP: 'SOP-001',
+          nilaiEvaluasi: [
+            {
+              detailSop: {
+                detailSopId: 'detail-1',
+                sop: { opdId: 'opd-1', judul: 'SOP' },
+                status: StatusSOP.MENUNGGU_TTD_PJ_EVALUATOR,
+                nomorSOP: 'SOP-001',
+              },
             },
-          }],
+          ],
         }),
       },
     };
@@ -236,13 +244,10 @@ describe('Pengujian TteRepository', () => {
         judulDokumen: 'j',
       });
       expect(res).toEqual({ ok: true, riwayat: { berhasil: true } });
-      expect(tx.pengajuanEvaluasi.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_EVALUATOR,
-          }),
-        }),
-      );
+      const updateCall: unknown = tx.pengajuanEvaluasi.update.mock.calls[0]?.[0];
+      expect(updateCall).toMatchObject({
+        data: { status: StatusPengajuanEvaluasi.DITANDATANGANI_PJ_EVALUATOR },
+      });
     });
   });
 
@@ -327,5 +332,4 @@ describe('Pengujian TteRepository', () => {
       expect(res).toEqual({ error: 'SOP_STATUS_DRIFT', expectedCount: 2, updatedCount: 1 });
     });
   });
-
 });

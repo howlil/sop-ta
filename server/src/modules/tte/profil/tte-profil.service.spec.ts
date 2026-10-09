@@ -66,6 +66,7 @@ describe('Pengujian TteProfilService', () => {
       assertRiwayatBelumAda: jest.fn(),
       transaksiTandaTanganiBaEvaluator: jest.fn(),
       transaksiTandaTanganiBaPjPenyusun: jest.fn(),
+      transaksiTandaTanganiSemuaSopPengajuan: jest.fn(),
       ...partial,
     } as unknown as jest.Mocked<TteRepository>;
   }

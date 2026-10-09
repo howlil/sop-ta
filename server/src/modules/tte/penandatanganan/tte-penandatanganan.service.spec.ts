@@ -55,6 +55,7 @@ describe('Pengujian TtePenandatangananService', () => {
       findKredensial: jest.fn(),
       transaksiTandaTanganiBaEvaluator: jest.fn(),
       transaksiTandaTanganiBaPjPenyusun: jest.fn(),
+      transaksiTandaTanganiSemuaSopPengajuan: jest.fn(),
       prepareSopPengesahanDocuments: jest.fn(),
       finalizeSopPengesahanWithArtifacts: jest.fn(),
       ...partial,
