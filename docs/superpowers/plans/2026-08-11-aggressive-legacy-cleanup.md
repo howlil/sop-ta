@@ -1,5 +1,7 @@
 # Aggressive Legacy Cleanup Implementation Plan
 
+> **Historical implementation record — not the current development contract.** This document captures a past plan and may name code, flags, or UI props already removed. Follow `AGENTS.md`, `.agents/engineering.md`, and current production code/tests for current behavior.
+
 Date: 2026-08-11
 Branch: `cleanup/legacy-code-docs`
 Target: `main`
