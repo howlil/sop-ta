@@ -707,9 +707,9 @@ export class TteRepository {
           } else {
             if (!this.isDokumenTteSingleParent(dokumen)) {
               return abortBatchSigning({
-                  error: 'INVALID_DOC_PARENT',
-                  detailSopId: detail.detailSopId,
-                });
+                error: 'INVALID_DOC_PARENT',
+                detailSopId: detail.detailSopId,
+              });
             }
             await tx.dokumenTte.update({
               where: { dokumenTteId: dokumen.dokumenTteId },
@@ -820,9 +820,9 @@ export class TteRepository {
           });
           if (dokumen === null || dokumen.dokumenTteId !== artifact.dokumenTteId) {
             return abortBatchSigning({
-                  error: 'INVALID_DOC_PARENT',
-                  detailSopId: detail.detailSopId,
-                });
+              error: 'INVALID_DOC_PARENT',
+              detailSopId: detail.detailSopId,
+            });
           }
           const dup = await this.assertRiwayatBelumAda(tx, dokumen.dokumenTteId, params.peran);
           if (dup !== null) {
@@ -1038,9 +1038,9 @@ export class TteRepository {
           } else {
             if (!this.isDokumenTteSingleParent(dokumen)) {
               return abortBatchSigning({
-                  error: 'INVALID_DOC_PARENT',
-                  detailSopId: detail.detailSopId,
-                });
+                error: 'INVALID_DOC_PARENT',
+                detailSopId: detail.detailSopId,
+              });
             }
             await tx.dokumenTte.update({
               where: { dokumenTteId: dokumen.dokumenTteId },
@@ -1095,6 +1095,4 @@ export class TteRepository {
       throw error;
     }
   }
-
-
 }
