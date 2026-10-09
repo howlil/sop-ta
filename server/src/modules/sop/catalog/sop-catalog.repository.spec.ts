@@ -22,24 +22,27 @@ function makeStatusTx(): {
   const calls: CallLog[] = [];
   let activeNilai: unknown = null;
   const record = (table: string, op: string) =>
-    jest.fn(async (args: unknown) => {
+    jest.fn((args: unknown) => {
       calls.push({ table, op, args });
       if (table === 'logEditSOP' && op === 'findFirst') {
-        return null;
+        return Promise.resolve(null);
       }
       if (table === 'nilaiEvaluasi' && op === 'findFirst') {
-        return activeNilai;
+        return Promise.resolve(activeNilai);
       }
       if (table === 'pengajuanEvaluasi' && op === 'updateMany') {
-        return { count: 1 };
+        return Promise.resolve({ count: 1 });
       }
-      return { count: 0 };
+      return Promise.resolve({ count: 0 });
     });
   const tx = {
-    detailSOP: { update: record('detailSOP', 'update'), updateMany: jest.fn(async (args: unknown) => {
-      calls.push({ table: 'detailSOP', op: 'updateMany', args });
-      return { count: 1 };
-    }) },
+    detailSOP: {
+      update: record('detailSOP', 'update'),
+      updateMany: jest.fn((args: unknown) => {
+        calls.push({ table: 'detailSOP', op: 'updateMany', args });
+        return Promise.resolve({ count: 1 });
+      }),
+    },
     nilaiEvaluasi: {
       findFirst: record('nilaiEvaluasi', 'findFirst'),
       update: record('nilaiEvaluasi', 'update'),

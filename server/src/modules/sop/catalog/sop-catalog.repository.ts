@@ -556,7 +556,9 @@ export class SopCatalogRepository {
         },
       });
       if (updated.count !== 1) {
-        throw new ConflictException('Status SOP sudah berubah. Muat ulang sebelum mengubah status.');
+        throw new ConflictException(
+          'Status SOP sudah berubah. Muat ulang sebelum mengubah status.',
+        );
       }
       await appendOrCreateLogSession({
         tx,

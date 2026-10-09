@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method -- Jest spies are asserted as values, not invoked. */
 import { NotFoundException } from '@nestjs/common';
 import {
   JenisPengajuanEvaluasi,
@@ -140,9 +141,9 @@ describe('Pengujian EvaluasiWorkspaceService', () => {
     const repo = createRepoMock({
       findOpdRingkas: jest.fn().mockResolvedValue({ opdId: 'opd-1', nama: 'OPD Test' }),
       findPengajuanAktif: jest.fn().mockResolvedValue(null),
-      findDaftarDetailPipeline: jest.fn().mockResolvedValue([
-        pipelineRow({ statusDetail: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI }),
-      ]),
+      findDaftarDetailPipeline: jest
+        .fn()
+        .mockResolvedValue([pipelineRow({ statusDetail: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI })]),
     });
     const pastikan = createPastikanMock();
     const service = new EvaluasiWorkspaceService(
@@ -157,7 +158,9 @@ describe('Pengujian EvaluasiWorkspaceService', () => {
     expect(pastikan.pastikanPengajuanRequestOpdUntukEvaluator).toHaveBeenCalledWith(
       userEvaluator,
       'opd-1',
-      expect.arrayContaining([expect.objectContaining({ statusDetail: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI })]),
+      expect.arrayContaining([
+        expect.objectContaining({ statusDetail: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI }),
+      ]),
     );
   });
 
