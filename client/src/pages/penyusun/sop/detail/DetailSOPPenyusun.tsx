@@ -223,9 +223,6 @@ export function DetailSOPPenyusun() {
           { label: isReadOnly ? 'Lihat SOP' : 'Edit SOP' },
         ]}
         title={isReadOnly ? 'Lihat Dokumen SOP' : 'Edit Dokumen SOP'}
-        description={metadata.judul ?? ''}
-        backTo={ROUTES.PENYUSUN.SOP}
-        backSize="icon"
         header={
           <DetailSOPPenyusunHeader
             metadata={metadata}
@@ -265,7 +262,6 @@ export function DetailSOPPenyusun() {
             rightPanelTab={rightPanelTab}
             onTabChange={setRightPanelTab}
             auditEntries={auditLogs ?? []}
-            editTabLabel={isReadOnly ? 'Informasi' : 'Edit'}
             umpanBalik={umpanBalik ?? null}
             isUmpanBalikLoading={isUmpanBalikLoading}
             isReadOnly={isReadOnly}

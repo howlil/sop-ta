@@ -13,7 +13,6 @@ function KepalaOPDDetailSOPPage() {
         { label: 'SOP', to: ROUTES.KEPALA_OPD.SOP },
         { label: 'Detail SOP' },
       ]}
-      backTo={ROUTES.KEPALA_OPD.SOP}
     />
   )
 }

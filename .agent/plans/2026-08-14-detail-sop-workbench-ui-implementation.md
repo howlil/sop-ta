@@ -1,5 +1,7 @@
 # Detail SOP Workbench UI Redesign Implementation Plan
 
+> **Historical implementation record — not the current development contract.** This document captures a past plan and may name code, flags, or UI props already removed. Follow `AGENTS.md`, `.agents/engineering.md`, and current production code/tests for current behavior.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Remove redundant detail-page back controls and redesign the Penyusun/PJ Penyusun SOP workbench into a compact, intentional document editor while preserving the existing inline procedure-table workflow and all domain behavior.

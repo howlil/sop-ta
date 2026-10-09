@@ -19,8 +19,6 @@ export interface DetailSOPPenyusunSidePanelProps {
   rightPanelTab: 'edit' | 'komentar' | 'versi' | 'aktivitas'
   onTabChange: (tab: 'edit' | 'komentar' | 'versi' | 'aktivitas') => void
   auditEntries: PenyusunWorkbenchLogEdit[]
-  /** @deprecated Label metadata sekarang diturunkan dari mode read-only. */
-  editTabLabel?: string
   umpanBalik?: UmpanBalikEvaluasiDetail | null
   isUmpanBalikLoading?: boolean
   isReadOnly?: boolean

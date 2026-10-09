@@ -551,8 +551,6 @@ export function FlowchartArrowConnector({
           bottom: pathAllowedBounds.top + pathAllowedBounds.height,
         }
       : constraintRect
-    const corridorGraph = false // corridor graph no longer used; kept for type compat
-    void corridorGraph
 
     const dy = (toPos.top + toPos.height / 2) - (fromPos.top + fromPos.height / 2)
     const dx = (toPos.left + toPos.width / 2) - (fromPos.left + fromPos.width / 2)
@@ -1028,7 +1026,6 @@ export function FlowchartArrowConnector({
             flowchart: {
               globalBounds: guardCtx.globalBounds,
               globalBoundsMargin: guardCtx.boundsMargin,
-              corridorGraph: null,
             },
           },
         }

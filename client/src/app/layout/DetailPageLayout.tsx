@@ -63,14 +63,6 @@ function DetailWorkspace({
 export interface DetailPageLayoutProps {
   breadcrumb?: BreadcrumbItem[] | null
   title: string
-  /** @deprecated Deskripsi tidak lagi dirender di global shell. */
-  description?: string
-  /** @deprecated Navigasi balik detail sekarang hanya melalui breadcrumb. */
-  backTo?: string
-  /** @deprecated Navigasi balik detail sekarang hanya melalui breadcrumb. */
-  backSize?: 'default' | 'icon'
-  /** @deprecated Aksi detail harus hidup di workspace header/page-local command region. */
-  actions?: React.ReactNode
   header?: React.ReactNode
   main?: React.ReactNode
   children?: React.ReactNode

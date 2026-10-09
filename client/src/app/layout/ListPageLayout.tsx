@@ -6,8 +6,6 @@ export interface ListPageLayoutProps {
   breadcrumb?: BreadcrumbItem[] | null
   /** Judul semantik halaman. */
   title: string
-  /** @deprecated Deskripsi tidak lagi dirender di global shell. */
-  description?: string
   /** Konten collection/page lokal. */
   children: React.ReactNode
   className?: string

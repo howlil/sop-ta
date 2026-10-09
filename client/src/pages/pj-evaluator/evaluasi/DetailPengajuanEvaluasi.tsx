@@ -180,9 +180,6 @@ export function DetailPengajuanEvaluasi() {
           { label: pengajuan.opdNama ?? "" },
         ]}
         title={`${IA.REQUEST_EVALUATOR_EVALUASI_OPD} — ${pengajuan.opdNama}`}
-        description={`${IA.VERIFIKASI_BA_BIRO} pada dokumen ${IA.BERITA_ACARA}. Setelah ini: PJ Penyusun → ${IA.PENGESAHAN_SOP} oleh Kepala OPD.`}
-        backTo={ROUTES.PJ_EVALUATOR.EVALUASI}
-        backSize="icon"
         header={
           <div className="space-y-2.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
