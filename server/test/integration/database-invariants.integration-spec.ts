@@ -394,11 +394,7 @@ describeIntegration('Database migration invariants', () => {
       (result) => result.status === 'fulfilled' && result.value.ok === true,
     );
     expect(accepted).toHaveLength(1);
-    const rejected = attempts.filter(
-      (result) => result.status === 'rejected' ||
-        (result.status === 'fulfilled' && result.value.ok !== true),
-    );
-    expect(rejected).toHaveLength(1);
+    expect(attempts).toHaveLength(2);
 
     const [persistedSubmission, persistedDetail, publishedDocument, signatures] = await Promise.all(
       [
