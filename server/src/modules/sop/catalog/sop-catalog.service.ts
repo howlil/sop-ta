@@ -14,7 +14,7 @@ import {
   assertDetailSopEditable,
   hasRevisiInFlight,
   TERMINAL_DETAIL_STATUSES,
-} from '../../../common/status/sop-editable.util';
+} from '../shared/sop-editable.util';
 import { UserOpdAccessService } from '../../core/opd/user-opd-access.service';
 import type { CreateSopDto } from './dto/create-sop.dto';
 import type { PenyusunWorkbenchDataDto } from './dto/penyusun-workbench-data.dto';

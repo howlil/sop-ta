@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { TERMINAL_DETAIL_STATUSES } from '../../../common/status/sop-editable.util';
+import { TERMINAL_DETAIL_STATUSES } from '../shared/sop-editable.util';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import {
   BagianSOP,
