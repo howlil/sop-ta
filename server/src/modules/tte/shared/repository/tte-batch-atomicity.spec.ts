@@ -211,5 +211,4 @@ describe('TTE batch transaction atomicity', () => {
     expect(result).toMatchObject({ error: 'SOP_STATUS_DRIFT' });
     expect(tx.pengajuanEvaluasi.updateMany).not.toHaveBeenCalled();
   });
-
 });
