@@ -801,7 +801,10 @@ export class TteRepository {
           return invalid;
         }
         const artifactByDetail = new Map(params.artifacts.map((item) => [item.detailSopId, item]));
-        if (artifactByDetail.size !== pengajuan.nilaiEvaluasi.length) {
+        if (
+          artifactByDetail.size !== pengajuan.nilaiEvaluasi.length ||
+          pengajuan.nilaiEvaluasi.some((row) => !artifactByDetail.has(row.detailSop.detailSopId))
+        ) {
           return {
             error: 'SOP_STATUS_DRIFT' as const,
             expectedCount: pengajuan.nilaiEvaluasi.length,
@@ -830,11 +833,11 @@ export class TteRepository {
           const detail = nilai.detailSop;
           const artifact = artifactByDetail.get(detail.detailSopId);
           if (artifact === undefined) {
-            return {
-              error: 'SOP_STATUS_DRIFT' as const,
+            return abortBatchSigning({
+              error: 'SOP_STATUS_DRIFT',
               expectedCount: pengajuan.nilaiEvaluasi.length,
               updatedCount: artifactByDetail.size,
-            };
+            });
           }
           const dokumen = await tx.dokumenTte.findUnique({
             where: { detailSopId: detail.detailSopId },
