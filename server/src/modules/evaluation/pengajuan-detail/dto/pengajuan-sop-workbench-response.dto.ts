@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { PenyusunWorkbenchDataDto } from '../../../../common/contracts/sop-workbench-read-model.dto';
+import { PenyusunWorkbenchDataDto } from '../../../sop/catalog/dto/sop-workbench-read-model.dto';
 import { BeritaAcaraTteSignaturePayloadDto } from '../../../../common/contracts/tte-signature-payload.dto';
 
 /** Respons GET `/evaluasi/pengajuan/:pengajuanId/sop-dokumen/:detailSopId`. */

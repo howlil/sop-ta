@@ -22,21 +22,27 @@ function makeStatusTx(): {
   const calls: CallLog[] = [];
   let activeNilai: unknown = null;
   const record = (table: string, op: string) =>
-    jest.fn(async (args: unknown) => {
+    jest.fn((args: unknown) => {
       calls.push({ table, op, args });
       if (table === 'logEditSOP' && op === 'findFirst') {
-        return null;
+        return Promise.resolve(null);
       }
       if (table === 'nilaiEvaluasi' && op === 'findFirst') {
-        return activeNilai;
+        return Promise.resolve(activeNilai);
       }
       if (table === 'pengajuanEvaluasi' && op === 'updateMany') {
-        return { count: 1 };
+        return Promise.resolve({ count: 1 });
       }
-      return { count: 0 };
+      return Promise.resolve({ count: 0 });
     });
   const tx = {
-    detailSOP: { update: record('detailSOP', 'update') },
+    detailSOP: {
+      update: record('detailSOP', 'update'),
+      updateMany: jest.fn((args: unknown) => {
+        calls.push({ table: 'detailSOP', op: 'updateMany', args });
+        return Promise.resolve({ count: 1 });
+      }),
+    },
     nilaiEvaluasi: {
       findFirst: record('nilaiEvaluasi', 'findFirst'),
       update: record('nilaiEvaluasi', 'update'),
@@ -84,10 +90,11 @@ describe('Pengujian logging status pada SopCatalogRepository', () => {
     const { repo, calls } = makeRepo();
     await repo.updateDetailSopStatus({
       detailSopId: 'det-1',
+      expectedStatus: StatusSOP.SEDANG_DISUSUN,
       status: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI,
       userId: 'u-1',
     });
-    expect(calls.some((c) => c.table === 'detailSOP' && c.op === 'update')).toBe(true);
+    expect(calls.some((c) => c.table === 'detailSOP' && c.op === 'updateMany')).toBe(true);
     const logCreate = calls.find((c) => c.table === 'logEditSOP' && c.op === 'create');
     expect(logCreate).toBeDefined();
     const data = (logCreate!.args as { data: { bagian: BagianSOP; discrete?: boolean } }).data;
@@ -96,6 +103,29 @@ describe('Pengujian logging status pada SopCatalogRepository', () => {
       (logCreate!.args as { data: { domainFields: { create: Array<{ domainField: string }> } } })
         .data.domainFields.create,
     ).toEqual(expect.arrayContaining([{ domainField: 'status' }]));
+  });
+
+  it('menolak stale status tanpa mencatat audit log', async () => {
+    const { tx, calls } = makeStatusTx();
+    const detail = tx.detailSOP as {
+      updateMany: jest.Mock;
+    };
+    detail.updateMany = jest.fn().mockResolvedValue({ count: 0 });
+    const prismaMock = {
+      $transaction: jest.fn((callback: (inner: typeof tx) => Promise<void>) => callback(tx)),
+    } as unknown as PrismaService;
+    const repo = new SopCatalogRepository(prismaMock);
+
+    await expect(
+      repo.updateDetailSopStatus({
+        detailSopId: 'det-stale',
+        expectedStatus: StatusSOP.DRAFT,
+        status: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI,
+        userId: 'u-1',
+      }),
+    ).rejects.toThrow('Status SOP sudah berubah');
+
+    expect(calls.some((call) => call.table === 'logEditSOP')).toBe(false);
   });
 
   it('seharusnya menulis dua log status terpisah ketika revisi menjadi sedang dievaluasi', async () => {

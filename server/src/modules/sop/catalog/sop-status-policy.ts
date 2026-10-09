@@ -1,6 +1,6 @@
 import { ConflictException, ForbiddenException } from '@nestjs/common';
 import { displayStatusSop } from '../../../common/status/status-display';
-import { isDetailSopEditable } from '../../../common/status/sop-editable.util';
+import { isDetailSopEditable } from '../shared/sop-editable.util';
 import { PeranPengguna, StatusSOP } from '../../../generated/prisma';
 
 export type SopWorkflowAction =

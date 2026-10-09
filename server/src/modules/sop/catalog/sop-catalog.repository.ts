@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { TERMINAL_DETAIL_STATUSES } from '../../../common/status/sop-editable.util';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { TERMINAL_DETAIL_STATUSES } from '../shared/sop-editable.util';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import {
   BagianSOP,
@@ -542,18 +542,24 @@ export class SopCatalogRepository {
 
   async updateDetailSopStatus(params: {
     detailSopId: string;
+    expectedStatus: StatusSOP;
     status: StatusSOP;
     userId: string;
   }): Promise<void> {
-    const { detailSopId, status, userId } = params;
+    const { detailSopId, expectedStatus, status, userId } = params;
     await this.prisma.$transaction(async (tx) => {
-      await tx.detailSOP.update({
-        where: { detailSopId },
+      const updated = await tx.detailSOP.updateMany({
+        where: { detailSopId, status: expectedStatus },
         data: {
           status,
           terakhirDieditOlehId: userId,
         },
       });
+      if (updated.count !== 1) {
+        throw new ConflictException(
+          'Status SOP sudah berubah. Muat ulang sebelum mengubah status.',
+        );
+      }
       await appendOrCreateLogSession({
         tx,
         detailSopId,

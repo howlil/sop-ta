@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method -- Jest spies are asserted as values, not invoked. */
 import { NotFoundException } from '@nestjs/common';
 import {
   JenisPengajuanEvaluasi,
@@ -115,42 +116,52 @@ describe('Pengujian EvaluasiWorkspaceService', () => {
     ).rejects.toBeInstanceOf(NotFoundException);
   });
 
-  it('seharusnya memanggil bootstrap lalu memuat ulang pengajuan ketika pengguna evaluator dan data awal null', async () => {
+  it('GET evaluator hanya membaca workspace dan tidak melakukan bootstrap', async () => {
     const repo = createRepoMock({
       findOpdRingkas: jest.fn().mockResolvedValue({ opdId: 'opd-1', nama: 'OPD Test' }),
       findDaftarDetailPipeline: jest.fn().mockResolvedValue([pipelineRow()]),
-      findPengajuanAktif: jest
-        .fn()
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce({
-          pengajuanEvaluasiId: 'p-new',
-          status: StatusPengajuanEvaluasi.SEDANG_DIEVALUASI,
-          jenis: JenisPengajuanEvaluasi.EVALUASI_REQUEST_OPD,
-          nilaiEvaluasi: [nilaiEvaluasiRow()],
-        }),
+      findPengajuanAktif: jest.fn().mockResolvedValue(null),
       findRiwayatOpdSelesai: jest.fn().mockResolvedValue([]),
       findLogNilaiUntukDetailWorkspace: jest.fn().mockResolvedValue([]),
       evaluatorTerakhirUntukDetailSop: jest.fn().mockResolvedValue(new Map()),
     });
-    const sopCatalog = { getPenyusunWorkbench: jest.fn() } as unknown as SopCatalogService;
     const pastikan = createPastikanMock();
     const service = new EvaluasiWorkspaceService(
       repo,
-      sopCatalog,
+      { getPenyusunWorkbench: jest.fn() } as unknown as SopCatalogService,
       pastikan as unknown as PengajuanEvaluasiService,
     );
-    const actual = await service.getWorkspaceOpd(userEvaluator, 'opd-1', {});
+    const result = await service.getWorkspaceOpd(userEvaluator, 'opd-1', {});
+    expect(result.pengajuanAktif).toBeNull();
+    expect(repo.findPengajuanAktif).toHaveBeenCalledTimes(1);
+    expect(pastikan.pastikanPengajuanRequestOpdUntukEvaluator).not.toHaveBeenCalled();
+  });
+
+  it('POST bootstrap mencari SOP siap dan memanggil command satu kali', async () => {
+    const repo = createRepoMock({
+      findOpdRingkas: jest.fn().mockResolvedValue({ opdId: 'opd-1', nama: 'OPD Test' }),
+      findPengajuanAktif: jest.fn().mockResolvedValue(null),
+      findDaftarDetailPipeline: jest
+        .fn()
+        .mockResolvedValue([pipelineRow({ statusDetail: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI })]),
+    });
+    const pastikan = createPastikanMock();
+    const service = new EvaluasiWorkspaceService(
+      repo,
+      { getPenyusunWorkbench: jest.fn() } as unknown as SopCatalogService,
+      pastikan as unknown as PengajuanEvaluasiService,
+    );
+    await service.ensureSubmissionForEvaluator(userEvaluator, 'opd-1');
+    expect(repo.findDaftarDetailPipeline).toHaveBeenCalledWith('opd-1', {
+      includeSiapDievaluasi: true,
+    });
     expect(pastikan.pastikanPengajuanRequestOpdUntukEvaluator).toHaveBeenCalledWith(
       userEvaluator,
       'opd-1',
-      expect.arrayContaining([expect.objectContaining({ detailSopId: detailId })]),
+      expect.arrayContaining([
+        expect.objectContaining({ statusDetail: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI }),
+      ]),
     );
-    expect(repo.findPengajuanAktif).toHaveBeenCalledTimes(2);
-    expect(actual.pengajuanAktif?.id).toBe('p-new');
-    expect(actual.pengajuanAktif?.jenis).toBe('EVALUASI_REQUEST_OPD');
-    expect(actual.daftarSop).toHaveLength(1);
-    expect(actual.daftarSop[0]?.tampilanAlur).toBe('sedang_dievaluasi');
-    expect(sopCatalog.getPenyusunWorkbench).not.toHaveBeenCalled();
   });
 
   it('seharusnya tidak memanggil bootstrap ketika PJ evaluator', async () => {

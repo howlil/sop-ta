@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { assertDetailSopEditable } from '../../../common/status/sop-editable.util';
+import { assertDetailSopEditable } from '../shared/sop-editable.util';
 import type { JwtAccessPayload } from '../../../common';
 import { PeranPengguna, StatusSOP } from '../../../generated/prisma';
 import { UserOpdAccessService } from '../../core/opd/user-opd-access.service';

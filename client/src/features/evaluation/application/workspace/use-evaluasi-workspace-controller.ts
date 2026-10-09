@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useAppRole } from '@/features/auth/hooks/use-app-role'
+import { evaluasiApi } from '../../api/client'
 import { useTolakPengajuanEvaluasi } from '../../api/mutations'
 import {
   useEvaluasiWorkspaceOpd,
@@ -53,6 +55,7 @@ export type EvaluasiWorkspaceControllerInput =
  */
 export function useEvaluasiWorkspaceController(props: EvaluasiWorkspaceControllerInput) {
   const navigate = useNavigate()
+  const { isEvaluator } = useAppRole()
   const preferredSopId = props.preferredSopId
   const listHref = props.listHref
 
@@ -68,6 +71,8 @@ export function useEvaluasiWorkspaceController(props: EvaluasiWorkspaceControlle
     [selectedSopId],
   )
 
+  const bootstrapForOpdRef = useRef<string | null>(null)
+  const [bootstrapError, setBootstrapError] = useState<Error | null>(null)
   const opdIdArg = props.mode === 'opd' ? props.opdId : ''
   const pengajuanIdArg = props.mode === 'pengajuan' ? props.pengajuanEvaluasiId : ''
   const wOpd = useEvaluasiWorkspaceOpd(opdIdArg, {
@@ -79,10 +84,23 @@ export function useEvaluasiWorkspaceController(props: EvaluasiWorkspaceControlle
     enabled: props.mode === 'pengajuan',
   })
 
+  // Once per workspace visit, send an explicit idempotent command instead of
+  // causing mutations during GET, query retries, or prefetch.
+  useEffect(() => {
+    if (props.mode !== 'opd' || !isEvaluator || !opdIdArg || bootstrapForOpdRef.current === opdIdArg) return
+    bootstrapForOpdRef.current = opdIdArg
+    setBootstrapError(null)
+    void evaluasiApi.ensureWorkspaceOpdSubmission(opdIdArg)
+      .then(async () => { await wOpd.refetch() })
+      .catch((error: unknown) => {
+        setBootstrapError(error instanceof Error ? error : new Error('Gagal membuka evaluasi OPD'))
+      })
+  }, [props.mode, isEvaluator, opdIdArg, wOpd.refetch])
+
   const workspace = props.mode === 'opd' ? wOpd.data : wPeng.data
   const isLoadingWorkspace = props.mode === 'opd' ? wOpd.isLoading : wPeng.isLoading
   const isFetchingWorkspace = props.mode === 'opd' ? wOpd.isFetching : wPeng.isFetching
-  const workspaceError = props.mode === 'opd' ? wOpd.error : wPeng.error
+  const workspaceError = bootstrapError ?? (props.mode === 'opd' ? wOpd.error : wPeng.error)
 
   const opdIdUntukFallback = props.mode === 'opd' ? props.opdId : workspace?.opd.id
   const pengajuanFallbackState = usePengajuanEvaluasiAktif(

@@ -271,11 +271,12 @@ Source of truth:
 
 1. runtime code + current tests untuk actual behavior;
 2. user requirement untuk desired behavior;
-3. `AGENTS.md` untuk development protocol;
-4. `.agent/skills/*` untuk reusable reasoning/execution methods;
-5. `.agent/specs/` hanya untuk material design decisions yang perlu persistent decision record;
-6. `.agent/plans/` hanya jika sequencing kompleks benar-benar perlu disimpan;
-7. `docs/` untuk product/architecture/operational documentation.
+3. `.agents/engineering.md` untuk state ownership, dependency rules, transaksi, dan batas domain;
+4. `AGENTS.md` untuk development protocol;
+5. `.agent/skills/*` untuk reusable reasoning/execution methods;
+6. `.agent/specs/` hanya untuk material design decisions yang perlu persistent decision record;
+7. `.agent/plans/` hanya jika sequencing kompleks benar-benar perlu disimpan;
+8. `docs/` untuk product/architecture/operational documentation.
 
 Jangan mengikuti artifact lama secara buta jika implementation sudah maju.
 

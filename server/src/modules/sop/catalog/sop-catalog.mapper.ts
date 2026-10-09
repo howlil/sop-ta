@@ -1,8 +1,5 @@
 import { displayStatusSop } from '../../../common/status/status-display';
-import {
-  hasRevisiInFlight,
-  TERMINAL_DETAIL_STATUSES,
-} from '../../../common/status/sop-editable.util';
+import { hasRevisiInFlight, TERMINAL_DETAIL_STATUSES } from '../shared/sop-editable.util';
 import { buildNilaiEvaluasiClientId } from '../../../common/contracts/nilai-evaluasi-client-id';
 import type { BeritaAcaraTteSignaturePayloadDto } from '../../../common/contracts/tte-signature-payload.dto';
 import { PeranPengguna, StatusSOP } from '../../../generated/prisma';

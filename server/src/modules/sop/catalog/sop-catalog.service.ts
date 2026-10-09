@@ -14,7 +14,7 @@ import {
   assertDetailSopEditable,
   hasRevisiInFlight,
   TERMINAL_DETAIL_STATUSES,
-} from '../../../common/status/sop-editable.util';
+} from '../shared/sop-editable.util';
 import { UserOpdAccessService } from '../../core/opd/user-opd-access.service';
 import type { CreateSopDto } from './dto/create-sop.dto';
 import type { PenyusunWorkbenchDataDto } from './dto/penyusun-workbench-data.dto';
@@ -156,6 +156,7 @@ export class SopCatalogService {
     const logsLimit = this.clampLogsLimit(logsLimitRaw);
     await this.sopCatalogRepository.updateDetailSopStatus({
       detailSopId: berlaku.detailSopId,
+      expectedStatus: StatusSOP.BERLAKU,
       status: StatusSOP.DICABUT,
       userId: user.sub,
     });
@@ -197,6 +198,7 @@ export class SopCatalogService {
     }
     await this.sopCatalogRepository.updateDetailSopStatus({
       detailSopId: ctx.detailSopId,
+      expectedStatus: ctx.status,
       status: dto.status,
       userId: user.sub,
     });

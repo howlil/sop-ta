@@ -22,8 +22,10 @@ import type {
   SopEditorMasterPelaksana,
   SopEditorRelatedSopOption,
 } from '@/types/ui/sop'
-import type { SopHeaderAutosaveStatus } from '@/pages/penyusun/sop/hooks/use-sop-header-autosave'
-import type { SopProsedurAutosaveStatus } from '@/pages/penyusun/sop/hooks/use-sop-prosedur-autosave'
+import type {
+  SopHeaderAutosaveStatus,
+  SopProsedurAutosaveStatus,
+} from '@/features/sop/application/editor'
 
 export interface SopEditorContextValue {
   /** ID DetailSOP atau header SOP yang sedang diedit (bisa undefined sebelum siap). */

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment -- Jest asymmetric matchers are typed as any. */
 import {
   BadRequestException,
   ConflictException,
@@ -1070,6 +1071,7 @@ describe('Pengujian SopCatalogService', () => {
       const actual = await service.transitionDetailSopStatus(user, 'det-st', dto);
       expect(repoMock.updateDetailSopStatus).toHaveBeenCalledWith({
         detailSopId: 'det-st',
+        expectedStatus: StatusSOP.DRAFT,
         status: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI,
         userId: 'pengguna-1',
       });
@@ -1121,6 +1123,7 @@ describe('Pengujian SopCatalogService', () => {
       const actual = await service.transitionDetailSopStatus(pjUser, 'det-st', dto);
       expect(repoMock.updateDetailSopStatus).toHaveBeenCalledWith({
         detailSopId: 'det-st',
+        expectedStatus: StatusSOP.MENUNGGU_PENGAJUAN_EVALUASI,
         status: StatusSOP.DIAJUKAN_EVALUASI,
         userId: 'pengguna-1',
       });
@@ -1634,6 +1637,7 @@ describe('Pengujian SopCatalogService', () => {
       const actual = await service.cabutSopBerlaku(kepalaUser, 'sop-cabut');
       expect(repoMock.updateDetailSopStatus).toHaveBeenCalledWith({
         detailSopId: 'det-berlaku',
+        expectedStatus: StatusSOP.BERLAKU,
         status: StatusSOP.DICABUT,
         userId: 'kepala-1',
       });
@@ -1665,6 +1669,7 @@ describe('Pengujian SopCatalogService', () => {
       await service.cabutSopBerlaku(kepalaUser, 'sop-cabut');
       expect(repoMock.updateDetailSopStatus).toHaveBeenCalledWith({
         detailSopId: 'det-berlaku',
+        expectedStatus: StatusSOP.BERLAKU,
         status: StatusSOP.DICABUT,
         userId: 'kepala-1',
       });
@@ -1745,6 +1750,7 @@ describe('Pengujian SopCatalogService', () => {
       const actual = await service.transitionDetailSopStatus(kepalaUser, 'sop-cabut', dto);
       expect(repoMock.updateDetailSopStatus).toHaveBeenCalledWith({
         detailSopId: 'det-berlaku',
+        expectedStatus: StatusSOP.BERLAKU,
         status: StatusSOP.DICABUT,
         userId: 'kepala-1',
       });
